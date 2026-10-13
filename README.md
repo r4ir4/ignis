@@ -2,7 +2,7 @@
 
 Ignis targets iPhone, iPad and the web. The chosen platforms are SwiftUI for a shared iPhone/iPad app and React with TypeScript for the web app. The backend stack is FastAPI with Python, PostgreSQL, SQLAlchemy and Alembic.
 
-The live site at https://ignis.farm currently shows a holding page protected by Tinyauth. This folder contains the page and deployment configuration plus the structure for the future applications. The web app is initialized with React, TypeScript, Vite and Chakra UI and now shows a local editorial workspace prototype with sample tasks, notes and a calendar. The SwiftUI and backend runtime projects are not initialized. Git is intentionally deferred until the user requests it.
+The live site at https://ignis.farm currently shows a holding page protected by Tinyauth. This folder contains the page and deployment configuration plus the structure for the future applications. The web app is initialized with React, TypeScript, Vite and Chakra UI and now shows a local editorial workspace prototype with sample tasks, notes and a calendar. The SwiftUI and backend runtime projects are not initialized. Git was initialized locally on `main` through GitKraken's personal profile on October 13, 2026. No remote is configured yet.
 
 ## Structure
 
@@ -26,7 +26,7 @@ ignis/
   docs/                   # Architecture and project decisions
   AGENTS.md               # Working rules for this project
   README.md
-  .gitignore              # Prepared for future Git use; Git is not initialized
+  .gitignore              # Excludes credentials, dependencies and build output
 ```
 
 Each application owns its interface. The planned shared API owns persistent data and common business rules. The backend folder structure is prepared, but no runnable API or application database exists yet. See `services/api/README.md` for the folders and `docs/backend.md` for the accepted backend stack.

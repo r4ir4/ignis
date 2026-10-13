@@ -1,0 +1,11 @@
+auth.env
+.env
+.env.*
+!.env.example
+.auth-backups/
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+dist/
+*.tsbuildinfo
