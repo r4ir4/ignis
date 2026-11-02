@@ -26,6 +26,31 @@ class WatchTests(unittest.TestCase):
         for video in [dict(self.video(), title='  '), dict(self.video(), videoId='../bad')]:
             self.assertEqual(self.client.put('/api/watch', json={'revision': 0, 'videos': [video]}).status_code, 422)
         self.assertEqual(self.client.put('/api/watch', json={'revision': 0, 'videos': [self.video(), self.video()]}).status_code, 422)
+    def test_short_platforms_and_ids(self):
+        tiktok = {'id': str(uuid4()), 'videoId': '6718335390845095173', 'title': 'Dog', 'platform': 'tiktok', 'short': True, 'sourceUrl': 'https://www.tiktok.com/@scout2015/video/6718335390845095173'}
+        reel = {'id': str(uuid4()), 'videoId': 'C8aBcDeFgHi', 'title': 'Reel', 'platform': 'instagram', 'short': True}
+        same_id_other_platform = dict(self.video(), platform='instagram', videoId='abcdefghijk')
+        result = self.client.put('/api/watch', json={'revision': 0, 'videos': [self.video(), tiktok, reel, same_id_other_platform]})
+        self.assertEqual(result.status_code, 200)
+        self.assertTrue(result.json()['videos'][1]['short'])
+        for bad in [dict(tiktok, videoId='abc'), dict(tiktok, sourceUrl='http://www.tiktok.com/x'), dict(reel, videoId='bad id!'), dict(self.video(), videoId='toolongforyoutube1')]:
+            self.assertEqual(self.client.put('/api/watch', json={'revision': 1, 'videos': [bad]}).status_code, 422)
+    def test_social_metadata_only_fetches_tiktok(self):
+        for url in ['https://example.com/@a/video/123456', 'https://www.tiktok.com.evil.test/@a/video/123456', 'http://www.tiktok.com/@a/video/123456', 'https://www.tiktok.com/@a/video/12']:
+            self.assertEqual(self.client.get('/api/watch/metadata/social', params={'url': url}).status_code, 422)
+    def test_channel_avatar_only_fetches_youtube_channels(self):
+        import asyncio
+        class Client:
+            calls = []
+            async def get(self, url, **kwargs):
+                self.calls.append(url)
+                class Response: status_code = 200; text = '<meta property="og:image" content="https://yt3.googleusercontent.com/abc=s900-c-k-c0x00ffffff-no-rj">'
+                return Response()
+        client = Client()
+        self.assertEqual(asyncio.run(watch.channel_avatar(client, 'https://evil.test/@a')), '')
+        self.assertEqual(asyncio.run(watch.channel_avatar(client, 'https://www.youtube.com/@a/../x')), '')
+        self.assertEqual(client.calls, [])
+        self.assertEqual(asyncio.run(watch.channel_avatar(client, 'https://www.youtube.com/@jawed')), 'https://yt3.googleusercontent.com/abc=s96-c-k-c0x00ffffff-no-rj')
     def test_corrupt_preserved(self):
         self.path.mkdir(); path = self.path / 'records.json'; path.write_text('broken')
         self.assertEqual(self.client.put('/api/watch', json={'revision': 0, 'videos': []}).status_code, 500)

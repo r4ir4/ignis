@@ -2,6 +2,7 @@
 import asyncio
 import json
 import os
+import re
 import time
 import httpx
 from datetime import datetime, timezone
@@ -45,7 +46,13 @@ class Preferences(BaseModel):
 class Video(BaseModel):
     model_config = ConfigDict(extra='forbid')
     id: UUID
-    videoId: str = Field(pattern=r'^[A-Za-z0-9_-]{11}$')
+    videoId: str = Field(pattern=r'^[A-Za-z0-9_-]{5,30}$')
+    platform: Literal['youtube', 'tiktok', 'instagram'] = 'youtube'
+    short: bool = False
+    sourceUrl: str = Field(default='', max_length=500)
+    thumbnail: str = Field(default='', max_length=500)
+    channelAvatar: str = Field(default='', max_length=500)
+    avatarTried: bool = False
     title: str = Field(min_length=1, max_length=200)
     rating: int = Field(default=0, ge=0, le=5, strict=True)
     favorite: bool = False
@@ -76,6 +83,16 @@ class Video(BaseModel):
     def legacy_collection(self):
         self.collection = self.collections[0] if self.collections else ''
         return self
+    @field_validator('sourceUrl', 'thumbnail', 'channelAvatar')
+    @classmethod
+    def https_only(cls, value):
+        if value and not value.startswith('https://'): raise ValueError('Links must use https')
+        return value
+    @model_validator(mode='after')
+    def platform_id(self):
+        pattern = {'youtube': r'^[A-Za-z0-9_-]{11}$', 'tiktok': r'^[0-9]{6,25}$', 'instagram': r'^[A-Za-z0-9_-]{5,20}$'}[self.platform]
+        if not re.fullmatch(pattern, self.videoId): raise ValueError(f'Invalid {self.platform} video ID')
+        return self
     @field_validator('tags')
     @classmethod
     def valid_tags(cls, values):
@@ -94,7 +111,7 @@ class WatchState(BaseModel):
     @model_validator(mode='after')
     def unique(self):
         if len({v.id for v in self.videos}) != len(self.videos): raise ValueError('Duplicate ID')
-        if len({v.videoId for v in self.videos}) != len(self.videos): raise ValueError('Video already saved')
+        if len({(v.platform, v.videoId) for v in self.videos}) != len(self.videos): raise ValueError('Video already saved')
         return self
 
 def load():
@@ -166,6 +183,28 @@ async def comment(record_id: UUID, value: NewComment):
 
 
 
+CHANNEL_URL = re.compile(r'^https://www\.youtube\.com/(@[A-Za-z0-9_.%-]{1,100}|channel/[A-Za-z0-9_-]{10,40})$')
+AVATAR_HOSTS = ('https://yt3.googleusercontent.com/', 'https://yt3.ggpht.com/')
+avatar_cache: dict[str, tuple[float, str]] = {}
+
+async def channel_avatar(client, author_url) -> str:
+    """The channel page's own og:image is its avatar; only YouTube channel URLs returned by oEmbed are fetched."""
+    if not isinstance(author_url, str) or not CHANNEL_URL.fullmatch(author_url): return ''
+    cached = avatar_cache.get(author_url)
+    if cached and time.monotonic() - cached[0] < 86400: return cached[1]
+    avatar = ''
+    try:
+        response = await client.get(author_url, headers={'User-Agent': 'Mozilla/5.0 (compatible; IgnisWatch/1.0)', 'Accept-Language': 'en'})
+        if response.status_code == 200:
+            match = re.search(r'<meta property="og:image" content="([^"]+)"', response.text)
+            if match and match.group(1).startswith(AVATAR_HOSTS):
+                avatar = re.sub(r'=s\d+-', '=s96-', match.group(1))[:500]
+    except httpx.HTTPError: pass
+    if len(avatar_cache) >= 1024: avatar_cache.pop(next(iter(avatar_cache)))
+    avatar_cache[author_url] = (time.monotonic(), avatar)
+    return avatar
+
+
 # Only a validated video ID reaches a fixed YouTube endpoint: no arbitrary URL fetches.
 metadata_cache: dict[str, tuple[float, dict]] = {}
 
@@ -181,7 +220,9 @@ async def metadata(video_id: str = Query(pattern=r'^[A-Za-z0-9_-]{11}$')):
         details = response.json()
         title = details.get('title')
         if not isinstance(title, str) or not title.strip(): raise ValueError('Missing title')
-        result = {'videoId': video_id, 'title': title.strip()[:200], 'channel': str(details.get('author_name') or '')[:200], 'thumbnail': f'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg'}
+        async with httpx.AsyncClient(timeout=6, follow_redirects=False) as channel_client:
+            avatar = await channel_avatar(channel_client, details.get('author_url'))
+        result = {'videoId': video_id, 'title': title.strip()[:200], 'channel': str(details.get('author_name') or '')[:200], 'thumbnail': f'https://i.ytimg.com/vi/{video_id}/hqdefault.jpg', 'channelAvatar': avatar}
     except (httpx.HTTPError, ValueError):
         raise HTTPException(502, 'Video details could not be loaded. You can enter the title yourself or try the link again.')
     if len(metadata_cache) >= 256: metadata_cache.pop(next(iter(metadata_cache)))
@@ -198,3 +239,51 @@ async def preferences(record_id: UUID, value: Preferences):
         for key, item in value.model_dump(exclude_unset=True).items(): setattr(video, key, item)
         state.revision += 1; persist(state)
         return state
+
+
+# TikTok exposes a public oEmbed endpoint; only its own hosts are ever fetched. Instagram's oEmbed needs an app token, so reels are entered by hand.
+TIKTOK_HOSTS = {'www.tiktok.com', 'tiktok.com', 'm.tiktok.com'}
+
+@router.get('/metadata/social')
+async def social_metadata(url: str = Query(max_length=500)):
+    from urllib.parse import urlsplit
+    parts = urlsplit(url)
+    if parts.scheme != 'https' or parts.hostname not in TIKTOK_HOSTS or not re.fullmatch(r'/@[^/]{1,60}/video/[0-9]{6,25}/?', parts.path):
+        raise HTTPException(422, 'Only full TikTok video links can be looked up. You can enter the title yourself.')
+    cached = metadata_cache.get(url)
+    if cached and time.monotonic() - cached[0] < 3600: return cached[1]
+    try:
+        async with httpx.AsyncClient(timeout=8, follow_redirects=False) as client:
+            response = await client.get('https://www.tiktok.com/oembed', params={'url': f'https://www.tiktok.com{parts.path}'})
+        if response.status_code != 200: raise HTTPException(422, 'TikTok could not provide this video’s details. You can enter the title yourself.')
+        details = response.json()
+        thumbnail = details.get('thumbnail_url')
+        result = {'title': str(details.get('title') or '').strip()[:200], 'channel': str(details.get('author_name') or '')[:200], 'thumbnail': thumbnail if isinstance(thumbnail, str) and thumbnail.startswith('https://') and len(thumbnail) <= 500 else ''}
+    except (httpx.HTTPError, ValueError):
+        raise HTTPException(502, 'Video details could not be loaded. You can enter the title yourself.')
+    if len(metadata_cache) >= 256: metadata_cache.pop(next(iter(metadata_cache)))
+    metadata_cache[url] = (time.monotonic(), result)
+    return result
+
+
+@router.post('/avatars')
+async def backfill_avatars():
+    """Fills in channel avatars for saved YouTube videos, a few at a time; failures that look temporary are retried on the next call."""
+    pending = [video for video in load().videos if video.platform == 'youtube' and not video.avatarTried][:24]
+    found: dict[UUID, str] = {}
+    gate = asyncio.Semaphore(6)
+    async with httpx.AsyncClient(timeout=6, follow_redirects=False) as client:
+        async def one(video):
+            async with gate:
+                try:
+                    response = await client.get('https://www.youtube.com/oembed', params={'url': f'https://www.youtube.com/watch?v={video.videoId}', 'format': 'json'})
+                    author = response.json().get('author_url') if response.status_code == 200 else None
+                except (httpx.HTTPError, ValueError): return
+                found[video.id] = await channel_avatar(client, author)
+        await asyncio.gather(*(one(video) for video in pending))
+    async with lock:
+        state = load()
+        for video in state.videos:
+            if video.id in found: video.channelAvatar = found[video.id]; video.avatarTried = True
+        if found: state.revision += 1; persist(state)
+        return {'updated': len(found), 'remaining': sum(1 for video in state.videos if video.platform == 'youtube' and not video.avatarTried)}
