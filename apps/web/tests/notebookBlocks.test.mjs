@@ -999,23 +999,6 @@ test('only charts remain insertable as data blocks; image presets retain URLs an
   }
 })
 
-test('fixed destinations reuse one saved page and recovery copies remain ordinary pages', async () => {
-  const { openFixedPage } = await import('../src/features/notebook/fixedPages.ts')
-  const { validPages, recoveredCopies } = await import('../src/features/notebook/notebookModel.ts')
-  let pages = []
-  for (const kind of ['board', 'meds', 'habits']) {
-    const result = openFixedPage(pages, kind)
-    assert.equal(result.pages.length, pages.length + 1)
-    assert.equal(result.pages.at(-1).content.content[0].attrs.view, ['meds', 'habits'].includes(kind) ? 'dashboard' : kind)
-    assert.equal(openFixedPage(result.pages, kind).pages, result.pages)
-    assert.ok(validPages(result.pages))
-    pages = result.pages
-  }
-  const recovered = recoveredCopies(pages)
-  assert.ok(recovered.every(page => page.kind == null))
-  assert.ok(validPages([...pages, ...recovered]))
-})
-
 test('grid data entry merges changed cells while retaining other edits and new rows', async () => {
   const { mergeDataEdits, blankItem } = await import('../src/features/notebook/personalLists.ts')
   const a = { ...blankItem(), title: 'January', value: 10 }, b = { ...blankItem(), title: 'February' }, c = { ...blankItem(), title: 'New row elsewhere' }
@@ -1242,37 +1225,12 @@ test('icon colors and imported filled artwork survive page and callout validatio
 })
 
 
-test('Meds copies dashboard lists and settings independently without a cover', async () => {
-  const { fixedPages, openFixedPage, isFixedPage } = await import('../src/features/notebook/fixedPages.ts')
-  const { validPages } = await import('../src/features/notebook/notebookModel.ts')
-  const { defaultViewConfig } = await import('../src/features/notebook/viewModel.ts')
-  const { blankItem } = await import('../src/features/notebook/personalLists.ts')
-  const list = { id: crypto.randomUUID(), name: 'Dashboard items', items: [{ ...blankItem(), title: 'Original' }] }
-  const dashboard = { id: crypto.randomUUID(), kind: 'dashboard', parentId: null, title: 'Dashboard', cover: { url: 'https://example.com/cover.jpg', position: 50 }, lists: [list], content: { type: 'doc', content: [{ type: 'viewBlock', attrs: { ...defaultViewConfig('dashboard'), collectionId: list.id, metric: 'sum' } }] } }
-  const result = openFixedPage([dashboard], 'meds')
-  const meds = result.pages.find(page => page.id === result.id)
-  assert.equal(result.pages[0], dashboard)
-  assert.equal(meds.title, 'Meds')
-  assert.equal(meds.kind, 'meds')
-  assert.equal(meds.cover, null)
-  assert.notEqual(meds.lists[0].id, list.id)
-  assert.equal(meds.content.content[0].attrs.collectionId, meds.lists[0].id)
-  assert.equal(meds.content.content[0].attrs.metric, 'sum')
-  meds.lists[0].items[0].title = 'Changed copy'
-  assert.equal(list.items[0].title, 'Original')
-  assert.ok(validPages(result.pages))
-  assert.equal(openFixedPage(result.pages, 'meds').pages, result.pages)
-  assert.equal(fixedPages.some(page => page.kind === 'calendar'), false)
-  assert.equal(isFixedPage({ kind: 'calendar' }), true)
-})
-
-
-test('Dashboard and Calendar destinations stay retired while Tasks and Meds remain available', async () => {
+test('Dashboard and Calendar destinations stay retired, with Tasks, Meds and Habits', async () => {
   const { fixedPages, isFixedPage, isRetiredFixedPage } = await import('../src/features/notebook/fixedPages.ts')
-  assert.deepEqual(fixedPages.map(page => page.kind), ['board', 'meds', 'habits'])
-  for (const kind of ['calendar', 'dashboard']) {
+  assert.deepEqual(fixedPages, [])
+  for (const kind of ['calendar', 'dashboard', 'board', 'meds', 'habits']) {
     assert.equal(isRetiredFixedPage({ kind }), true)
     assert.equal(isFixedPage({ kind }), true)
   }
-  for (const kind of ['board', 'meds', 'meeting', null]) assert.equal(isRetiredFixedPage({ kind }), false)
+  for (const kind of ['meeting', null]) assert.equal(isRetiredFixedPage({ kind }), false)
 })

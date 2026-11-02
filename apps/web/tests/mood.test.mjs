@@ -2,7 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { paintMood, validMoodEntries } from '../src/features/notebook/moodModel.ts'
 import { samePages, validPages } from '../src/features/notebook/notebookModel.ts'
-import { openFixedPage } from '../src/features/notebook/fixedPages.ts'
+import { defaultViewConfig } from '../src/features/notebook/viewModel.ts'
+const habitsPage = { id: '1d8d1aa0-1b11-4011-8011-555555555555', kind: 'habits', title: 'Habits', icon: 'icon:target', parentId: null, fullWidth: true, lists: [], content: { type: 'doc', content: [{ type: 'viewBlock', attrs: defaultViewConfig('dashboard') }] } }
 test('Painting replaces a single day, clearing preserves other months, and future dates are blocked', () => {
  const original = [{ date: '2026-09-30', mood: 'sad' }]
  const marked = paintMood(original, '2026-10-18', 'happy', '2026-10-18')
@@ -16,7 +17,7 @@ test('Painting replaces a single day, clearing preserves other months, and futur
  assert.equal(validMoodEntries([{ date: '2026-10-18', mood: 'unknown' }]), false)
 })
 test('Mood entries participate in notebook validation and save acknowledgements', () => {
- const pages = openFixedPage([], 'habits').pages
+ const pages = [habitsPage]
  const changed = [{ ...pages[0], moods: [{ date: '2026-10-18', mood: 'okay' }] }]
  assert.ok(validPages(changed)); assert.equal(samePages(pages, changed), false)
  assert.equal(samePages(changed, structuredClone(changed)), true)

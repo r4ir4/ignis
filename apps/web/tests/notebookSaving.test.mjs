@@ -89,13 +89,16 @@ test('a lost commit response acknowledges the submitted draft and keeps later ty
   } finally { h.close() }
 })
 
-test('a real tab conflict retains local changes and makes no blind overwrite', async () => {
+test('a conflict that cannot be merged still retains local changes and makes no blind overwrite', async () => {
   let remote = snapshot('Server')
   const h = harness(async (_url, init) => !init?.method ? json(remote) : json({ detail: 'Conflict' }, 409))
   try {
     await h.settle(); remote = snapshot('Other tab', 2)
     h.state.setPages([page('Local draft')]); await h.tick()
-    assert.equal(h.state.conflict, true); assert.equal(h.state.saved, false)
+    assert.equal(h.state.conflict, false, 'the first conflict is merged automatically')
+    assert.match(h.state.notice, /recovered/, 'only a both-sides edit is announced')
+    await h.tick()
+    assert.equal(h.state.conflict, true, 'a server that keeps rejecting the merged draft falls back to explicit resolution'); assert.equal(h.state.saved, false)
     const conflictMessage = h.state.error
     await h.state.retry(); await h.settle()
     assert.equal(h.state.error, conflictMessage, 'Retry must keep conflict resolution visible')
@@ -245,4 +248,63 @@ test('a corrupt journal cannot hide a healthy cached notebook during an offline 
     assert.equal(h.state.saved, false)
     assert.equal(local.getItem('ignis.notebook.recovery.corrupt'), '{invalid JSON')
   } finally { h.close() }
+})
+
+// A tiny server that enforces revisions like the real API, so merged saves can actually commit.
+function server(pages, revision = 1) {
+  const state = { pages, revision, puts: 0 }
+  state.request = async (_url, init) => {
+    if (!init?.method) return json({ revision: state.revision, pages: state.pages })
+    const body = JSON.parse(init.body); state.puts++
+    if (body.revision !== state.revision) return json({ detail: 'Conflict' }, 409)
+    state.pages = body.pages; state.revision++
+    return json({ revision: state.revision, pages: state.pages })
+  }
+  return state
+}
+const pageNamed = (id, title) => ({ id, parentId: null, title, content: { type: 'doc', content: [{ type: 'paragraph' }] } })
+const A = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', B = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'
+
+test('edits to different pages made in two tabs merge without a prompt', async () => {
+  const srv = server([pageNamed(A, 'One'), pageNamed(B, 'Two')])
+  const h = harness(srv.request)
+  try {
+    await h.settle()
+    // Another tab renames page B and saves first.
+    srv.pages = [pageNamed(A, 'One'), pageNamed(B, 'Two (other tab)')]; srv.revision = 2
+    h.state.setPages(items => items.map(p => p.id === A ? { ...p, title: 'One (here)' } : p)); await h.tick(); await h.tick()
+    assert.equal(h.state.conflict, false); assert.equal(h.state.error, '')
+    assert.equal(h.state.saved, true)
+    assert.equal(h.state.notice, '', 'a plain merge is silent'); assert.ok(h.state.lastSynced, 'the sync time is recorded')
+    assert.deepEqual(srv.pages.map(p => p.title), ['One (here)', 'Two (other tab)'])
+  } finally { h.close() }
+})
+
+test('the same page edited in two tabs keeps the newest local edit and preserves the other version', async () => {
+  const srv = server([pageNamed(A, 'One')])
+  const h = harness(srv.request)
+  try {
+    await h.settle()
+    srv.pages = [pageNamed(A, 'One (other tab)')]; srv.revision = 2
+    h.state.setPages(items => items.map(p => ({ ...p, title: 'One (here)' }))); await h.tick(); await h.tick()
+    assert.equal(h.state.conflict, false)
+    assert.equal(srv.pages[0].title, 'One (here)')
+    assert.ok(srv.pages.some(p => p.title === 'One (other tab) (recovered)'), 'the replaced version must not be lost')
+    assert.match(h.state.notice, /recovered/)
+  } finally { h.close() }
+})
+
+test('a browser draft from an older revision merges on reload instead of blocking', async () => {
+  const srv = server([pageNamed(A, 'One'), pageNamed(B, 'Two')])
+  const local = storage(), session = storage()
+  const first = harness(srv.request, local, session)
+  try { await first.settle(); first.state.setPages(items => items.map(p => p.id === A ? { ...p, title: 'One (offline edit)' } : p)) } finally { first.close() }
+  // The save never reached the server; meanwhile another device changed page B.
+  srv.pages = [pageNamed(A, 'One'), pageNamed(B, 'Two (other device)')]; srv.revision = 2
+  const second = harness(srv.request, local, session)
+  try {
+    await second.settle(); await second.tick()
+    assert.equal(second.state.conflict, false); assert.equal(second.state.error, '')
+    assert.deepEqual(srv.pages.map(p => p.title), ['One (offline edit)', 'Two (other device)'])
+  } finally { second.close() }
 })

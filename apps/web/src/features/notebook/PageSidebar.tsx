@@ -1,13 +1,13 @@
-import { fixedPages, isFixedPage, type FixedPageKind } from './fixedPages'
+import { isFixedPage } from './fixedPages'
 import { PageSymbol } from './PageSymbol'
 import { useEffect, useState } from 'react'
 import type { Page } from './notebookModel'
 import { textOf } from './notebookModel'
 
-export function PageSidebar({ pages, activeId, query, setQuery, select, add, move, openFixed }: { openFixed: (kind: FixedPageKind) => void; isLocal: boolean; pages: Page[]; activeId: string; query: string; setQuery: (value: string) => void; select: (id: string) => void; add: (parent: string | null) => void; move: (id: string, parent: string | null) => void }) {
+export function PageSidebar({ pages, activeId, query, setQuery, select, add, move }: { isLocal: boolean; pages: Page[]; activeId: string; query: string; setQuery: (value: string) => void; select: (id: string) => void; add: (parent: string | null) => void; move: (id: string, parent: string | null) => void }) {
   const activeKind = pages.find(page => page.id === activeId)?.kind
-  const [shortcut, setShortcut] = useState<'home' | FixedPageKind>(activeKind === 'board' || activeKind === 'meds' || activeKind === 'habits' ? activeKind : 'home')
-  useEffect(() => { setShortcut(activeKind === 'board' || activeKind === 'meds' || activeKind === 'habits' ? activeKind : 'home') }, [activeId, activeKind])
+  const [shortcut, setShortcut] = useState<'home'>('home')
+  useEffect(() => { setShortcut('home') }, [activeId, activeKind])
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [dragging, setDragging] = useState<string | null>(null)
   const [privateOpen, setPrivateOpen] = useState(true)
@@ -40,7 +40,6 @@ export function PageSidebar({ pages, activeId, query, setQuery, select, add, mov
         buttons[event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length]?.focus()
       }}>
         <button id="notebook-tab-home" type="button" className="notebook-board-shortcut notebook-navigation-shortcut" aria-label="Home" title="Home" aria-pressed={shortcut === 'home'} aria-controls="notebook-home-panel" onClick={() => setShortcut('home')}><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 10 8h-3v10h-5v-7h-4v7H5V11H2z" /></svg><span className="notebook-sidebar-tab-label" aria-hidden="true"><span><span>Home</span></span></span></button>
-        {fixedPages.map(entry => { const kind = entry.kind; const name = entry.title; return <button key={kind} type="button" className="notebook-board-shortcut notebook-navigation-shortcut" aria-label={name} title={name} aria-current={activeKind === kind ? 'page' : undefined} aria-pressed={shortcut === kind} onClick={() => { setShortcut(kind); openFixed(kind) }}><PageSymbol value={pages.find(page => page.kind === kind && !page.deletedAt)?.icon || entry.icon} /><span className="notebook-sidebar-tab-label" aria-hidden="true"><span><span>{name}</span></span></span></button> })}
       </div>
     </div>
     <div id="notebook-home-panel">

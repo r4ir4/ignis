@@ -379,6 +379,7 @@
 .notebook-sheet.is-full-width { max-width: none; padding-inline: 96px; }
 .notebook-topbar-end { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-width: 0; }
 .notebook-topbar-end > [role="status"] { font-size: 11px; white-space: nowrap; }
+.notebook-last-synced { font-size: 11px; white-space: nowrap; opacity: .55; }
 .notebook-topbar .notebook-page-controls { flex-wrap: nowrap; }
 .notebook .notebook-topbar .notebook-page-controls button, .notebook-topbar .notebook-page-actions summary { min-height: 28px; padding: 4px 8px; white-space: nowrap; }
 .notebook-topbar .notebook-page-actions[open] > div { background: #252525; }

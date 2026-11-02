@@ -2,7 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { toggleHabitDay, validHabits, shiftHabitDay, localHabitDay } from '../src/features/notebook/habitsModel.ts'
 import { validPages, samePages } from '../src/features/notebook/notebookModel.ts'
-import { openFixedPage } from '../src/features/notebook/fixedPages.ts'
+import { defaultViewConfig } from '../src/features/notebook/viewModel.ts'
+const habitsPage = { id: '1d8d1aa0-1b11-4011-8011-555555555555', kind: 'habits', title: 'Habits', icon: 'icon:target', parentId: null, fullWidth: true, lists: [], content: { type: 'doc', content: [{ type: 'viewBlock', attrs: defaultViewConfig('dashboard') }] } }
 const habit = () => ({ id: crypto.randomUUID(), title: 'Read', createdOn: '2026-10-01', completions: ['2026-10-17'], archived: false })
 test('Habit check-ins are reversible by date and preserve other marks and habits', () => {
   const a = habit(), b = habit(), original = [a, b]
@@ -16,8 +17,7 @@ test('Habit check-ins are reversible by date and preserve other marks and habits
   assert.deepEqual(toggleHabitDay(archived, a.id, '2026-10-18', '2026-10-18'), archived)
 })
 test('Habit schema and save acknowledgements retain date history', () => {
-  const result = openFixedPage([], 'habits'), page = { ...result.pages[0], habits: [habit()] }
-  assert.equal(openFixedPage([page], 'habits').id, page.id)
+  const result = { pages: [habitsPage] }, page = { ...habitsPage, habits: [habit()] }
   assert.ok(validPages([page]))
   assert.ok(samePages([page], [structuredClone(page)]))
   assert.equal(samePages([page], [{ ...page, habits: toggleHabitDay(page.habits, page.habits[0].id, '2026-10-18', '2026-10-18') }]), false)

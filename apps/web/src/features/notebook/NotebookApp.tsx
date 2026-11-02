@@ -1,9 +1,10 @@
 import { PageBreadcrumbs } from './PageBreadcrumbs'
 import { Dropdown } from '../../components/Dropdown'
 import { PageEditor } from './PageEditor'
-import { isFixedPage, isRetiredFixedPage, openFixedPage, type FixedPageKind } from './fixedPages'
+import { isFixedPage, isRetiredFixedPage } from './fixedPages'
 import type { PersonalList } from './personalLists'
 import { FixedNotebookView, NotebookSaveStatus } from './NotebookView'
+import { matchesToken, pagePath, tokenFromLocation } from './pageUrl'
 import { InboxPanel } from './InboxPanel'
 import { ReminderForm } from './ReminderForm'
 import { useInbox } from './useInbox'
@@ -68,7 +69,7 @@ export default function NotebookApp() {
   const [initial] = useState(load)
   const store = useNotebook(initial)
   const { pages, setPages } = store
-  const [activeId, setActiveId] = useState(() => new URLSearchParams(location.hash.slice(1)).get('page') || initial.pages[0].id)
+  const [activeId, setActiveId] = useState(() => tokenFromLocation() || initial.pages[0].id)
   const [query, setQuery] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 768px)').matches)
   const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 767px)').matches)
@@ -83,7 +84,7 @@ export default function NotebookApp() {
   const [editorEpoch, setEditorEpoch] = useState(0)
   const dialog = useRef<HTMLDialogElement>(null)
   const live = pages.filter(p => !p.deletedAt && !isRetiredFixedPage(p))
-  const page = live.find(p => p.id === activeId) ?? live[0]
+  const page = live.find(p => matchesToken(p, activeId)) ?? live[0]
 
   useEffect(() => {
     if (inboxOpen) { setInboxPresent(true); return }
@@ -92,13 +93,18 @@ export default function NotebookApp() {
     return () => window.clearTimeout(timer)
   }, [inboxOpen])
   useEffect(() => {
-    const navigate = () => setActiveId(new URLSearchParams(location.hash.slice(1)).get('page') || '')
+    const navigate = () => setActiveId(tokenFromLocation())
     window.addEventListener('popstate', navigate); window.addEventListener('hashchange', navigate)
     return () => { window.removeEventListener('popstate', navigate); window.removeEventListener('hashchange', navigate) }
   }, [])
   useEffect(() => {
-    if (page && !store.loading) { setActiveId(page.id); history.replaceState(null, '', `${location.pathname}${location.search}#page=${page.id}`) }
-  }, [page?.id, store.loading])
+    if (page && !store.loading) {
+      setActiveId(page.id)
+      // The address follows the page and its title; old #page=<id> links are rewritten to it.
+      const path = pagePath(page)
+      if (location.pathname !== path || location.hash) history.replaceState(null, '', `${path}${location.search}`)
+    }
+  }, [page?.id, page?.title, store.loading, activeId])
   useEffect(() => {
     if (panel && !dialog.current?.open) dialog.current?.showModal()
     else if (!panel && dialog.current?.open) dialog.current?.close()
@@ -131,12 +137,9 @@ export default function NotebookApp() {
     return () => window.removeEventListener('keydown', shortcut)
   }, [sidebarOpen])
   function select(id: string) {
-    history.pushState(null, '', `${location.pathname}${location.search}#page=${id}`)
+    const target = pages.find(p => p.id === id)
+    history.pushState(null, '', `${target ? pagePath(target) : location.pathname}${location.search}`)
     setActiveId(id); if (!window.matchMedia('(min-width: 768px)').matches) setSidebarOpen(false)
-  }
-  function openFixed(kind: FixedPageKind) {
-    const result = openFixedPage(pages, kind)
-    setPages(items => openFixedPage(items, kind).pages); select(result.id)
   }
   function add(parentId: string | null, title = '', icon: string | null = null) {
     const next = { id: crypto.randomUUID(), parentId, title, icon, fullWidth: true, content: blank(), favorite: false, deletedAt: null }
@@ -187,7 +190,7 @@ export default function NotebookApp() {
         </div>
       </div>
       <div id="notebook-library" className="notebook-library">
-        {!store.loading && <PageSidebar openFixed={openFixed} isLocal={isLocal} pages={pages} activeId={page?.id || ''} query={query} setQuery={setQuery} select={select} add={add} move={(id, parent) => setPages(items => reparent(items, id, parent))} />}
+        {!store.loading && <PageSidebar isLocal={isLocal} pages={pages} activeId={page?.id || ''} query={query} setQuery={setQuery} select={select} add={add} move={(id, parent) => setPages(items => reparent(items, id, parent))} />}
         {store.loading && <p className="notebook-no-results" role="status">Opening notebook…</p>}
       </div>
       <div className="notebook-workspace-slot"><WorkspaceMenu openTrash={() => setPanel('trash')} isLocal={isLocal} backup={backup} openRecovery={() => setPanel('recovery')} /></div>
@@ -202,7 +205,7 @@ export default function NotebookApp() {
     {inboxPresent && <InboxPanel open={inboxOpen} notice={inboxNotice} inbox={inbox} pages={pages} pinned={inboxPinned} setPinned={setInboxPinned} width={inboxWidth} setWidth={setInboxWidth} compact={compact} close={closeInbox} navigate={id => { select(id); if (!inboxPinned || compact) closeInbox() }} />}
     {sidebarOpen && !(compact && inboxOpen) && <button type="button" className="notebook-sidebar-backdrop" tabIndex={-1} aria-label="Close sidebar overlay" onClick={() => toggleSidebar(false)} />}
     <section className={`notebook-page-pane min-w-0 ${(page?.fullWidth ?? true) ? 'is-full-width' : ''}`} inert={compact && (sidebarOpen || inboxOpen)}>
-      <header className="notebook-topbar flex flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8"><div className="notebook-breadcrumb">{!sidebarOpen && <button id="notebook-open-sidebar" type="button" title="Open sidebar" aria-label="Open sidebar" aria-controls="notebook-sidebar" aria-expanded={sidebarOpen} onClick={() => toggleSidebar(true)}><SidebarIcon kind="open" /></button>}<PageBreadcrumbs pages={pages} page={page} select={select} /></div><div className="notebook-topbar-end"><span role="status">{store.status}</span>{page && !store.loading && !isFixedPage(page) && (<div className="notebook-page-controls flex flex-wrap items-center justify-end gap-2">
+      <header className="notebook-topbar flex flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8"><div className="notebook-breadcrumb">{!sidebarOpen && <button id="notebook-open-sidebar" type="button" title="Open sidebar" aria-label="Open sidebar" aria-controls="notebook-sidebar" aria-expanded={sidebarOpen} onClick={() => toggleSidebar(true)}><SidebarIcon kind="open" /></button>}<PageBreadcrumbs pages={pages} page={page} select={select} /></div><div className="notebook-topbar-end"><span role="status">{store.status}</span>{store.lastSynced && <small className="notebook-last-synced" title="Last time this notebook was confirmed by the server">Last synced {new Date(store.lastSynced).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</small>}{page && !store.loading && !isFixedPage(page) && (<div className="notebook-page-controls flex flex-wrap items-center justify-end gap-2">
             <button aria-label={page.favorite ? 'Remove from favorites' : 'Add to favorites'} aria-pressed={!!page.favorite} onClick={() => setPages(items => items.map(p => p.id === page.id ? { ...p, favorite: !p.favorite } : p))}>{page.favorite ? '★ Favorited' : '☆ Favorite'}</button>
             <PageActions key={page.id} page={page} pages={pages} update={patch => setPages(items => items.map(p => p.id === page.id ? { ...p, ...patch } : p))}
               rename={() => document.getElementById('notebook-title')?.focus()} duplicate={duplicateCurrent}
@@ -211,6 +214,7 @@ export default function NotebookApp() {
           </div>)}</div></header>
       {page && page.cover && !store.loading && (!isFixedPage(page) || page.kind === 'board') && <PageCover key={`${page.id}:${!!page.locked}`} readOnly={page.locked} value={page.cover} onChange={cover => setPages(items => items.map(p => p.id === page.id ? { ...p, cover } : p))} />}
       <article className={`notebook-sheet mx-auto ${(page?.fullWidth ?? true) ? 'is-full-width' : ''} ${page?.cover ? 'has-page-cover' : ''} page-font-${page?.font || 'default'} ${page?.smallText ? 'is-small-text' : ''}`}>
+        {store.notice && !store.error && <div className="notebook-error mb-4" role="status"><p>{store.notice}</p><button onClick={store.dismissNotice}>Dismiss</button></div>}
         {store.backupWarning && <div className="notebook-error mb-4" role="alert"><p>{store.backupWarning}</p><button onClick={backup}>Download backup</button></div>}
         {(store.error || initial.error) && <div className="notebook-error mb-6" role="alert"><p>{store.error || initial.error}</p><div className="flex flex-wrap gap-2 mt-2"><button onClick={() => void store.retry()} disabled={store.loading}>Retry saving</button><button onClick={backup}>Download browser copy</button>{store.conflict && <><button onClick={() => void store.resolve(true)}>Keep both versions</button><button onClick={() => void store.resolve(false)}>Open server version</button></>}</div></div>}
         {store.loading ? <p role="status">Opening your notebook…</p> : page ? <>

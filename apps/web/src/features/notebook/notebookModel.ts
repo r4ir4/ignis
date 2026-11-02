@@ -106,3 +106,32 @@ export function recoveredCopies(source: Page[]): Page[] {
   })
   return source.map(page => ({ ...page, ...(page.kind && ['board', 'calendar', 'dashboard', 'meds', 'habits'].includes(page.kind) ? { kind: null } : {}), id: pageIds.get(page.id)!, parentId: page.parentId ? pageIds.get(page.parentId) || null : null, title: `${page.title || 'Untitled'} (recovered)`, content: remap(page.content), lists: page.lists?.map(list => ({ ...list, id: listIds.get(list.id)!, properties: list.properties?.map(prop => prop.config?.targetListId && listIds.has(prop.config.targetListId) ? { ...prop, config: { ...prop.config, targetListId: listIds.get(prop.config.targetListId)! } } : prop), items: list.items.map(item => ({ ...item })) })) }))
 }
+
+export const WELCOME_TITLE = 'A place for your thoughts'
+
+// Three-way merge by page. `base` is the last notebook this browser saw confirmed by the server (null if unknown),
+// `local` is the browser draft and `remote` is the latest server notebook. Nothing is dropped: a page changed on
+// both sides keeps the draft (the most recent edit made here) and the server's version becomes a "(recovered)" copy.
+export function mergePages(base: Page[] | null, local: Page[], remote: Page[]): { pages: Page[]; copies: number } {
+  const baseById = new Map((base || []).map(page => [page.id, page]))
+  const localById = new Map(local.map(page => [page.id, page]))
+  const same = (a: Page, b: Page) => samePages([a], [b])
+  const kept: string[] = []
+  const merged: Page[] = []
+  let copies = 0
+  for (const server of remote) {
+    const draft = localById.get(server.id)
+    const ancestor = baseById.get(server.id)
+    if (!draft || same(draft, server)) merged.push(server)
+    else if (ancestor && same(ancestor, draft)) merged.push(server)
+    else if (ancestor && same(ancestor, server)) merged.push(draft)
+    else { merged.push(draft); kept.push(server.id); copies++ }
+  }
+  const remoteIds = new Set(remote.map(page => page.id))
+  // Pages created only in this browser. The untouched starter page of a never-synced browser is not worth keeping.
+  for (const draft of local) if (!remoteIds.has(draft.id) && !baseById.has(draft.id) && !(draft.title === WELCOME_TITLE && !base)) merged.push(draft)
+  const copyPages = recoveredCopies(remote.filter(page => kept.includes(page.id)))
+  const all = [...merged, ...copyPages]
+  const ids = new Set(all.map(page => page.id))
+  return { pages: all.map(page => page.parentId && !ids.has(page.parentId) ? { ...page, parentId: null } : page), copies }
+}

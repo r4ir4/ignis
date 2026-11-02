@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { validPages, samePages, recoveredCopies, type Page, type Snapshot } from './notebookModel'
+import { validPages, samePages, recoveredCopies, mergePages, type Page, type Snapshot } from './notebookModel'
 
 const POINTER = 'ignis.notebook.recovery-key.v1'
 const CACHE = 'ignis.notebook.server-cache.v1'
@@ -27,6 +27,8 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
   const [backupWarning, setBackupWarning] = useState('')
   const [loading, setLoading] = useState(true)
   const [conflict, setConflict] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [lastSynced, setLastSynced] = useState('')
   const [saved, setSaved] = useState(false)
   const [editorEpoch, setEditorEpoch] = useState(0)
   const data = useRef(initial.pages)
@@ -39,12 +41,15 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
   const resolving = useRef(false)
   const bootSequence = useRef(0)
   const blocked = useRef(false)
+  const base = useRef<Page[] | null>(null)
+  const mergedAt = useRef<number | null>(null)
   const mounted = useRef(true)
   const recoveryKey = useRef('')
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const latestFlush = useRef<() => void>(() => {})
 
   function cacheConfirmed(value: Snapshot) {
+    base.current = value.pages; setLastSynced(new Date().toISOString())
     try {
       localStorage.setItem(CACHE, JSON.stringify(value))
       localStorage.setItem(MIGRATED, 'true')
@@ -62,6 +67,24 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
     setStatus(blocked.current ? 'Resolve save conflict' : 'Unsaved changes')
     clearTimeout(timer.current); timer.current = setTimeout(() => latestFlush.current(), 600)
   }
+  // Fold the latest server notebook into this browser's draft instead of asking the user to pick a side.
+  // Returns false when it cannot (invalid result, or the same server revision was already merged without success).
+  function mergeIn(remote: Snapshot, ancestor: Page[] | null): boolean {
+    if (mergedAt.current === remote.revision) return false
+    const before = data.current
+    const result = mergePages(ancestor, before, remote.pages)
+    if (!validPages(result.pages) || !result.pages.length) return false
+    mergedAt.current = remote.revision
+    data.current = result.pages; displayPages(result.pages)
+    revision.current = remote.revision; base.current = remote.pages
+    unconfirmed.current = []
+    dirty.current = !samePages(result.pages, remote.pages)
+    generation.current++
+    if (!samePages(result.pages, before)) setEditorEpoch(value => value + 1)
+    // Silent unless a page was edited in both places: then say where the other version went.
+    if (result.copies) setNotice(`${result.copies === 1 ? 'One page was' : `${result.copies} pages were`} edited in two places. The other version is kept as a "(recovered)" page.`)
+    return true
+  }
   async function flush() {
     if (!dirty.current || running.current || resolving.current || blocked.current || revision.current === null || !mounted.current) return
     running.current = true
@@ -76,7 +99,7 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
       const confirmed = await checked(await fetch('/api/notebook', { method: 'PUT', signal: AbortSignal.timeout(15000), headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ revision: revision.current, pages: sentPages }) }))
       if (!mounted.current || ticket !== bootSequence.current) return
       unconfirmed.current = []
-      revision.current = confirmed.revision
+      revision.current = confirmed.revision; base.current = confirmed.pages; setLastSynced(new Date().toISOString())
       if (sentGeneration === generation.current) {
         dirty.current = false; setSaved(true); setStatus('All changes saved')
         cacheConfirmed(confirmed)
@@ -99,6 +122,7 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
             cacheConfirmed(latest)
             return
           }
+          if (mergeIn(latest, base.current)) { recover(); setError(''); setStatus('Merged changes'); timer.current = setTimeout(() => latestFlush.current(), 0); return }
         } catch { /* Keep the recovery journal until the user resolves the conflict. */ }
         blocked.current = true; setConflict(true)
       }
@@ -138,7 +162,11 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
           data.current = pending.pages; displayPages(pending.pages); revision.current = !remote.pages.length && remote.revision === 0 ? 0 : pending.revision
           generation.current++
           if (samePages(remote.pages, pending.pages)) { revision.current = remote.revision; data.current = remote.pages; displayPages(remote.pages); dirty.current = false; setSaved(true); setStatus('All changes saved'); cacheConfirmed(remote); return }
-          if (remote.revision !== revision.current) { blocked.current = true; setConflict(true); setError('A recovered draft differs from the latest server version. Choose how to continue.') }
+          if (remote.revision !== revision.current) {
+            const cached = stored(CACHE)
+            const ancestor = cached && cached.revision === pending.revision && validPages(cached.pages) ? cached.pages : null
+            if (!mergeIn(remote, ancestor)) { blocked.current = true; setConflict(true); setError('A recovered draft differs from the latest server version. Choose how to continue.') }
+          }
           recover(); setStatus('Recovered browser draft')
         } else if (!remote.pages.length && remote.revision === 0) {
           revision.current = 0; recover(); setStatus('Importing browser pages…')
@@ -149,8 +177,10 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
           return
         }
       } else if (revision.current === null) {
-        if (remote.revision !== 0 || remote.pages.length) { blocked.current = true; setConflict(true); setError('Server pages already exist. Keep both copies or open the saved version.'); return }
-        revision.current = remote.revision
+        if (remote.revision !== 0 || remote.pages.length) {
+          if (!mergeIn(remote, null)) { blocked.current = true; setConflict(true); setError('Server pages already exist. Keep both copies or open the saved version.'); return }
+          recover()
+        } else revision.current = remote.revision
       }
       await flush()
     } catch (cause) {
@@ -180,7 +210,7 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
       recoveryKey.current = `ignis.notebook.recovery.${crypto.randomUUID()}`
       try { sessionStorage.setItem(POINTER, recoveryKey.current) } catch { /* optional */ }
       unconfirmed.current = []
-      revision.current = remote.revision; blocked.current = false; setConflict(false); setError(''); setEditorEpoch(value => value + 1)
+      revision.current = remote.revision; base.current = remote.pages; mergedAt.current = null; blocked.current = false; setConflict(false); setError(''); setNotice(''); setEditorEpoch(value => value + 1)
       if (keepBoth) {
         const copies = recoveredCopies(source)
         setPages([...remote.pages, ...copies])
@@ -220,5 +250,5 @@ export function useNotebook(initial: { pages: Page[]; error: string }) {
     } catch { /* Browser storage may be unavailable. */ }
     return entries.sort((a, b) => b.savedAt.localeCompare(a.savedAt)).slice(0, 20)
   }
-  return { pages, setPages, saved, loading, status, error, backupWarning, conflict, editorEpoch, retry: () => connect(), resolve, recoveries, restoreRecovery: (source: Page[]) => saved ? resolve(true, source) : Promise.resolve(setError('Save or resolve the open draft before recovering another browser copy.')) }
+  return { pages, setPages, saved, loading, status, error, notice, lastSynced, dismissNotice: () => setNotice(''), backupWarning, conflict, editorEpoch, retry: () => connect(), resolve, recoveries, restoreRecovery: (source: Page[]) => saved ? resolve(true, source) : Promise.resolve(setError('Save or resolve the open draft before recovering another browser copy.')) }
 }

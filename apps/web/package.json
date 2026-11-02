@@ -9,7 +9,7 @@
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "test:watch": "node --test tests/watchModel.test.mjs",
-    "test:notebook": "node --test tests/imageSizing.test.mjs tests/notebookBlocks.test.mjs tests/notebookModel.test.mjs tests/notebookSaving.test.mjs tests/notebookInbox.test.mjs tests/notebookMeetings.test.mjs tests/taskProperties.test.mjs tests/taskImage.test.mjs tests/taskDescription.test.mjs tests/propertyDisplay.test.mjs tests/meds.test.mjs tests/habits.test.mjs"
+    "test:notebook": "node --test tests/imageSizing.test.mjs tests/notebookBlocks.test.mjs tests/notebookModel.test.mjs tests/notebookSaving.test.mjs tests/notebookInbox.test.mjs tests/notebookMeetings.test.mjs tests/taskProperties.test.mjs tests/taskImage.test.mjs tests/taskDescription.test.mjs tests/propertyDisplay.test.mjs tests/pageUrl.test.mjs tests/meds.test.mjs tests/habits.test.mjs"
   },
   "engines": {
     "node": ">=24 <25"
