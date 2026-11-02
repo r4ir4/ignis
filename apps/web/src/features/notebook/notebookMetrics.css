@@ -1,0 +1,36 @@
+/* Shared metrics measured from the user's open Notion reference. */
+.notebook {
+  --nb-ui-font: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Display', 'Segoe UI', Helvetica, 'Apple Color Emoji', 'Noto Sans Arabic', 'Noto Sans Hebrew', Arial, sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --nb-page-symbol-size: 20px;
+  --nb-page-header-symbol-size: 78px;
+  font-family: var(--nb-ui-font);
+  line-height: 1.5;
+  letter-spacing: normal;
+}
+.notebook :is(.notebook-sidebar, .notebook-topbar, .notebook-settings, .notebook-property-popover, .notebook-blocks, .notebook-bubble, .notebook-board-view-settings, .notebook-card-property-picker) { font-family: var(--nb-ui-font); }
+.notebook .notebook-sidebar { font-size: 14px; line-height: 21px; }
+.notebook :is(.notebook-page-link, .notebook-favorite-link, .notebook-fixed-nav button) { min-height: 30px; padding: 4.5px 10px; gap: 8px; font-size: 14px; line-height: 21px; font-weight: 400; }
+.notebook :is(.notebook-page-link, .notebook-favorite-link, .notebook-fixed-nav button) > :is(svg, .notebook-symbol-color, .notebook-page-emoji) { display: inline-flex; align-items: center; justify-content: center; width: var(--nb-page-symbol-size); height: var(--nb-page-symbol-size); flex: 0 0 var(--nb-page-symbol-size); }
+.notebook :is(.notebook-page-link, .notebook-favorite-link, .notebook-fixed-nav button) > .notebook-symbol-color > svg { display: block; width: 20px; height: 20px; }
+.notebook :is(.notebook-page-link, .notebook-favorite-link) > .notebook-page-emoji { font-size: 18px; line-height: 20px; }
+.notebook .notebook-sidebar-home .notebook-navigation-shortcut { font-size: 14px; font-weight: 500; line-height: 16.8px; height: 32px; }
+.notebook .notebook-section-toggle { font-size: 12px; line-height: 18px; }
+.notebook .notebook-search input { font-size: 14px; line-height: 16.8px; }
+.notebook .notebook-breadcrumb { font-size: 14px; line-height: 16.8px; gap: 8px; }
+.notebook .notebook-sheet.page-font-default :is(.notebook-title, .tiptap) { font-family: var(--nb-ui-font); }
+.notebook .notebook-title { font-size: 40px; font-weight: 700; line-height: 48px; letter-spacing: normal; padding: 0; }
+.notebook .notebook-task-panel .notebook-task-title :is(input, textarea) { font-family: var(--nb-ui-font); font-size: 32px; line-height: 1.2; font-weight: 700; letter-spacing: normal; }
+.notebook .tiptap { line-height: 24px; }
+.notebook .is-small-text .tiptap { line-height: 21px; }
+.notebook .tiptap > p { margin: 1px 0; padding: 3px 2px; }
+.notebook .tiptap :is(h1, h2, h3) { font-weight: 600; letter-spacing: normal; line-height: 1.2; }
+.notebook .notebook-sheet > .notebook-page-icon-area.has-icon :is(.notebook-page-icon-trigger, .notebook-page-icon-static) { width: var(--nb-page-header-symbol-size); height: var(--nb-page-header-symbol-size); min-height: var(--nb-page-header-symbol-size); padding: 0; }
+.notebook .notebook-sheet > .notebook-page-icon-area.has-icon :is(.notebook-page-icon-trigger, .notebook-page-icon-static) svg { display: block; width: var(--nb-page-header-symbol-size); height: var(--nb-page-header-symbol-size); }
+.notebook .notebook-sheet > .notebook-page-icon-area.has-icon .notebook-page-emoji { font-size: 78px; line-height: 1; }
+.notebook .notebook-sheet.has-page-cover > .notebook-page-icon-area.has-icon { margin-top: -39px; margin-bottom: 20px; }
+@media (max-width: 767px) {
+  .notebook .notebook-title { line-height: 38.4px; }
+}
+@media (pointer: coarse) {
+  .notebook :is(.notebook-page-link, .notebook-favorite-link, .notebook-fixed-nav button) { min-height: 44px; }
+}

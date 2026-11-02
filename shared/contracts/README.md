@@ -1,7 +1,8 @@
 # Shared contracts
 
-Reserved for the language-neutral API contract used by Swift and TypeScript clients. The implemented FastAPI backend will produce an OpenAPI specification; reviewed contract exports belong here.
+OpenAPI exports are generated from the implemented FastAPI applications:
 
-Generate the specification from the actual backend rather than maintaining a second, conflicting definition. Client generation and API versioning will be chosen when the API is designed.
+- `openapi.json`: the local integration API, including notebook pages and Inbox.
+- `notebook.openapi.json`: the dedicated hosted notebook API with owner/session security.
 
-SwiftUI and React keep separate UI source. This directory contains no product models or endpoint definitions yet.
+The notebook contracts cover revision-checked page saving, history, notifications and page reminders. Regenerate these specifications whenever the implemented schemas or routes change; do not hand-maintain a second definition. SwiftUI and React keep separate UI source. Credentials and database URLs never belong in exported contracts.

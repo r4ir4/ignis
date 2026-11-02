@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/* Watch's graph-paper surface is scoped so the daily dashboard stays unchanged. */
+.watch-paper {
+  background-color: #eee7db;
+  background-image:
+    linear-gradient(rgb(99 78 46 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(99 78 46 / 0.055) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Smaller star artwork with separate keyboard/pointer targets. */
+.watch-rating {
+  --watch-rating-width: 160px;
+}
+.watch-rating .rr--box {
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+.watch-rating.rr--group .rr--svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  padding: 0;
+}
+@media (pointer: coarse) {
+  .watch-rating { --watch-rating-width: 220px; }
+}
+
+.watch-rating.rr--group .rr--box:focus-visible .rr--svg {
+  outline: 2px solid #756655;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Button automations share the task property menu's compact rhythm. */
+.notebook-button-step { border: 1px solid var(--notebook-border, #373737); border-radius: 6px; padding: 10px; display: grid; gap: 8px; margin: 6px 0; }
+.notebook-button-step > button { justify-self: end; color: #9b9b9b; font-size: 12px; }
+.notebook-property-button-value > button { border: 1px solid #484848; border-radius: 5px; padding: 3px 10px; background: #2c2c2c; min-height: 28px; }

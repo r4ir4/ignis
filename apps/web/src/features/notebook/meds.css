@@ -1,0 +1,145 @@
+.notebook .meds-page { --med-taken: #adaca8; --med-start: #6dafa0; --med-peak: #bc9bd7; --med-off: #d4a36c; font-size: 14px; padding-top: 8px; }
+.meds-toolbar, .meds-toolbar > div, .meds-periods, .meds-today-heading, .meds-entry header, .meds-entry footer { display: flex; align-items: center; }
+.meds-toolbar { justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
+.meds-toolbar > div:first-child { gap: 10px; flex-wrap: wrap; }
+.meds-toolbar strong { font-size: 16px; }
+.meds-toolbar span, .meds-page p, .meds-page small, .meds-footer { color: var(--nb-muted); }
+.meds-toolbar span { font-size: 12px; }
+.meds-periods { gap: 4px; }
+.notebook .meds-periods button { min-height: 36px; padding: 5px 11px; border-radius: 6px; color: var(--nb-muted); font-size: 12px; }
+.notebook .meds-periods button[aria-pressed="true"] { color: var(--nb-ink); background: var(--nb-tint); }
+.meds-today { border: 1px solid var(--nb-line); border-radius: 10px; padding: 24px; }
+.meds-today-heading { justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.meds-eyebrow { color: var(--nb-muted); font-size: 12px; }
+.notebook .meds-today h2 { font-size: 24px; line-height: 1.4; font-weight: 600; margin: 5px 0; }
+.meds-today p { margin: 4px 0 0; font-size: 12px; }
+.notebook .meds-log-dose { background: #386856; color: #fff; border-radius: 6px; padding: 10px 16px; min-height: 44px; font-weight: 500; }
+.notebook .meds-log-dose:hover { background: #477b68; }
+.meds-stage-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 24px; }
+.notebook .meds-stage-actions button { display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid var(--nb-line); border-radius: 7px; padding: 14px 12px; min-height: 70px; }
+.meds-stage-actions strong, .meds-stage-actions small { display: block; }
+.meds-stage-actions strong { font-size: 13px; font-weight: 500; }
+.meds-stage-actions small { margin-top: 3px; font-size: 11px; }
+.meds-stage-actions button > span:last-child { margin-left: auto; }
+.meds-stage-index { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 24px; height: 24px; border: 1px solid currentColor; border-radius: 50%; font-size: 11px; }
+.meds-page .onset { color: var(--med-start); }.meds-page .strongest { color: var(--med-peak); }.meds-page .wearing_off { color: var(--med-off); }.meds-page .taken { color: var(--med-taken); }
+.meds-page button:disabled { opacity: .45; cursor: default; }
+.meds-page button:focus-visible, .meds-duration-chart circle:focus-visible { outline: 2px solid var(--med-start); outline-offset: 3px; }
+.meds-dose-choice { display: flex; align-items: center; gap: 12px; margin-top: 18px; color: var(--nb-muted); font-size: 12px; }
+.meds-dose-choice select { color: var(--nb-ink); background: var(--nb-paper); padding: 6px 10px; border: 1px solid var(--nb-line); border-radius: 5px; }
+/* Timing summaries share the check-in colors, with quieter units and context. */
+.meds-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 30px 0 12px; }
+.meds-metric { --metric-color: var(--med-start); min-width: 0; padding: 8px 24px; border: 0; border-radius: 0; background: transparent; }
+.meds-metric:first-child { padding-left: 0; }
+.meds-metric:last-child { padding-right: 0; }
+.meds-metric + .meds-metric { border-left: 1px solid var(--nb-line); }
+.meds-metric.strongest { --metric-color: var(--med-peak); }.meds-metric.wearing_off { --metric-color: var(--med-off); }
+.meds-metric header { display: flex; align-items: center; gap: 8px; }
+.meds-metric-symbol { display: flex; align-items: center; justify-content: center; color: var(--metric-color); }
+.meds-metric-symbol svg { width: 18px; height: 18px; }
+.notebook .meds-metrics h2 { font-size: 13px; line-height: 20px; font-weight: 500; color: var(--nb-ink); margin: 0; }
+.meds-metric-value { display: flex; align-items: baseline; gap: 10px; margin-top: 22px; color: var(--nb-ink); font-size: clamp(28px, 3vw, 36px); line-height: 1.15; font-weight: 600; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.meds-metric-unit { font-size: 16px; font-weight: 400; letter-spacing: 0; margin-left: 3px; color: var(--nb-muted); }
+.meds-page .meds-metric-context { font-size: 12px; line-height: 18px; margin: 8px 0 20px; }
+.meds-metric footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 0; color: var(--nb-muted); font-size: 11px; line-height: 18px; flex-wrap: wrap; }
+.meds-metric footer > span:last-child { color: var(--metric-color); }
+@media (max-width: 640px) {
+  .meds-page .meds-metrics { grid-template-columns: 1fr; gap: 0; }
+  .meds-page .meds-metric { display: grid; grid-template-columns: 1fr auto; column-gap: 16px; padding: 18px 0; border-left: 0; }
+  .meds-metric + .meds-metric { border-top: 1px solid var(--nb-line); }
+  .meds-metric header { align-self: end; }
+  .meds-page .meds-metric-value { grid-column: 2; grid-row: 1 / 3; align-self: center; margin-top: 0; font-size: 30px; }
+  .meds-page .meds-metric-context { margin: 5px 0 0 26px; }
+  .meds-metric footer { grid-column: 1 / -1; margin-top: 14px; }
+}
+.meds-chart { padding: 28px 0; border-bottom: 1px solid var(--nb-line); }
+.notebook .meds-chart h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.meds-chart header p { font-size: 12px; margin: 5px 0 0; }
+.meds-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; margin: 18px 0; }
+.meds-timing-plot { padding-right: 26px; }
+.meds-ruler, .meds-timing-row { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; }
+.meds-ruler { height: 28px; }.meds-ruler > div { position: relative; color: var(--nb-muted); font-size: 10px; }.meds-ruler > div > span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.meds-timing-row { align-items: center; min-height: 40px; border-bottom: 1px solid color-mix(in srgb, var(--nb-line) 50%, transparent); }
+.meds-timing-row > span { font-size: 12px; line-height: 1.3; }.meds-timing-row small { display: block; font-size: 10px; }
+.meds-track { position: relative; height: 30px; background: repeating-linear-gradient(to right, transparent 0, transparent calc(25% - 1px), var(--nb-line) calc(25% - 1px), var(--nb-line) 25%); }
+.meds-track::before { content: ''; position: absolute; height: 1px; background: var(--nb-line); left: 0; right: 0; top: 15px; }
+.meds-effect-range { position: absolute; top: 11px; height: 8px; background: color-mix(in srgb, var(--med-start) 25%, transparent); border-radius: 3px; }
+.notebook .meds-marker { position: absolute; top: 2px; width: 24px; height: 26px; padding: 0; transform: translateX(-50%); border-radius: 50%; background: transparent; }
+.meds-marker::after { content: ''; display: block; width: 9px; height: 9px; background: currentColor; border: 2px solid var(--nb-paper); box-sizing: content-box; border-radius: 50%; margin: auto; }
+.meds-page .meds-chart-note { font-size: 11px; margin: 18px 0 0; }
+.meds-empty { padding: 30px 0; font-size: 13px; }
+.meds-duration-chart { display: block; width: 100%; max-height: 260px; margin-top: 22px; overflow: visible; }
+.meds-duration-chart line { stroke: var(--nb-line); }.meds-duration-chart text { fill: var(--nb-muted); font-size: 11px; }.meds-duration-chart circle { fill: var(--med-start); stroke: var(--nb-paper); stroke-width: 2; }
+.meds-history { margin-top: 24px; }.meds-history summary { display: flex; justify-content: space-between; cursor: pointer; min-height: 44px; align-items: center; font-weight: 500; }.meds-history summary span { color: var(--nb-muted); font-size: 12px; font-weight: 400; }
+.meds-history-scroll { overflow: auto; }.meds-history table { width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 12px; }.meds-history th, .meds-history td { text-align: left; padding: 12px 14px 12px 0; border-bottom: 1px solid var(--nb-line); font-weight: 400; }.meds-history thead th { color: var(--nb-muted); }.meds-history caption { text-align: left; padding: 10px 0; font-size: 11px; color: var(--nb-muted); }
+.meds-page .meds-footer { font-size: 11px; margin-top: 25px; }
+.meds-page .meds-error { color: #d99881; background: color-mix(in srgb, #a34b32 10%, transparent); padding: 12px; border-radius: 6px; margin: 12px 0; }.meds-error button { text-decoration: underline; margin-left: 8px; }.meds-page .meds-success { color: var(--med-start); padding: 12px 0; }
+.meds-entry { margin: auto; width: 420px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); overflow: auto; background: var(--nb-paper); color: var(--nb-ink); border: 1px solid var(--nb-line); border-radius: 10px; padding: 24px; box-shadow: 0 15px 60px #0004; }
+.meds-entry::backdrop { background: #0006; }.meds-entry header { justify-content: space-between; gap: 16px; }.notebook .meds-entry h2 { font-size: 20px; font-weight: 600; margin: 0; }.meds-entry header button { font-size: 22px; min-width: 32px; min-height: 32px; }.meds-entry p { font-size: 13px; line-height: 1.5; margin: 14px 0 20px; }.meds-entry label { display: block; margin: 18px 0 8px; font-size: 13px; }.notebook .meds-entry input { display: block; width: 100%; margin-top: 8px; border: 1px solid var(--nb-line); background: var(--nb-tint); color: var(--nb-ink); border-radius: 5px; padding: 10px; min-height: 44px; }.meds-entry small { display: block; font-size: 11px; margin-top: 7px; }.meds-entry footer { justify-content: flex-end; gap: 10px; margin-top: 26px; }.meds-entry footer button { min-height: 44px; padding: 10px 14px; }
+@media (max-width: 640px) { .meds-today { padding: 18px 14px; }.meds-today-heading > button { width: 100%; }.meds-stage-actions { grid-template-columns: 1fr; margin-top: 18px; gap: 8px; }.notebook .meds-stage-actions button { min-height: 58px; }.meds-timing-row, .meds-ruler { grid-template-columns: 58px minmax(0, 1fr); gap: 6px; }.meds-legend { gap: 12px; }.meds-timing-plot { padding-right: 12px; }.meds-periods button { min-height: 44px; }.meds-history summary { gap: 10px; } }
+
+.meds-marker:hover, .meds-marker:focus { z-index: 2; }.meds-marker:hover::before, .meds-marker:focus::before { content: attr(data-tooltip); position: absolute; left: 50%; transform: translateX(-50%); bottom: 28px; white-space: nowrap; padding: 4px 7px; background: var(--nb-ink); color: var(--nb-paper); border-radius: 4px; font-size: 11px; pointer-events: none; }
+/* Four matching tracking controls, with all-time records below. */
+.meds-page .meds-today { border: 0; border-radius: 0; padding: 0; }
+.meds-page .meds-stage-actions { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0; }
+.meds-page .meds-dose-choice { margin: 0 0 14px; }
+.meds-page .meds-timing-plot { max-height: 600px; overflow-y: auto; scrollbar-gutter: stable; }
+.meds-page .meds-ruler { position: sticky; top: 0; z-index: 3; background: var(--nb-paper); }
+@media (max-width: 640px) { .meds-page .meds-stage-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }.meds-page .meds-timing-plot { max-height: 480px; } }
+
+.meds-page .meds-stage-actions button { color: var(--nb-ink); }
+
+.notebook .meds-stage-actions button.is-recorded { border-color: color-mix(in srgb, var(--med-start) 45%, var(--nb-line)); background: color-mix(in srgb, var(--med-start) 10%, var(--nb-paper)); }.meds-stage-actions button.is-recorded > span:last-child { color: var(--med-start); }.meds-entry footer { flex-wrap: wrap; }
+.meds-mark-feedback { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.notebook .meds-mark-feedback button { color: var(--nb-ink); text-decoration: underline; min-height: 36px; padding: 4px 8px; }
+.meds-remove-mark { border-top: 1px solid var(--nb-line); padding-top: 12px; margin-top: 20px; }
+.notebook .meds-remove-mark button { color: #d99881; padding: 6px 0; min-height: 40px; }
+
+.meds-intake-prompt { color: var(--nb-muted); font-size: 14px; padding-top: 12px; }
+
+/* Flat, aligned timeline with a shared axis and inspectable check-ins. */
+.meds-timeline-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.meds-timeline-modes { display: flex; padding: 3px; gap: 2px; border: 1px solid var(--nb-line); border-radius: 6px; }
+.notebook .meds-timeline-modes button { color: var(--nb-muted); padding: 5px 10px; font-size: 12px; min-height: 30px; border-radius: 4px; }
+.notebook .meds-timeline-modes button[aria-pressed="true"] { background: var(--nb-tint); color: var(--nb-ink); }
+.meds-timeline .meds-legend { margin: 20px 0 12px; font-size: 12px; gap: 20px; }
+.meds-page .meds-timeline .meds-timing-plot { overflow: auto; padding: 0; max-height: 550px; border-top: 1px solid var(--nb-line); border-bottom: 1px solid var(--nb-line); }
+.meds-timing-content { min-width: 580px; }
+.meds-timeline .meds-ruler, .meds-timeline .meds-timing-row { grid-template-columns: 90px minmax(0, 1fr) 72px; gap: 20px; padding: 0 8px; }
+.meds-timeline .meds-ruler { height: 42px; align-items: center; color: var(--nb-muted); font-size: 11px; border-bottom: 1px solid var(--nb-line); }
+.meds-timeline .meds-ruler > div { height: 16px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.meds-timeline .meds-ruler > span:last-child { text-align: right; }
+.meds-timeline .meds-timing-row { min-height: 58px; border-bottom: 1px solid color-mix(in srgb, var(--nb-line) 50%, transparent); }
+.meds-timeline .meds-timing-row:last-child { border-bottom: 0; }
+.meds-timeline .meds-timing-row:hover, .meds-timeline .meds-timing-row:focus-within { background: var(--nb-tint); }
+.meds-timeline .meds-timeline-date { font-size: 13px; font-weight: 500; }
+.meds-timeline .meds-timeline-date small { font-size: 11px; font-weight: 400; margin-top: 4px; }
+.meds-timeline .meds-track { height: 58px; background: none; }
+.meds-timeline .meds-track::before { display: none; }
+.meds-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--nb-line) 65%, transparent); }
+.meds-timeline .meds-effect-range { top: 25px; height: 8px; border-radius: 2px; background: color-mix(in srgb, var(--med-start) 35%, transparent); }
+.meds-onset-wait { position: absolute; top: 28px; border-top: 1px dashed var(--med-taken); opacity: .45; }
+.notebook .meds-timeline .meds-marker { top: 15px; width: 24px; height: 28px; min-height: 0; padding: 0; cursor: pointer; }
+.meds-timeline .meds-marker::after { width: 8px; height: 8px; margin: auto; }
+.meds-timeline .meds-marker[aria-pressed="true"]::after { outline: 1px solid currentColor; outline-offset: 2px; }
+.meds-timeline .meds-timeline-duration { text-align: right; font-size: 12px; color: var(--nb-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.meds-timeline .meds-timeline-detail { min-height: 34px; line-height: 1.6; font-size: 12px; }
+@media (max-width: 640px) { .meds-timeline-modes { width: 100%; }.notebook .meds-timeline-modes button { flex: 1; min-height: 40px; }.meds-timeline .meds-legend { gap: 12px; font-size: 11px; } }
+
+/* Keep only the space required for duration-axis labels. */
+.meds-duration-plot { padding: 0 8px 0 48px; }
+.meds-duration-plot .meds-duration-chart { max-height: none; height: auto; margin-top: 12px; }
+
+
+/* HTML labels keep the same pixel size as the timeline at every chart width. */
+.meds-duration-graph { position: relative; height: 180px; margin-top: 32px; }
+.meds-duration-gridline { position: absolute; left: 0; right: 0; border-top: 1px solid var(--nb-line); }
+.meds-duration-gridline > span { position: absolute; right: calc(100% + 14px); transform: translateY(-50%); color: var(--nb-muted); font-size: 11px; line-height: 16px; font-variant-numeric: tabular-nums; }
+.notebook .meds-duration-dot { position: absolute; width: 24px; height: 24px; min-height: 0; padding: 0; transform: translate(-50%, -50%); border-radius: 50%; background: transparent; cursor: pointer; color: var(--med-start); }
+.meds-duration-dot::after { content: ''; display: block; width: 8px; height: 8px; margin: auto; border-radius: 50%; background: currentColor; border: 2px solid var(--nb-paper); box-sizing: content-box; }
+.meds-duration-dot[aria-pressed="true"]::after { outline: 1px solid currentColor; outline-offset: 2px; }
+.meds-page .meds-duration-dot:focus-visible, .meds-page .meds-marker:focus-visible { outline-width: 1px; }
+.meds-duration-dot:hover, .meds-duration-dot:focus-visible, .meds-duration-dot[aria-pressed="true"] { z-index: 1; }
+.meds-duration-dates { display: flex; justify-content: space-between; gap: 16px; margin-top: 20px; color: var(--nb-muted); font-size: 11px; line-height: 16px; font-variant-numeric: tabular-nums; }
+.meds-duration-section .meds-duration-detail { min-height: 34px; line-height: 1.6; font-size: 12px; }
+@media (pointer: coarse) { .notebook .meds-duration-dot { width: 44px; height: 44px; } }

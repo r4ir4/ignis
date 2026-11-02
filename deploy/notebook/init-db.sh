@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" --set=app_password="$NOTEBOOK_APP_PASSWORD" <<'SQL'
+CREATE ROLE notebook_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD :'app_password';
+REVOKE ALL ON DATABASE ignis_notebook FROM PUBLIC;
+GRANT CONNECT, TEMPORARY ON DATABASE ignis_notebook TO notebook_app;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+GRANT USAGE, CREATE ON SCHEMA public TO notebook_app;
+SQL

@@ -1,0 +1,93 @@
+/* Shared floating-surface system, measured against the open Notion page menu. */
+.notebook {
+  --nb-surface: #252525;
+  --nb-surface-line: #383836;
+  --nb-surface-hover: #ffffff0e;
+  --nb-surface-radius: 10px;
+  --nb-surface-shadow: 0 0 0 1px #383836, 0 14px 28px -6px #19191933, 0 2px 4px -1px #1919191f;
+  --nb-control-fill: #ffffff06;
+}
+.notebook :is([popover], .notebook-option-submenu, .notebook-blocks, .notebook-bubble, .notebook-layout-menu > div, .notebook-task-actions > div) {
+  background: var(--nb-surface);
+  color: var(--nb-ink);
+  border: 0;
+  border-radius: var(--nb-surface-radius);
+  box-shadow: var(--nb-surface-shadow);
+  font-family: var(--nb-ui-font);
+  font-size: 14px;
+  line-height: 20px;
+}
+.notebook :is(.notebook-page-menu, .notebook-column-menu, .notebook-workspace-menu, .notebook-option-submenu) { padding: 4px; }
+.notebook .notebook-property-popover { padding: 4px; }
+.notebook .notebook-board-view-settings { padding: 0; }
+.notebook :is(.notebook-cover-picker, .notebook-page-icon-picker) { padding: 12px; }
+.notebook .notebook-property-popover .notebook-property-menu-row,
+.notebook .notebook-option-submenu .notebook-property-menu-row,
+.notebook :is(.notebook-page-menu, .notebook-column-menu, .notebook-workspace-menu) > :is(button, a),
+.notebook .notebook-board-settings-row,
+.notebook .notebook-property-option-row {
+  min-height: 28px;
+  padding: 4px 8px;
+  gap: 8px;
+  border-radius: 4px;
+  font-family: var(--nb-ui-font);
+  font-size: 14px;
+  line-height: 20px;
+}
+.notebook .notebook-property-popover :is(.notebook-board-settings-row, .notebook-property-option-row),
+.notebook .notebook-task-actions > div > button,
+.notebook .notebook-layout-menu > div > button { min-height: 28px; padding: 4px 8px; gap: 8px; font: 14px/20px var(--nb-ui-font); border-radius: 4px; }
+.notebook :is(.notebook-page-menu, .notebook-column-menu, .notebook-workspace-menu) > :is(button, a) > svg { width: 20px; height: 20px; flex: 0 0 20px; }
+.notebook :is(.notebook-page-menu, .notebook-column-menu, .notebook-workspace-menu) > :is(button, a):hover,
+.notebook .notebook-property-menu-row:hover,
+.notebook .notebook-board-settings-row:hover { background: var(--nb-surface-hover); }
+.notebook :is(.notebook-page-menu, .notebook-column-menu, .notebook-workspace-menu, .notebook-property-popover) hr,
+.notebook :is(.notebook-property-menu-divider, .notebook-board-settings-divider) { border: 0; border-top: 1px solid var(--nb-surface-line); margin: 4px 8px; }
+.notebook :is(.notebook-menu-label, .notebook-menu-footer, .notebook-workspace-eyebrow, .notebook-property-caption, .notebook-slash-section) { font: 12px/18px var(--nb-ui-font); color: var(--nb-muted); padding: 6px 8px; }
+.notebook .notebook-menu-shortcut { font-size: 12px; line-height: 18px; }
+.notebook dialog:not(.notebook-task-panel):not(.notebook-file-preview) {
+  background: var(--nb-surface);
+  color: var(--nb-ink);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: var(--nb-surface-shadow), 0 24px 80px #0005;
+  font: 14px/20px var(--nb-ui-font);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+}
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry):not(.notebook-column-settings) { padding: 24px; }
+.notebook .notebook-column-settings { padding: 0; }
+.notebook .notebook-column-settings form { padding: 24px; }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) h2 { font: 600 20px/26px var(--nb-ui-font); letter-spacing: normal; margin: 0 0 20px; }
+.notebook :is(.notebook-column-settings, .meds-entry, .notebook-image-dialog, .notebook-page-dialog) header h2,
+.notebook .notebook-dialog-heading h2 { margin: 0; }
+.notebook :is(.notebook-column-settings header, .notebook-dialog-heading, .meds-entry header) { margin-bottom: 20px; gap: 12px; }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) label { font-size: 13px; line-height: 18px; font-weight: 500; }
+.notebook :is([popover], .notebook-settings, .notebook-image-dialog, .meds-entry) :is(input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):not([type='hidden']), :is(select, .ignis-dropdown-trigger), textarea) {
+  background: var(--nb-control-fill);
+  color: var(--nb-ink);
+  border: 1px solid #ffffff18;
+  border-radius: 5px;
+  font: 14px/20px var(--nb-ui-font);
+  min-height: 32px;
+  padding: 5px 8px;
+}
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) textarea { min-height: 96px; }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) p { font-size: 13px; line-height: 20px; }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) button { min-height: 32px; padding: 6px 12px; border-radius: 5px; font: 14px/20px var(--nb-ui-font); }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) header > button,
+.notebook .notebook-dialog-heading > button { display: grid; place-items: center; width: 28px; height: 28px; min-height: 28px; padding: 0; font-size: 20px; color: var(--nb-muted); }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) :is(.notebook-settings-save, button[type='submit']) { color: #fff; background: #2383e2; border: 0; }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) :is(.notebook-settings-save, button[type='submit']):hover { background: #1775ce; }
+.notebook .notebook-column-settings footer { margin: 24px -24px -24px; padding: 12px 24px; gap: 8px; border-top: 1px solid var(--nb-surface-line); }
+.notebook .meds-entry footer { margin-top: 24px; gap: 8px; }
+.notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry)::backdrop { background: #0006; }
+@media (pointer: coarse) {
+  .notebook :is(.notebook-page-menu, .notebook-column-menu, .notebook-workspace-menu) > :is(button, a),
+  .notebook .notebook-property-popover .notebook-property-menu-row,
+  .notebook .notebook-option-submenu .notebook-property-menu-row,
+  .notebook .notebook-property-popover :is(.notebook-board-settings-row, .notebook-property-option-row),
+  .notebook :is(.notebook-board-settings-row, .notebook-property-option-row),
+  .notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry) button { min-height: 44px; }
+}
+@media (max-width: 480px) { .notebook :is(.notebook-settings, .notebook-image-dialog, .meds-entry):not(.notebook-column-settings) { padding: 20px; } }

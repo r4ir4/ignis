@@ -1,101 +1,159 @@
 # Web application decisions
 
-## Implemented foundation
+## Fairytale Today homepage (October 16, 2026)
 
-- React with TypeScript.
-- Vite for development and production builds.
-- Chakra UI with Emotion for the component styling system.
-- One application-wide Chakra provider and an Ignis theme based on Chakra's default configuration.
-- Node.js 24, pinned to 24.14.0 for this app without changing the global default.
-- Exact direct dependency versions plus npm's lockfile.
-- Strict TypeScript checks as part of the production build.
-- An interactive editorial workspace prototype with a cream canvas, paper-toned navigation, cobalt blue sans-serif headings and red action accents.
-- Task list, folder navigation, editable notes and month calendar using in-memory sample content.
-- Responsive panels and keyboard-accessible controls.
-- The unused Chakra holding page component has been removed. The original static HTML is retained only as a deployment archive.
+The root route now presents real daily data in the accepted illustrated book design. Sample news articles and demo controls were removed. The homepage reuses `dayOverview` for source roles/date filtering, the shared visible-page sync lifecycle for external read-only imports, and the existing food editor/API for meal plans, diary entries, reuse and undo. Choosing another next task changes the current page focus; external task completion remains in TickTick. Empty, disconnected, loading, cached/stale and error states are distinct. Shared visual foundations live in `src/styles/storybook.css`, with layout under `src/features/home/`. `/planner` and Watch keep their detailed interfaces. Production and authentication are unchanged.
 
-Chakra UI replaces the earlier Mantine proposal. Shared control styling belongs in the Chakra theme; CSS Modules can be added for styles that benefit from a separate stylesheet.
+Validation includes the production build, day/food/sync tests, and isolated browser checks for task choice, saved-meal prefill, cancel, confirmed planning/logging and undo using a temporary in-memory API separate from the real records. Local API reads were checked on the actual homepage; desktop, tablet and mobile layouts are verified locally.
 
-## Prototype boundary
+The local web app was reset on October 13, 2026 to a minimal React + TypeScript + Tailwind CSS foundation.
 
-The homepage is a layout and interaction trial. Task and note changes reset on reload. Calendar indicators and note content are illustrative, and the sample day is October 12, 2026. No Raira records, real medication data or backend APIs are involved. Production remains the protected holding page.
+## Current setup
 
-## Planned as features are built
+- React and React DOM.
+- Strict TypeScript.
+- Vite with its React plugin and the official Tailwind CSS Vite plugin.
+- One CSS file importing Tailwind; styling uses utility classes.
+- A simple `App.tsx` with the Ignis Farm name, Structured connection status and read-only import controls.
+- Node.js 24, pinned through Volta and `.node-version`.
 
-- React Router for additional pages and navigation.
-- TanStack Query for FastAPI server data, caching and mutations.
-- API client types based on the backend's OpenAPI contract.
-- Product screens, feature-specific components and meaningful tests.
-- Authentication and API integration for the web application.
+Chakra UI, Emotion, the previous dashboard, food tools, farm artwork, custom styles and feature tests have been removed. There are no installed routing, query or component libraries. Product features can be added to this clean foundation when requested.
 
-## File and deployment boundaries
+## Boundaries
 
-The Vite entry is `apps/web/index.html`. Application code lives under `apps/web/src/`; assets live under `apps/web/public/`; production output goes to `apps/web/dist/`.
+The native app and FastAPI/PostgreSQL backend scaffolds remain separate. The local app connects to the local Structured proof through Vite’s `/api` proxy and does not access Raira data. Existing browser-local prototype records are left untouched, but the reset app does not read or write them.
 
-The earlier standalone HTML is archived at `docs/archive/holding-page.html`. Keeping it outside Vite's public directory avoids overwriting the generated app entry during a build.
+Production configuration remains under `deploy/`; the original holding page is retained in `docs/archive/holding-page.html`. This local reset does not change the deployed site or authentication.
 
-The existing server configuration remains unchanged. A future approved deployment should serve the contents of the Vite output in `/opt/ignis/public/`. Client-side routing will require the nginx HTML fallback to be configured when routing is introduced. Preserve the site's Tinyauth protection, server-only credentials and authentication volume.
+See `../apps/web/README.md` for commands and the current source layout.
 
-Native SwiftUI code and backend implementation remain in their own directories. Git is still deferred.
+The Structured screen shows Today, Upcoming, Routines and Inbox using actual imported records. The Routines view groups occurrences by Structured series ID and shows their dates; it does not infer editable recurrence rules. Automatic sync performs a read-only import on opening, every minute while visible, and when returning to the page. It pauses while hidden or offline, backs off after errors and preserves the last successful snapshot. Scope remains today, the inbox and the next 30 days.
 
-The default Today view presents a full sample day across tasks, food, exercise, medication reminder reviews and habits, with one chosen next action, completion and undo. Unscheduled tasks, extra folders and the calendar are revealed on demand. This is a usability trial with sample content, not a clinical intervention.
+Automatic sync runs while the web page is open and visible, not as a background service when the app is closed. It retries failures with increasing delays (up to ten minutes); an expired login requires reconnecting. Concurrent requests reuse a snapshot imported within the last 15 seconds. Run `npm run test:sync` in `apps/web/` for scheduler lifecycle checks.
 
-The paper-toned navigation uses outlined sans-serif primary links, fine blue dividers and a filled blue active state. Monospace is reserved for small metadata and folder headings; all navigation targets remain at least 44 pixels tall.
+TickTick has a dedicated, verified direct OAuth/MCP connection with read-only automatic sync. Its panel shows Tasks, Habits (including check-in history) and Focus history. Active tasks are imported from accessible projects/inbox; completion, check-in and focus history covers 30 days in Bahia time. The installed chat connector is not used as the web backend connection. TickTick requires broader OAuth permission, approved by the user, but the backend blocks mutation tools.
 
-The Digital Impact reference informs a fine blue background grid around a plain reading sheet, an outlined focus panel and clear navigation controls. The grid stays outside the reading surface.
+Apple Calendar has a verified read-only Mac connection, a calendar filter and event list. The native helper reads all calendars available on the Mac, including Google/iCloud accounts, with repeating occurrences and all-day dates preserved. Automatic sync uses the shared lifecycle. The connection is local to this Mac and has not been deployed.
 
-The day plan currently uses illustrative times and in-memory check-ins. Medication entries only mark a reminder as reviewed; there is no prescription, dose logging or Raira data connection. Food persists locally; notes reset on reload.
+Apple Reminders has a verified read-only Mac connection with Active/Completed views and list filtering. All active reminders and 30 days of completion history sync automatically through the separate reminders helper. No reminders are completed or modified in Ignis.
 
-Food, Exercises, Meds and Habits each have a dedicated side-menu view. These views and Today share the same in-memory entries and check-in states; logging and undo remain consistent between views. Meds currently tracks sample reminder reviews only.
+Routinery integration was requested on October 13, 2026. The supplied MCP endpoint (`https://mcp.routinery.app/mcp`) rejected OAuth discovery and initialization with Cloudflare Error 1010 (browser_signature_banned), stating owner action is required and retry is not permitted. No client registration, user authorization or routine import succeeded. Integration remains pending provider access resolution; no nonfunctional connector screen was added.
 
-## Food planning and eating log
+Cronometer was briefly prepared as a read-only community connector, then discarded at the user’s request on October 13, 2026 before a verified account import. Its UI, routes, worker, tests and isolated runtime were removed. The food section will be native to Ignis; the first feature scope is being selected.
 
-Food supports dated meal plans (any meal or snack name, time, food and optional notes) and separate records of what was actually eaten. Plans and logs can be edited or removed, with undo for the last change. Removing a plan retains linked eating history. Planned meals appear on Today; its Log meal action opens an editor rather than recording consumption automatically.
+## Ignis-owned food section
 
-Food data is saved only in this browser under `ignis.food.v1`; it survives reloads but does not sync with a backend, native apps or food.raira.app. Tasks and daily check-ins are saved in this browser; notes remain in memory. Storage errors are displayed rather than treated as successful saves.
+Meal plan, Food diary and Saved meals are implemented in React/Tailwind with a native modal editor. Plans and actual eating records are separate, linked only by an optional plan ID. Saved meals are independent copies that prefill an editor without saving automatically. Editing/deleting plans or templates leaves eating history intact. Last-change undo is available.
 
-Run `npm run test:food` from `apps/web/` for plan/log integrity checks, then `npm run build` for TypeScript and production compilation.
+Records persist through the local FastAPI `/api/food` endpoint to `~/Library/Application Support/Ignis/food/records.json`, outside the repository (directory 0700, file 0600). Writes are atomic and use a revision check so stale tabs cannot overwrite newer records. Corrupt existing data is preserved rather than reset. Dates and initial log times use Bahia; users can edit them. Form drafts keep stable IDs across save retries.
 
-Saved meals are reusable copies of a meal name, food and notes. Create or edit them in the Saved meals view, save an existing plan/log for reuse, or save a reusable copy when submitting a new record. Reuse prefills the plan or log editor without saving automatically. Existing browser records are normalized with an empty library; template edits and removals never change previous plans or eating logs. The library uses the same browser-only storage and undo.
+This is local persistence, not device sync or the planned PostgreSQL database. No demo food entries are added. Meals support manually entered calories (kcal), protein, carbs and fat (grams). Food diary totals include only logs on the selected date; missing values remain null and partial totals flag missing entries. A food database and automatic nutrition lookup are not implemented.
 
-Food now opens on the next unlogged planned meal and provides three views: Meal plan, What I ate, and Saved meals. Record editors use a native modal dialog with focus containment and Escape dismissal. Saved-meal selection is directly visible in plan/log editors; secondary record actions are disclosed under More. Existing food data and storage behavior are unchanged.
+## Ignis-owned exercise section
 
-## Mini garden
+Workout plan, Exercise diary and Saved workouts follow Food's date selection, native modal editor, reuse, editing/removal and last-change undo. A workout has a name, activity description, optional notes, session duration (minutes), distance (km) and exercise details (name, sets, reps, weight in kg). Diary totals count completed session logs on the selected day; unknown measurements are flagged.
 
-Today has an original pixel-art SVG farm with three plants, a small farmhouse, fence and soil beds. Unique completed tasks, exercise/habit check-ins and eating log IDs contribute once; medication reviews, plans and saved meals are excluded. Undo reverses growth. Plants progress through seed, sprout, leaves and bloom, with no expiration or missed-day penalties. At nine contributions all three are mature; later contributions remain counted without resetting the garden.
+Plans and logged sessions are separate, linked by optional plan ID. Logging a plan or saved workout prefills a fresh editor for confirming actual results. Templates and their exercise rows are copied rather than linked, so editing/deleting templates or plans preserves workout history. Food and Exercise share Bahia date/time helpers.
 
-Growth is derived from the existing records rather than a separate points counter. Task and daily check-in state now persist in this browser (`ignis.tasks.v1`, `ignis.checkins.v1`), alongside food. Invalid stored data is not overwritten, and saving failures are shown. The brief growth animation respects reduced-motion preferences. No backend or cross-device sync is connected.
+Records persist through `/api/exercise` to `~/Library/Application Support/Ignis/exercise/records.json` outside the repository, with atomic writes, private permissions and optimistic revision checks. No sample records, external workout connection, timer, calorie estimation or device sync is added. PostgreSQL remains the intended future shared store.
 
-Run `npm run test:garden` for contribution, undo and stage checks.
 
-The pixel farm now spans the reading column, with larger crop sprites, distinct stage sizes, raised beds, a farmhouse, trees, tools and a pond. A short sparkle accompanies growth; reduced motion keeps the scene static.
+## Shared daily overview
 
-## Interactive farm prototype
+Today brings the connected sources together with explicit responsibilities:
 
-Aseprite 1.3.18.6 is available locally. Original editable character source is `art/farm/farmer.aseprite`; `art/farm/create-farmer.lua` regenerates it through Aseprite's batch scripting. The exported four-frame sheet is `apps/web/public/farm/farmer.png`.
+- Structured provides the scheduled routine blocks, including individual occurrences.
+- TickTick provides actionable tasks, preserving project names, plus habits and focus history.
+- Apple Calendar provides appointments and events.
+- Apple Reminders provides reminders, separately from tasks.
+- Ignis provides meal and workout plans and their independent diary entries.
 
-The farm supports click/tap movement along the foreground grass lane, arrow keys/WASD while the map is focused, and cottage/bed inspection. Equivalent HTML buttons expose the places to keyboard users. The cottage's Open daily plan action returns to the next-action area. This is a first interaction prototype, with a bounded movement lane rather than a full navigable game world. Reduced motion moves the character instantly. Farm growth and saved records are unchanged; generated landscape concepts have not been added.
+The overview uses Bahia dates. TickTick tasks that are due, overdue, undated or available by their start date appear in Today; future tasks remain accessible in the imported records. Completed and abandoned tasks are excluded from the action list. Recurring TickTick tasks remain tasks, and similar titles across sources are not automatically merged. Reminder date-only deadlines and Calendar exclusive all-day end dates are preserved.
 
-The static farm scene is now authored in Aseprite: `art/farm/farm-scene.aseprite` has eight editable layers, generated by `create-scene.lua` and exported to `apps/web/public/farm/farm-scene.png`. The runtime uses that image beneath the live crops and moving character. Cottage and bed coordinates remain aligned with existing interactions. See `art/farm/README.md` for export instructions.
+One next task is suggested by earliest due date, followed by available undated tasks. “Make this next” changes the local suggestion for the current page session; it does not reschedule or modify TickTick. External completion stays in the source app and reaches Ignis through the existing automatic sync. The source panels remain mounted inside Connections and imported records, so collapsing that section does not stop syncing. Their snapshots are shared with Today without an additional import loop. Connection errors and last-sync timestamps remain in those panels. Food and Exercise share updates after successful saves; their editing flows remain below the overview.
 
-## Farm hub dashboard
+Verify aggregation with `npm run test:day --prefix apps/web` on Node 24.
 
-Today retains a next-action panel and the full-day agenda around the interactive farm. Direct location buttons open native pixel-framed dialogs: Cottage provides task planning/addition/check-offs; Kitchen uses the existing complete Food tools; Training yard, Garden and Medicine cabinet open exercise, habit and medication-review views. Walking remains optional and limited to the existing grass lane. Sidebar navigation remains available.
+## Watch library
 
-Aseprite scene layer 08 adds a kitchen, training yard and medicine cabinet. `art/farm/decorations.aseprite` contains three cosmetic sprites exported as `apps/web/public/farm/decorations.png`: porch light at three growth steps, flag at six, flowers at nine. No new reward counter or storage migration is introduced. Medication reviews remain excluded. Nested food editing dialogs close independently of their farm panel.
+Watch is served at `watch.ignis.farm`, or `/watch` locally. It supports saved YouTube links with automatic title, channel and thumbnail lookup, free-form collections, tags, personal notes, search and Up next/Watching/Finished filters. Opening a queued video marks it Watching; finishing is explicit with Mark watched. No automatic playback-position tracking, Google OAuth, playlist import or YouTube account modifications are implemented. YouTube may require opening some videos externally; the player always provides that link. Video IDs are validated and embeds are built from IDs, never arbitrary saved HTML or URLs.
 
-## Game-first Today screen
+`GET/PUT /api/watch` persists a versioned library. Conflicting revisions return 409 and refresh the current library while retaining the editor draft for review. Corrupt files are preserved and writes fail rather than resetting data. Deleting a video asks for confirmation and removes its notes. The production API is a separate entrypoint with no productivity integration routes. See deploy/README.md for storage, authentication and updates.
 
-Today now hides the website headline, breadcrumbs and persistent sidebar, replacing them with a compact character/next-action HUD and a larger farm playfield. The Menu button opens navigation as an overlay. Location buttons use cropped Aseprite artwork as pixel icons and open practical farm panels directly. The whole-day agenda remains available in an expandable Day journal; unscheduled tasks remain accessible below it. Supporting forms retain normal readable text. Stored records, growth rules and the bounded walking lane are unchanged.
+Checks: `npm run test:watch --prefix apps/web` and Python `test_watch.py` cover accepted/rejected URLs, filtering, persistence, permissions, version conflicts, corruption and production origin/auth checks.
 
-## Bahia scene lighting
 
-The farm uses the current instant formatted in `America/Bahia`, refreshed every minute and when browser visibility changes. Artistic phases: dawn 05:00–07:00; day 07:00–16:00; golden hour 16:00–18:00; dusk 18:00–19:00; night otherwise. These are fixed aesthetic bands, not astronomical sunrise calculations or weather data. The HUD identifies Bahia and the current phase. The selected planning date does not change the live lighting clock.
+Pasting a supported YouTube link into the Watch editor fetches metadata after a 350 ms debounce. Previous lookups are cancelled when the video or editor changes. A custom title is retained; automatically populated titles update when a different link is pasted. Thumbnail previews come from canonical YouTube image URLs. Lookup failures keep manual title entry available. Channel information is stored with new/edited videos; older records remain readable without migration.
 
-The runtime Aseprite export hides its Sky layer so the app can draw a changing sky, moving sun and nighttime moon/stars. The editable source retains its Sky layer. World tint covers crops and character as well as scenery; pointer events pass through lighting. Warm night windows and subtle ambient details do not affect rewards or saved data. `npm run test:clock` validates timezone conversion, phase boundaries and sun positions.
+The read-only `/api/watch/metadata?video_id=...` endpoint accepts only an 11-character video ID and calls YouTube's fixed oEmbed endpoint with an 8-second timeout and no redirect following. It caches up to 256 results for one hour. It does not fetch arbitrary user-supplied URLs or embed provider-supplied HTML. The Watch API needs an outbound network for this lookup; no incoming host port is exposed. The Watch interface now uses an editorial shelf layout with serif display typography, warm paper/brown/amber colors, a featured video, collection index, and focused player. No extra stylesheet was introduced.
 
-Tree art now uses a shaded oak and a layered pine in the native scene. Sky detail comes from a separate Aseprite cloud overlay, pixel horizon bands, sun highlights, a textured moon and distant stars, all compatible with the existing Bahia lighting phases.
 
-Clouds drift slowly in pixel steps; oak and pine canopies rustle independently while trunks stay fixed. The native Tree canopies layer exports separately. Pause wind freezes both motions; reduced-motion preferences disable them. Lighting continues to use Bahia time.
+The current Watch design follows the supplied document-editor reference: a framed application surface, dark brown collection index, amber identity strip, subtle 18px graph-paper background, and serif titles. The sidebar becomes a wrapped navigation block on small screens. The paper CSS is scoped to `.watch-paper` in the existing Tailwind stylesheet; no abandoned stylesheet or alternate theme is retained. Playback, metadata and storage behavior are unchanged by this visual revision.
 
-The pixel-console interface uses charcoal backgrounds, slate panels, bright text and a restrained pink action accent. The farm artwork uses outlined pixel silhouettes in a limited charcoal/slate/pale palette with small pink accents, authored directly in Aseprite. Live plants and sky lighting match that palette. No desaturation filter is applied. Day/night brightness, interactions and saved progress are unchanged.
+Watch now opens directly into a full-width header search and Save a video action, followed by queue filters and video results. The introductory headings, total-video summary, shelf heading, empty-library explanatory copy and sidebar descriptions were removed following the annotated review. The library heading and search label remain available to assistive technology without adding visible copy.
+
+The Watch editor only shows metadata status while loading or when lookup fails. The status select uses an inset custom chevron with native keyboard behavior. Notes and tags use a full-width disclosure with explicit expanded state and labelled fields. Primary buttons have separate base/hover styles to preserve white-on-dark contrast without conflicting neutral hover backgrounds.
+
+
+### Dedicated video pages
+
+Each saved video opens at `/video/<record-id>` on watch.ignis.farm, or `/watch/video/<record-id>` locally. Video thumbnails, titles and Watch video actions use ordinary links, supporting browser history, opening in a new tab and direct access. The dedicated page contains only the player, title, channel, notes and watch actions, with Back to library navigation. The library no longer renders an inline player. The existing nginx HTML fallback serves deep links on refresh. Unknown/deleted IDs show Video not found rather than opening a different video. Opening a queued record attempts to mark it Watching once per page visit; Mark watched remains explicit. Deleting the currently open video returns to the library. No backend records or permissions change for routing.
+
+
+### Playback progress and comments
+
+The dedicated watch page now uses the YouTube IFrame API. Each video resumes from its saved `progressSeconds`. Ignis saves position and duration about every 10 seconds after playback starts, on pause/end, when the page is hidden and on pagehide; requests use keepalive for navigation. Abrupt browser/process termination can lose the latest few seconds. External YouTube playback does not update this position. If a content blocker prevents player API access, playback can remain available while progress tracking shows an explanatory status. Start from beginning seeks the player to zero. Completing a video remains an explicit Mark watched action.
+
+`PATCH /api/watch/<id>/progress` merges only progress fields into the current record under the store lock; `POST /api/watch/<id>/comments` appends timestamped Ignis comments with idempotent UUIDs. Both return the latest library revision. Ordinary library edits preserve server-owned progress/comments, including when an editor was open while progress saved. Comments and their drafts are separate from the general video editor. Existing notes appear as Saved notes in the comments section and remain editable through the library's Edit video action. The comments are part of the existing shared private Ignis library, not YouTube comments. No external comments are read or posted.
+
+Player implementation follows https://developers.google.com/youtube/iframe_api_reference .
+
+
+### Video page actions and comment layout
+
+The video title appears above playback. A top action bar provides a five-star personal rating (click the selected star to clear), a heart to toggle favorite and a watched check icon that can also mark the video not watched. Each icon has an accessible name, visible focus and pressed state. Channel labels and the app-level external YouTube action/helper sentence were removed from the watch page; the embedded YouTube player retains its own native controls.
+
+`PATCH /api/watch/<id>/preferences` atomically merges only supplied rating (0-5), favorite or status fields. These settings persist in the existing library with defaults for older records. Whole-library edits preserve rating and favorite fields to avoid resetting them while editing metadata. Player progress updates do not overwrite watched state.
+
+Comments use a narrower reading column, compact composer that expands on focus, character counter, Cancel/Post actions, Ctrl/Cmd+Enter posting, clear paper-backed entries and timestamps. A count is displayed, and ordering is selectable when there are multiple comments. Existing comment records and saved notes remain intact.
+
+
+### Personal notebook refinement
+
+The video page now labels the personal entries Notes. The count sits on the heading baseline; the transparent, serif composer and bullet list use the existing graph-paper surface, with small timestamps under each note. Chat avatars, bubbles and entry cards were removed. Stored comment records and the existing endpoint remain unchanged for compatibility; no entries were migrated or deleted. The rendered component is VideoNotes.tsx; the obsolete VideoComments component file was removed.
+
+Ratings use @smastrom/react-rating 1.5.0 with a custom warm star palette, hover previews, reset support and keyboard navigation. Its required stylesheet is imported once in VideoActions.tsx. Watched/favorite controls use consistent square shapes and the watched icon is a single clear check. React 19 server rendering of the rating component and the Vite production build were checked.
+
+
+### Side-by-side notes
+
+Desktop video pages now use a wider frame with a flexible player column and a 300-320px right-hand Notes panel. The player and panel are sticky within the page; long note lists scroll within the panel. On screens below the desktop breakpoint, notes stack below playback. The editor is hidden initially and opened with an accessible add-note icon. Opening focuses the textarea; closing preserves an unfinished draft, while Cancel explicitly clears it. Successful posting returns focus to the add-note icon. Sorting controls were removed; notes remain newest first. The heading/count share one typographic size and line-height. Existing records and playback state are unchanged.
+
+Watch library pagination shows 10 videos total per page, including the featured video. Previous/Next controls and page status appear when filtered results exceed 10 items. Search, collection and status changes reset to page 1; removing records clamps the current page to the last available page. Pagination applies after filtering and does not change saved ordering or records.
+
+
+### Multiple collections per video
+
+Videos now store a `collections` array (up to 20 unique names, 1-80 characters each). Legacy records with only `collection` load into a one-item array without rewriting the file on read. The legacy scalar remains synchronized to the first collection for compatibility; an explicitly empty array clears membership. The editor displays removable selected collections and an add/create input supporting Enter. Any uncommitted name in that input is included when saving the video. Collection filters, counts and card labels use all memberships; the all-videos view and pagination contain each video once. Existing tags, notes, ratings, favorites and playback progress are preserved.
+
+
+### Compact library cards
+
+The library now uses a uniform grid rather than a featured-video layout: three columns from the desktop breakpoint, two on small/tablet screens, one on narrow screens. Cards show only thumbnails and titles; channel, status, collection and tag metadata are hidden on the cards without changing stored values or filter behavior. Each thumbnail has a separate accessible edit-icon button outside its watch link, always visible for touch/keyboard use. Ten videos per page remains unchanged. The header action is Add video with a plus icon. The sidebar heading is Collections, and collection counts cannot shrink or wrap into separate digits.
+
+
+### Video editor refinement
+
+The Add/Edit dialog now uses a labelled fixed header, scrollable field area and persistent action footer within 90% of the viewport height. Inputs use consistent 48px minimum heights and paper-colored surfaces. The collection input and Add button share a single aligned border, without conflicting input margins. Collection creation uses one handler for mouse/Enter and enforces the existing name/count limits. A compact metadata preview separates the video details from collection/tag/status organization. Remove video remains separate from Cancel and the primary Add video/Save changes action. The native dialog retains Escape, focus containment and return-focus behavior; existing records and notes are unchanged.
+
+## Today page retired (October 18, 2026)
+
+The standalone Today page and its exclusive files/assets have been removed. The workspace menu now offers Planner, Watch, and Markdown Notes. Old `/today` URLs open the notebook. Earlier Today sections above describe historical decisions; planner connections, food/exercise tools, Notes publishing, and shared cover assets remain in use.
+
+## Planner page retired (October 18, 2026)
+
+Planner has been removed from the workspace menu and web source, including its exclusive embedded panels, models, and tests. `/planner` now opens the notebook. The earlier integration and Planner sections are historical; backend records and integration services remain intact.
+
+## Quartz retired (October 18, 2026)
+
+Quartz source, publishing/reader integration, and the local runtime have been removed at the user's request. The active editor is the Tiptap notebook. Earlier Quartz sections are historical; saved Markdown drafts/images and existing published files remain preserved outside the repository.

@@ -8,9 +8,8 @@
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
-    "test:food": "node --test tests/foodModel.test.mjs",
-    "test:garden": "node --test tests/gardenModel.test.mjs",
-    "test:clock": "node --test tests/farmClock.test.mjs"
+    "test:watch": "node --test tests/watchModel.test.mjs",
+    "test:notebook": "node --test tests/imageSizing.test.mjs tests/notebookBlocks.test.mjs tests/notebookModel.test.mjs tests/notebookSaving.test.mjs tests/notebookInbox.test.mjs tests/notebookMeetings.test.mjs tests/taskProperties.test.mjs tests/taskImage.test.mjs tests/taskDescription.test.mjs tests/propertyDisplay.test.mjs tests/meds.test.mjs tests/habits.test.mjs"
   },
   "engines": {
     "node": ">=24 <25"
@@ -19,16 +18,29 @@
     "node": "24.14.0"
   },
   "dependencies": {
-    "@chakra-ui/react": "3.37.0",
-    "@emotion/react": "11.14.0",
+    "@floating-ui/dom": "^1.8.0",
+    "@smastrom/react-rating": "1.5.0",
+    "@tiptap/extension-bubble-menu": "^3.32.0",
+    "@tiptap/extension-details": "^3.32.0",
+    "@tiptap/extension-drag-handle-react": "^3.32.0",
+    "@tiptap/extension-floating-menu": "^3.32.0",
+    "@tiptap/extension-image": "^3.32.0",
+    "@tiptap/extension-list": "^3.32.0",
+    "@tiptap/extension-table": "^3.32.0",
+    "@tiptap/extensions": "^3.32.0",
+    "@tiptap/pm": "^3.32.0",
+    "@tiptap/react": "^3.32.0",
+    "@tiptap/starter-kit": "^3.32.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
+    "tailwindcss": "4.3.3",
     "typescript": "7.0.2",
     "vite": "8.3.4"
   }

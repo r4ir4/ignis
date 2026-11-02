@@ -1,0 +1,3425 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ignis notebook",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/notebook/session": {
+      "get": {
+        "summary": "Session",
+        "operationId": "session_api_notebook_session_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Get Notebook",
+        "operationId": "get_notebook_api_notebook_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotStatus"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Put Notebook",
+        "operationId": "put_notebook_api_notebook_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Snapshot"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/pages/{page_id}/task-metadata": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Get Task Metadata",
+        "operationId": "get_task_metadata_api_notebook_pages__page_id__task_metadata_get",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Page Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/ItemMetadata"
+                  },
+                  "title": "Response Get Task Metadata Api Notebook Pages  Page Id  Task Metadata Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/pages/{page_id}/history": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "History",
+        "operationId": "history_api_notebook_pages__page_id__history_get",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Page Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/inbox": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Get Inbox",
+        "operationId": "get_inbox_api_notebook_inbox_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "inbox",
+                "unread",
+                "archived",
+                "all"
+              ],
+              "type": "string",
+              "default": "inbox",
+              "title": "Status"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "reminder",
+                    "workspace"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/inbox/{notification_id}": {
+      "patch": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Update Notification",
+        "operationId": "update_notification_api_notebook_inbox__notification_id__patch",
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Notification Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationChange"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/inbox/read": {
+      "post": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Read Notifications",
+        "operationId": "read_notifications_api_notebook_inbox_read_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadNotifications"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxCount"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/reminders": {
+      "post": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Create Reminder",
+        "operationId": "create_reminder_api_notebook_reminders_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReminderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Upcoming Reminders",
+        "operationId": "upcoming_reminders_api_notebook_reminders_get",
+        "parameters": [
+          {
+            "name": "pageId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pageid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationView"
+                  },
+                  "title": "Response Upcoming Reminders Api Notebook Reminders Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/cover-images": {
+      "post": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Upload Cover",
+        "operationId": "upload_cover_api_notebook_cover_images_post",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverUpload"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/cover-images/{name}": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Get Cover Image",
+        "operationId": "get_cover_image_api_notebook_cover_images__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/webp": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/attachments": {
+      "post": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Upload Attachment",
+        "operationId": "upload_attachment_api_notebook_attachments_post",
+        "parameters": [
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverUpload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/attachments/{key}/{filename}": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Get Attachment",
+        "operationId": "get_attachment_api_notebook_attachments__key___filename__get",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/notebook/attachments/{key}/{filename}/preview": {
+      "get": {
+        "tags": [
+          "Notebook"
+        ],
+        "summary": "Preview Attachment",
+        "operationId": "preview_attachment_api_notebook_attachments__key___filename__preview_get",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Filename"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/webp": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/habits": {
+      "get": {
+        "tags": [
+          "Habits"
+        ],
+        "summary": "Snapshot",
+        "operationId": "snapshot_api_habits_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RairaHabitsSnapshot"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/habits/mark": {
+      "post": {
+        "tags": [
+          "Habits"
+        ],
+        "summary": "Mark",
+        "operationId": "mark_api_habits_mark_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RairaHabitMark"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RairaHabitsSnapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/habits/create": {
+      "post": {
+        "tags": [
+          "Habits"
+        ],
+        "summary": "Create",
+        "operationId": "create_api_habits_create_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RairaHabitCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RairaHabitsSnapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/habits/edit": {
+      "post": {
+        "tags": [
+          "Habits"
+        ],
+        "summary": "Edit",
+        "operationId": "edit_api_habits_edit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RairaHabitEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RairaHabitsSnapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/habits/archive": {
+      "post": {
+        "tags": [
+          "Habits"
+        ],
+        "summary": "Archive",
+        "operationId": "archive_api_habits_archive_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RairaHabitArchive"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RairaHabitsSnapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/meds/vyvanse": {
+      "get": {
+        "tags": [
+          "Meds"
+        ],
+        "summary": "Snapshot",
+        "operationId": "snapshot_api_meds_vyvanse_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedsSnapshot"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/meds/vyvanse/intake": {
+      "post": {
+        "tags": [
+          "Meds"
+        ],
+        "summary": "Intake",
+        "operationId": "intake_api_meds_vyvanse_intake_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedsIntake"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedsSaved"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Meds"
+        ],
+        "summary": "Edit Intake",
+        "operationId": "edit_intake_api_meds_vyvanse_intake_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedsIntakeEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedsSaved"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/meds/vyvanse/phase": {
+      "post": {
+        "tags": [
+          "Meds"
+        ],
+        "summary": "Phase",
+        "operationId": "phase_api_meds_vyvanse_phase_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedsPhase"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedsSaved"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    },
+    "/api/meds/vyvanse/undo": {
+      "post": {
+        "tags": [
+          "Meds"
+        ],
+        "summary": "Undo",
+        "operationId": "undo_api_meds_vyvanse_undo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MedsUndo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MedsSaved"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "IgnisSession": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BoardColumn": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+$",
+            "title": "Name"
+          },
+          "group": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "todo",
+                  "in-progress",
+                  "complete"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "gray",
+              "brown",
+              "orange",
+              "yellow",
+              "green",
+              "blue",
+              "purple",
+              "pink",
+              "red"
+            ],
+            "title": "Color"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "color"
+        ],
+        "title": "BoardColumn"
+      },
+      "BoardDefinition": {
+        "properties": {
+          "order": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Order"
+          },
+          "columns": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BoardColumn"
+            },
+            "type": "object",
+            "maxProperties": 20,
+            "minProperties": 1,
+            "title": "Columns"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "order",
+          "columns"
+        ],
+        "title": "BoardDefinition"
+      },
+      "ButtonStep": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "reopen",
+              "check",
+              "today",
+              "edit"
+            ],
+            "title": "Action"
+          },
+          "targetProperty": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 43
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetproperty"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "targetId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetid"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "ButtonStep"
+      },
+      "CoverUpload": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "CoverUpload"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HabitHistory": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "checked": {
+            "type": "boolean",
+            "title": "Checked"
+          },
+          "rest": {
+            "type": "boolean",
+            "title": "Rest"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "count",
+          "checked",
+          "rest"
+        ],
+        "title": "HabitHistory"
+      },
+      "HabitTotals": {
+        "properties": {
+          "periods": {
+            "type": "integer",
+            "title": "Periods"
+          },
+          "completed": {
+            "type": "integer",
+            "title": "Completed"
+          },
+          "percent": {
+            "type": "integer",
+            "title": "Percent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periods",
+          "completed",
+          "percent"
+        ],
+        "title": "HabitTotals"
+      },
+      "InboxCount": {
+        "properties": {
+          "unreadCount": {
+            "type": "integer",
+            "title": "Unreadcount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unreadCount"
+        ],
+        "title": "InboxCount"
+      },
+      "InboxView": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NotificationView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "unreadCount": {
+            "type": "integer",
+            "title": "Unreadcount"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "unreadCount",
+          "nextCursor"
+        ],
+        "title": "InboxView"
+      },
+      "ItemMetadata": {
+        "properties": {
+          "number": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000000000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "createdBy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdby"
+          },
+          "editedAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Editedat"
+          },
+          "editedBy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Editedby"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ItemMetadata"
+      },
+      "MedsDose": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "taken_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Taken At"
+          },
+          "dose_mg": {
+            "type": "number",
+            "title": "Dose Mg"
+          },
+          "owner_day": {
+            "type": "string",
+            "title": "Owner Day"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "taken_at",
+          "dose_mg",
+          "owner_day"
+        ],
+        "title": "MedsDose"
+      },
+      "MedsEvent": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "dose_id": {
+            "type": "integer",
+            "title": "Dose Id"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "onset",
+              "strongest",
+              "wearing_off"
+            ],
+            "title": "Event Type"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "dose_id",
+          "event_type",
+          "occurred_at"
+        ],
+        "title": "MedsEvent"
+      },
+      "MedsIntake": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Clienteventid"
+          },
+          "dose_mg": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Dose Mg"
+          },
+          "taken_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Taken At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "dose_mg",
+          "taken_at"
+        ],
+        "title": "MedsIntake"
+      },
+      "MedsIntakeEdit": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Clienteventid"
+          },
+          "dose_mg": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Dose Mg"
+          },
+          "taken_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Taken At"
+          },
+          "dose_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Dose Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "dose_mg",
+          "taken_at",
+          "dose_id"
+        ],
+        "title": "MedsIntakeEdit"
+      },
+      "MedsMedication": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "const": "vyvanse",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "dose_presets": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Dose Presets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "dose_presets"
+        ],
+        "title": "MedsMedication"
+      },
+      "MedsPhase": {
+        "properties": {
+          "clientEventId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Clienteventid"
+          },
+          "dose_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Dose Id"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "onset",
+              "strongest",
+              "wearing_off"
+            ],
+            "title": "Event Type"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "clientEventId",
+          "dose_id",
+          "event_type",
+          "occurred_at"
+        ],
+        "title": "MedsPhase"
+      },
+      "MedsSaved": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "MedsSaved"
+      },
+      "MedsSnapshot": {
+        "properties": {
+          "medication": {
+            "$ref": "#/components/schemas/MedsMedication"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "owner_day": {
+            "type": "string",
+            "title": "Owner Day"
+          },
+          "range": {
+            "type": "string",
+            "const": "all",
+            "title": "Range"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "doses": {
+            "items": {
+              "$ref": "#/components/schemas/MedsDose"
+            },
+            "type": "array",
+            "title": "Doses"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/MedsEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "medication",
+          "timezone",
+          "owner_day",
+          "range",
+          "fetched_at",
+          "doses",
+          "events"
+        ],
+        "title": "MedsSnapshot"
+      },
+      "MedsUndo": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "intake",
+              "onset",
+              "strongest",
+              "wearing_off"
+            ],
+            "title": "Kind"
+          },
+          "dose_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Dose Id"
+          },
+          "expected_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expected At"
+          },
+          "dose_mg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dose Mg"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "dose_id",
+          "expected_at"
+        ],
+        "title": "MedsUndo"
+      },
+      "MoodEntry": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "title": "Date"
+          },
+          "mood": {
+            "type": "string",
+            "enum": [
+              "happy",
+              "excited",
+              "okay",
+              "sad",
+              "low",
+              "angry"
+            ],
+            "title": "Mood"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "date",
+          "mood"
+        ],
+        "title": "MoodEntry"
+      },
+      "NotebookHabit": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "createdOn": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "title": "Createdon"
+          },
+          "completions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "title": "Completions"
+          },
+          "archived": {
+            "type": "boolean",
+            "title": "Archived",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "createdOn"
+        ],
+        "title": "NotebookHabit"
+      },
+      "NotebookPage": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "parentId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parentid"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Title"
+          },
+          "lists": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalList"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Lists"
+          },
+          "content": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Content",
+            "description": "Tiptap document supporting text, lists, images, callouts, details/detailsSummary/detailsContent toggles, table/tableRow/tableCell/tableHeader and pageLink blocks. Layout blocks support columns with 2-5 column children and optional widths (one positive numeric weight up to 100 per column), tabs with 1-12 tabPanel children (UUID id, title up to 80 chars), imageGrid atoms (count 2, 3 or 4 and matching images containing null or url/alt objects), a generated tableOfContents atom, and viewBlock atoms with view, source, title, query, filter, sort (manual, title or date), group, collectionId, metric and optional columns settings. Columns are keyed by stable status IDs To do, In progress, Done or column:UUID; optional columnOrder retains their order. View preferences hiddenColumns and hideAggregation hide columns or item counts without changing tasks. Optional cardSize (small/medium/large), cardPreview (none/cover/content or a Files property UUID) and boolean cardImageFit configure board card sizing and previews. Optional cardProperties is a unique array of up to 36 built-in keys (status, date, value, cover, description) or property UUIDs controlling board card fields; null preserves Image/Date defaults and an empty array shows only names. Personal lists can own an atomic board definition and task assignment. Column definitions contain a name up to 60 characters and a gray/brown/orange/yellow/green/blue/purple/pink/red color. Toggle detailsSummary headingLevel accepts null or 1, 2, 3. Callout icon attrs use emoji: or icon: symbols, or null. Page links use a UUID pageId and a title. Block attrs textColor/backgroundColor accept null, gray, brown, orange, yellow, green, blue, purple, pink or red."
+          },
+          "moods": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/MoodEntry"
+                },
+                "type": "array",
+                "maxItems": 20000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moods"
+          },
+          "reading": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadingData"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "habits": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/NotebookHabit"
+                },
+                "type": "array",
+                "maxItems": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Habits"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "meeting",
+                  "board",
+                  "calendar",
+                  "dashboard",
+                  "meds",
+                  "habits"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "pattern": "^(icon:(flame|calendar|home|book|leaf|star|moon|sun|heart|coffee|sparkles|flower|grid|check|checklist|clipboard|folder|archive|file|pen|tag|bookmark|clock|bell|target|flag|compass|globe|map|mountain|tree|sprout|cloud|briefcase|laptop|code|terminal|line-chart|bar-chart|layers|mail|message|user|users|shield|lock|key|camera|image|music|headphones|play|microphone|gift|rocket|lightbulb|trophy|utensils|shopping-bag|wallet|palette|wrench|pin|link|graduation|beaker|dumbbell|brain|bed|anchor|building|plane|puzzle|settings|planet|orbit|satellite|telescope|ufo|astronaut|comet|constellation|galaxy|eclipse|moon-stars|stars|atom|meteor|fire|campfire|torch|candle|volcano|lightning|head|thought|neurons|brain-circuit|eye|meditation|infinity|wave|crystal|diamond|notion-123-a665a|notion-vitruvian-man-circle-841d9|notion-activity-rectangle-e495a|notion-plus-circle-f4a8b|notion-airplane-0f488|notion-alarm-clock-26869|notion-exclamation-speech-bubble-2c31b|notion-alien-a49c1|notion-alien-pixel-17665|notion-ambulance-efdfc|notion-anchor-79bfb|notion-apple-3a7bd|notion-apron-e79e8|notion-aquarius-3046f|notion-bridge-arch-f636b|notion-bow-arrow-bc918|notion-archive-box-d468d|notion-aries-d66a9|notion-airplane-arrival-4ada5|notion-arrow-circle-down-9f1db|notion-arrow-down-circle-f87b1|notion-arrow-down-f8e2e|notion-arrow-down-line-89a6a|notion-arrow-left-circle-5c139|notion-arrow-left-ae97a|notion-arrow-left-line-c867f|notion-arrow-northeast-0a498|notion-arrow-northwest-340b3|notion-arrow-right-circle-35320|notion-arrow-right-c451f|notion-arrow-right-line-aeba2|notion-arrow-southeast-ba2b5|notion-arrow-southwest-f5f73|notion-arrow-turn-left-237c9|notion-arrow-turn-right-6423c|notion-arrow-up-circle-7eb1b|notion-arrow-up-d77ac|notion-arrow-up-line-e4ada|notion-arrows-horizontal-1db8d|notion-arrows-swap-horizontal-da75e|notion-arrows-swap-vertical-8461e|notion-arrows-vertical-b81f4|notion-artwork-frame-e7165|notion-asterisk-e88b5|notion-cash-machine-010fc|notion-paperclip-670d4|notion-avocado-f9c9b|notion-baby-a3ca3|notion-baby-bottle-38776|notion-backpack-5f003|notion-arrow-left-heavy-87980|notion-identification-badge-e4647|notion-intravenous-bag-89ee2|notion-baggage-claim-ae978|notion-balloon-00477|notion-bananas-e4ba5|notion-barcode-90c15|notion-traffic-barricade-d12f4|notion-baseball-a01ed|notion-baseball-cap-66cae|notion-basketball-f02c9|notion-bathtub-82157|notion-bathtub-shower-79ea8|notion-battery-f3d17|notion-battery-electrical-plug-62d98|notion-battery-lightning-bolt-6ad38|notion-bed-c5052|notion-bee-62cb8|notion-beer-glass-93ce8|notion-beer-bottle-8a614|notion-bell-f6837|notion-bell-notification-d7eaf|notion-bell-slash-69635|notion-belt-5f4f0|notion-bicycle-d29af|notion-bikini-d937a|notion-binoculars-a0e23|notion-blood-pressure-monitor-de3ef|notion-bluetooth-a828d|notion-ticket-airplane-58fb5|notion-ferry-boat-95189|notion-bomb-eb0af|notion-bone-c8dac|notion-book-open-d4985|notion-book-closed-c2135|notion-bookmark-ffe7f|notion-bookmark-outline-8cf7c|notion-boombox-43f3f|notion-boot-4509b|notion-arrow-bounce-heavy-32b79|notion-bowl-d9f2b|notion-bowl-food-08646|notion-bowling-ball-pins-d5e1d|notion-bra-8f684|notion-human-profile-brain-fdbb5|notion-arrows-branch-5bb99|notion-branch-f38c7|notion-branch-fork-6539f|notion-branch-merge-de2a6|notion-bread-98560|notion-briefcase-64527|notion-brightness-aa6ed|notion-broccoli-067d8|notion-broom-100a0|notion-broom-dustpan-8fc59|notion-x-octagon-cbb44|notion-bug-ecb53|notion-bugle-93890|notion-target-arrow-185da|notion-bunk-bed-38ea0|notion-burger-3ed1f|notion-burst-57d59|notion-bus-04e02|notion-bus-double-decker-22c0f|notion-bus-metro-c6e3a|notion-butterfly-fcfd0|notion-pin-back-button-edf76|notion-cactus-caaea|notion-coffee-cup-799f9|notion-cake-32cdb|notion-calculator-d2d4a|notion-calendar-51527|notion-day-calendar-17986|notion-month-calendar-670a6|notion-week-calendar-3a930|notion-camera-89e8b|notion-camera-slash-0b39e|notion-rectangles-landscape-65c34|notion-rectangles-portrait-4e5f4|notion-camping-tent-f2e37|notion-camping-trailer-07e4b|notion-cancer-5600a|notion-candy-4d160|notion-capricorn-a138f|notion-car-2b296|notion-identification-card-09fc6|notion-playing-card-club-8b6b1|notion-playing-card-diamond-aea5d|notion-playing-card-heart-a41a1|notion-playing-card-spade-40f4b|notion-playing-cards-b270e|notion-carrot-b9648|notion-currency-cash-23c16|notion-cash-register-1f9e8|notion-fire-dc9f2|notion-fire-extinguisher-824d6|notion-fire-truck-6b213|notion-fireworks-0caee|notion-temperature-hot-0cf0c|notion-tulip-name-tag-7f460|notion-tree-conifer-fire-ebfc8|notion-brick-wall-95b65|notion-rocket-c58dd|notion-telescope-918d6|notion-star-525ec|notion-star-half-94d06|notion-star-outline-d4a45|notion-sun-27756|notion-star-circle-aad4c|notion-face-gasp-6af39|notion-playback-play-ea025|notion-playback-play-button-e4596|notion-asterisk-heavy-31142|notion-sparkle-aefe4|notion-heart-3cb96|notion-heart-box-bow-33cea|notion-heart-outline-10e18|notion-heart-rate-2e060|notion-heart-rate-rectangle-27f9f|notion-heart-lightning-bolt-e364e|notion-heart-broken-30a25|notion-stethoscope-593fe|notion-face-heart-eyes-aba6a|notion-playing-card-suit-heart-35584|notion-moon-9e78b|notion-orbit-4fa1a|notion-weather-cloud-moon-f085f|notion-ringed-planet-37c85|notion-music-note-8th-beamed-53c34|notion-music-album-34bc7|notion-tape-cassette-fd218|notion-mirror-ball-02862|notion-headphones-86d6e|notion-metronome-9e03f|notion-music-note-8th-2ea58|notion-music-note-half-8ba9c|notion-music-note-quarter-32161|notion-music-note-16th-2902f|notion-music-note-16th-beamed-50a04|notion-music-note-whole-cbb3f|notion-music-note-list-25846|notion-radio-aa3a0|notion-vinyl-record-9f586|notion-clarinet-bf8c1|notion-guitar-electric-e3dc0|notion-guitar-acoustic-1a669|notion-piano-1d78e|notion-snare-drum-98412|notion-trumpet-b7dfa|notion-violin-00e3e|notion-computer-aa973|notion-computer-chip-812d8|notion-computer-window-0c50f|notion-robot-18d63|notion-tablet-computer-1bb4e|notion-laptop-computer-c2570|notion-cursor-46a4e|notion-cursor-button-1ae37|notion-cursor-click-fcffd|notion-flower-daisy-f5179|notion-hanafuda-cded0|notion-flower-tulip-21eca|notion-fleur-de-lis-92745|notion-gravestone-373c9|notion-leaf-9f911|notion-leaf-monstera-c349a|notion-tree-conifer-90ee6|notion-tree-palm-7038d|notion-tree-deciduous-b5afb|notion-clover-four-leaf-188cd|notion-donkey-d22f1|notion-elephant-cd08c|notion-fish-b474a|notion-rabbit-d37d9|notion-turtle-74dd7|notion-cat-77af7|notion-chicken-811eb|notion-cow-beb13|notion-crab-3349a|notion-dog-cd635|notion-duck-2d237|notion-feather-b5211|notion-pig-f0b8c|notion-sheep-5c599|notion-snake-538d7|notion-whale-a5d2a|notion-poultry-4fac4|notion-golf-625fe|notion-location-arrow-e3b39|notion-medication-87663|notion-location-arrow-circle-48a3e|notion-app-notification-8d983|notion-checkmark-verification-76f2c|notion-rectangle-stack-cdfbe|notion-church-badb8|notion-circle-square-triangle-7eb8d|notion-cherries-c6de7|notion-corn-63b04|notion-cupcake-b0eae|notion-fork-plate-e80e4|notion-egg-34707|notion-fork-spoon-knife-c2d11|notion-fork-8d0c7|notion-fork-knife-21cc3|notion-frying-pan-egg-73b43|notion-garlic-41024|notion-milk-carton-apple-e83a9|notion-knife-3d4d1|notion-knife-kitchen-8230d|notion-lemon-f464d|notion-meat-59d6d|notion-microwave-d2bed|notion-nut-7dfd8|notion-onion-28897|notion-orange-1b4c9|notion-oven-4908a|notion-peanut-55098|notion-pear-97cfb|notion-pizza-9ed15|notion-pretzel-d1fed|notion-refrigerator-0cf35|notion-sandwich-8f5c5|notion-seed-19b25|notion-shell-ce635|notion-soybeans-452d3|notion-spoon-7f480|notion-stomach-d5a0d|notion-stovetop-4bc33|notion-strawberry-5e737|notion-human-profile-throat-51b47|notion-grain-2c224|notion-plate-food-f8a52|notion-grapes-8286e|notion-capitol-building-5c67f|notion-hammer-3ef81|notion-classical-building-121bb|notion-school-d64de|notion-cityscape-4d339|notion-makeup-brush-7bcc5|notion-scrub-brush-23a2e|notion-screwdriver-2f2d4|notion-wrench-702b0|notion-weather-cloud-28b94|notion-weather-cloud-fog-93e3f|notion-weather-cloud-hail-c4d20|notion-weather-cloud-sun-fe970|notion-weather-cloud-rain-4c1c5|notion-weather-cloud-sleet-5ec7c|notion-snowflake-de5a1|notion-weather-cloud-lightning-bolt-e7a5c|notion-sunglasses-754ee|notion-temperature-cold-c7531|notion-umbrella-29747|notion-wind-9b58e|notion-motorcycle-48a39|notion-roller-skate-6f0d3|notion-skateboard-2406f|notion-passport-cbc47|notion-flag-checkered-9a088|notion-football-6382d|notion-ice-skate-e8ee8|notion-inline-skate-8891c|notion-person-running-d3d9d|notion-soccer-8f27f|notion-whistle-fa829|notion-person-feminine-4a4cd|notion-person-masculine-9c179|notion-user-speech-bubble-ca66c|notion-child-ddc9e|notion-user-2-38b59|notion-user-3-c4d51|notion-person-trash-can-1e860|notion-people-meeting-6f0d0|notion-people-c9022|notion-human-profile-cbd5c|notion-person-walking-circle-1df17|notion-people-counter-5ae88|notion-people-arms-linked-61b17|notion-user-squares-32f83|notion-user-04f89|notion-user-circle-outline-9e472|notion-user-circle-dashed-6bfcc|notion-user-circle-1291b|notion-vitruvian-man-fbc22|notion-person-walking-c5895|notion-wheelchair-ce579|notion-person-wheelchair-9bbe4|notion-wheelchair-motorized-cc162|notion-lightning-bolt-ba84b|notion-light-bulb-1bafd|notion-shade-light-d4961|notion-yin-yang-ef958|notion-flashlight-b982e|notion-traffic-light-34d73|notion-train-light-rail-31ab9|notion-jack-o-lantern-60817|notion-sun-arrow-up-480ea|notion-sunscreen-c07dc|notion-sun-arrow-down-e560f|notion-hat-sunglasses-3cbcf|notion-face-sunglasses-68266|notion-water-0f416|notion-drink-218ae|notion-house-flood-bdf03|notion-helm-ab14d|notion-highball-glass-9cd38|notion-pitcher-f9eb3|notion-shower-52815|notion-sink-1978b|notion-soda-bottle-84eae|notion-bridge-suspension-ee619|notion-teapot-33f38|notion-toilet-74f7f|notion-sailboat-72bec|notion-tree-christmas-9d2d7|notion-holiday-ornament-b4842|notion-mountains-5e23d|notion-parking-circle-481e5|notion-parking-circle-slash-e213e|notion-steering-wheel-9d504|notion-credit-card-c59fa|notion-milk-carton-c2c96|notion-baggage-cart-1d5ab|notion-postcard-22f0b|notion-scarf-b4a8d|notion-shopping-cart-4aa23|notion-playing-card-suit-club-7494a|notion-playing-card-suit-diamond-1571d|notion-playing-card-suit-spade-de90a|notion-comb-ef4e3|notion-fuel-acbe4|notion-book-school-ed78c|notion-hair-dryer-04210|notion-handbag-d5319|notion-luggage-f59e7|notion-baby-pram-56903|notion-stroller-c0f04|notion-suitcase-9817a|notion-phone-smart-98750|notion-phone-handset-8546a|notion-phone-handset-down-b402f|notion-phone-handset-waves-82efa|notion-headphones-microphone-336d5|notion-megaphone-f2a76|notion-microphone-d7f4d|notion-microphone-slash-b5013|notion-stage-microphone-7d8a3|notion-telephone-73397|notion-movie-camera-7c900|notion-video-camera-f8186|notion-video-camera-slash-ae493|notion-chart-bar-vertical-41815|notion-chart-bar-horizontal-2dc27|notion-chart-area-c32ee|notion-chart-donut-37246|notion-chart-line-711eb|notion-chart-bar-line-e3448|notion-chart-pie-bac7b|notion-chart-flow-ed81e|notion-chart-timeline-6fc3d|notion-spreadsheet-53e54|notion-check-20f65|notion-checkmark-list-4bccd|notion-checkmark-circle-ae3e1|notion-checkmark-fdc90|notion-checkmark-square-f2bf5|notion-cloud-checkmark-1b4e5|notion-user-checkmark-1db21|notion-shop-8d900|notion-shopping-bag-ac282|notion-shopping-basket-3fd43|notion-square-outline-37d7d|notion-flag-807d0|notion-flag-pennant-d493c|notion-flag-swallowtail-241be|notion-castle-913a5|notion-castle-japanese-012ab|notion-game-pawn-c52d0|notion-video-game-modern-5debf|notion-video-game-classic-c5dad|notion-video-game-joystick-9e6d8|notion-chess-bishop-9f332|notion-chess-king-08941|notion-chess-knight-7070e|notion-chess-pawn-a71fc|notion-chess-queen-04e9d|notion-chess-rook-7c939|notion-die-1-42cb3|notion-die-2-2c261|notion-die-3-45304|notion-die-4-e8736|notion-die-5-e3bd5|notion-die-6-4b05f|notion-mahjong-0792a|notion-shogi-7fe20|notion-hand-1b001|notion-hand-octagon-3be1e|notion-coffee-maker-10c57|notion-pump-bottle-64172|notion-towel-10ca5|notion-tray-ad9a0|notion-envelope-open-169de|notion-container-x-10f6d|notion-postage-stamp-8ed61|notion-paper-airplane-76453|notion-map-folded-7e892|notion-map-pin-acd59|notion-map-pin-triangle-f4426|notion-globe-desk-bcf02|notion-globe-d2a1f|notion-pencil-13809|notion-pencil-square-outline-6bb73|notion-pencil-list-03c6e)(?::(?:default|gray|brown|yellow|orange|green|blue|purple|pink|red))?|emoji:[^\\x00-\\x1f\\x7f]+)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "cover": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PageCover"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fullWidth": {
+            "type": "boolean",
+            "title": "Fullwidth",
+            "default": true
+          },
+          "font": {
+            "type": "string",
+            "enum": [
+              "default",
+              "serif",
+              "mono"
+            ],
+            "title": "Font",
+            "default": "default"
+          },
+          "smallText": {
+            "type": "boolean",
+            "title": "Smalltext",
+            "default": false
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "default": false
+          },
+          "favorite": {
+            "type": "boolean",
+            "title": "Favorite",
+            "default": false
+          },
+          "deletedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deletedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "content"
+        ],
+        "title": "NotebookPage"
+      },
+      "NotificationChange": {
+        "properties": {
+          "read": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read"
+          },
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "NotificationChange"
+      },
+      "NotificationView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "pageId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pageid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "reminder",
+              "workspace"
+            ],
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Dueat"
+          },
+          "readAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readat"
+          },
+          "archivedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archivedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "pageId",
+          "kind",
+          "title",
+          "body",
+          "createdAt",
+          "dueAt",
+          "readAt",
+          "archivedAt"
+        ],
+        "title": "NotificationView"
+      },
+      "NumberDisplay": {
+        "properties": {
+          "showAs": {
+            "type": "string",
+            "enum": [
+              "number",
+              "bar",
+              "ring"
+            ],
+            "title": "Showas"
+          },
+          "color": {
+            "type": "string",
+            "enum": [
+              "gray",
+              "brown",
+              "orange",
+              "yellow",
+              "green",
+              "blue",
+              "purple",
+              "pink",
+              "red"
+            ],
+            "title": "Color"
+          },
+          "divideBy": {
+            "type": "number",
+            "maximum": 1000000000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Divideby"
+          },
+          "showNumber": {
+            "type": "boolean",
+            "title": "Shownumber"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "showAs",
+          "color",
+          "divideBy",
+          "showNumber"
+        ],
+        "title": "NumberDisplay"
+      },
+      "PageCover": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "title": "Url"
+          },
+          "position": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Position",
+            "default": 50
+          },
+          "author": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author"
+          },
+          "authorUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorurl"
+          },
+          "sourceUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceurl"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "PageCover"
+      },
+      "PersonalItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Title"
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 43,
+            "pattern": "^(To do|In progress|Done|column:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+            "title": "Status"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Description",
+            "default": ""
+          },
+          "descriptionContent": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descriptioncontent",
+            "description": "Rich task body as a Tiptap document. Plain description remains a searchable text summary."
+          },
+          "cover": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ItemMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "properties": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object",
+                "maxProperties": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Properties"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "status"
+        ],
+        "title": "PersonalItem"
+      },
+      "PersonalList": {
+        "properties": {
+          "idCounter": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idcounter"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Name"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalItem"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Items"
+          },
+          "board": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BoardDefinition"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "properties": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TaskProperty"
+                },
+                "type": "array",
+                "maxItems": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Properties"
+          },
+          "propertyDisplay": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/PropertyDisplay"
+                },
+                "type": "object",
+                "maxProperties": 34
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Propertydisplay"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PersonalList"
+      },
+      "PropertyConfig": {
+        "properties": {
+          "buttonLabel": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buttonlabel"
+          },
+          "confirmation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmation"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ButtonStep"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Steps"
+          },
+          "statusGroups": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "todo",
+                    "in-progress",
+                    "complete"
+                  ]
+                },
+                "type": "object",
+                "maxProperties": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statusgroups"
+          },
+          "defaultStatus": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Defaultstatus"
+          },
+          "optionColors": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "gray",
+                    "brown",
+                    "orange",
+                    "yellow",
+                    "green",
+                    "blue",
+                    "purple",
+                    "pink",
+                    "red"
+                  ]
+                },
+                "type": "object",
+                "maxProperties": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optioncolors"
+          },
+          "optionSort": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "ascending",
+                  "descending"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optionsort"
+          },
+          "expression": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expression"
+          },
+          "targetListId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetlistid"
+          },
+          "relationId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relationid"
+          },
+          "targetProperty": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 43
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetproperty"
+          },
+          "aggregation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "count",
+                  "sum",
+                  "average",
+                  "min",
+                  "max",
+                  "unique"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aggregation"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "complete",
+                  "reopen",
+                  "check"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "targetId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetid"
+          },
+          "prefix": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 12,
+                "pattern": "^[A-Za-z0-9_-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prefix"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PropertyConfig"
+      },
+      "PropertyDisplay": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60,
+                "minLength": 1,
+                "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "always",
+              "empty",
+              "hidden"
+            ],
+            "title": "Visibility",
+            "default": "always"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NumberDisplay"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "order": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMaximum": 34.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PropertyDisplay"
+      },
+      "RairaHabit": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "section": {
+            "type": "string",
+            "title": "Section"
+          },
+          "moment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moment"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "archived"
+            ],
+            "title": "Status"
+          },
+          "cadence": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "title": "Cadence"
+          },
+          "target_count": {
+            "type": "integer",
+            "title": "Target Count"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Start Date"
+          },
+          "period_key": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Key"
+          },
+          "completed_count": {
+            "type": "integer",
+            "title": "Completed Count"
+          },
+          "period_done": {
+            "type": "boolean",
+            "title": "Period Done"
+          },
+          "due": {
+            "type": "boolean",
+            "title": "Due"
+          },
+          "rest_day": {
+            "type": "boolean",
+            "title": "Rest Day"
+          },
+          "current_streak": {
+            "type": "integer",
+            "title": "Current Streak"
+          },
+          "medication_linked": {
+            "type": "boolean",
+            "title": "Medication Linked"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/HabitHistory"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/HabitTotals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "section",
+          "moment",
+          "status",
+          "cadence",
+          "target_count",
+          "start_date",
+          "period_key",
+          "completed_count",
+          "period_done",
+          "due",
+          "rest_day",
+          "current_streak",
+          "medication_linked",
+          "history",
+          "totals"
+        ],
+        "title": "RairaHabit"
+      },
+      "RairaHabitArchive": {
+        "properties": {
+          "habit_id": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Habit Id"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/RairaHabitConfig"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "habit_id",
+          "expected"
+        ],
+        "title": "RairaHabitArchive"
+      },
+      "RairaHabitConfig": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "section": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Section"
+          },
+          "cadence": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "title": "Cadence"
+          },
+          "target_count": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Target Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "section",
+          "cadence",
+          "target_count"
+        ],
+        "title": "RairaHabitConfig"
+      },
+      "RairaHabitCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "section": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Section",
+            "default": "Other"
+          },
+          "cadence": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "title": "Cadence",
+            "default": "daily"
+          },
+          "target_count": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Target Count",
+            "default": 1
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "RairaHabitCreate"
+      },
+      "RairaHabitEdit": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "section": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Section",
+            "default": "Other"
+          },
+          "cadence": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "title": "Cadence",
+            "default": "daily"
+          },
+          "target_count": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Target Count",
+            "default": 1
+          },
+          "habit_id": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Habit Id"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/RairaHabitConfig"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "habit_id",
+          "expected"
+        ],
+        "title": "RairaHabitEdit"
+      },
+      "RairaHabitMark": {
+        "properties": {
+          "habit_id": {
+            "type": "integer",
+            "maximum": 2147483647.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Habit Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "period_key": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Key"
+          },
+          "expected_count": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Expected Count"
+          },
+          "desired_count": {
+            "type": "integer",
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Desired Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "habit_id",
+          "date",
+          "period_key",
+          "expected_count",
+          "desired_count"
+        ],
+        "title": "RairaHabitMark"
+      },
+      "RairaHabitsSnapshot": {
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "owner_day": {
+            "type": "string",
+            "format": "date",
+            "title": "Owner Day"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "habits": {
+            "items": {
+              "$ref": "#/components/schemas/RairaHabit"
+            },
+            "type": "array",
+            "title": "Habits"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timezone",
+          "owner_day",
+          "fetched_at",
+          "habits"
+        ],
+        "title": "RairaHabitsSnapshot"
+      },
+      "ReadNotifications": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "title": "ReadNotifications"
+      },
+      "ReadingBook": {
+        "properties": {
+          "alreadyReadPages": {
+            "type": "integer",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Alreadyreadpages",
+            "default": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Author",
+            "default": ""
+          },
+          "rating": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Rating",
+            "default": 0
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "owned",
+              "bought",
+              "borrowed"
+            ],
+            "title": "Source",
+            "default": "owned"
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[a-fA-F0-9]{6}$",
+            "title": "Color"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "color"
+        ],
+        "title": "ReadingBook"
+      },
+      "ReadingData": {
+        "properties": {
+          "books": {
+            "items": {
+              "$ref": "#/components/schemas/ReadingBook"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "title": "Books"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/ReadingEntry"
+            },
+            "type": "array",
+            "maxItems": 20000,
+            "title": "Entries"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReadingData"
+      },
+      "ReadingEntry": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "bookId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Bookid"
+          },
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "title": "Date"
+          },
+          "pages": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Pages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "bookId",
+          "date",
+          "pages"
+        ],
+        "title": "ReadingEntry"
+      },
+      "ReminderRequest": {
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Requestid"
+          },
+          "pageId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Pageid"
+          },
+          "dueAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Dueat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "requestId",
+          "pageId",
+          "dueAt"
+        ],
+        "title": "ReminderRequest"
+      },
+      "Snapshot": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Revision"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/NotebookPage"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Pages"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "pages"
+        ],
+        "title": "Snapshot"
+      },
+      "SnapshotStatus": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Revision"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/NotebookPage"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Pages"
+          },
+          "backupWarning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Backupwarning"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "pages"
+        ],
+        "title": "SnapshotStatus"
+      },
+      "TaskProperty": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 1,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+$",
+            "title": "Name"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "number",
+              "select",
+              "multi-select",
+              "status",
+              "date",
+              "person",
+              "files",
+              "checkbox",
+              "url",
+              "email",
+              "phone",
+              "formula",
+              "relation",
+              "rollup",
+              "created-time",
+              "created-by",
+              "edited-time",
+              "edited-by",
+              "button",
+              "place",
+              "id"
+            ],
+            "title": "Type"
+          },
+          "options": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Options"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PropertyConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "type"
+        ],
+        "title": "TaskProperty"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "IgnisSession": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Cookie",
+        "description": "Existing Ignis session cookie; revalidated against Tinyauth on every request and restricted to the configured notebook owner."
+      }
+    }
+  }
+}

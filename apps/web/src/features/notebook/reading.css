@@ -1,0 +1,67 @@
+.reading-tracker { padding-top: 24px; }
+.reading-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 32px; }
+.reading-toolbar p { margin: 0; font-size: 14px; color: var(--nb-muted); }
+.reading-toolbar p strong { color: var(--nb-text); font-size: 24px; font-weight: 600; }
+.reading-toolbar p > span { display: block; margin-top: 4px; font-size: 12px; }
+.reading-toolbar > div { display: flex; gap: 8px; }
+.notebook .reading-toolbar button { padding: 7px 12px; border-radius: 4px; background: var(--nb-tint); font-size: 13px; white-space: nowrap; }
+.reading-spread { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 40px; }
+.notebook .reading-tracker h2 { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0 0 20px; padding-bottom: 10px; border-bottom: 2px solid var(--nb-line); }
+.reading-book { display: flex; width: 100%; text-align: left; align-items: flex-start; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--nb-line); }
+.reading-book-number { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 35px; background: color-mix(in srgb, var(--book-color) 23%, transparent); border: 1px solid var(--book-color); color: var(--book-color); font-family: Georgia, serif; font-size: 22px; transform: rotate(-3deg); }
+.reading-book:nth-child(even) .reading-book-number { transform: rotate(2deg); }
+.reading-book > span:nth-child(2) { flex: 1; min-width: 0; }
+.reading-book strong { font-weight: 500; font-size: 15px; overflow-wrap: anywhere; }
+.reading-book small { display: block; color: var(--nb-muted); font-size: 11px; margin-top: 4px; }
+.reading-rating { display: block; color: var(--book-color); margin: 5px 0; letter-spacing: 2px; font-size: 16px; }
+.reading-book-pages { text-align: right; font-size: 18px; font-variant-numeric: tabular-nums; color: var(--nb-muted); }
+.reading-chart header { display: flex; align-items: baseline; gap: 12px; }
+.reading-chart header h2 { flex: 1; }
+.reading-chart header > span { font-size: 11px; color: var(--nb-muted); }
+.reading-bar-row { display: grid; grid-template-columns: 22px minmax(0, 1fr) 32px; align-items: center; gap: 8px; width: 100%; height: 24px; text-align: left; font-size: 11px; }
+.reading-day, .reading-daily-total { font-variant-numeric: tabular-nums; color: var(--nb-muted); }
+.reading-daily-total { text-align: right; }
+.reading-bar-track { display: flex; align-items: center; height: 17px; border-bottom: 1px solid #ffffff08; }
+.reading-bar-track > span { height: 15px; border: 1px solid #ffffff26; transform: skewY(-.5deg); }
+.reading-bar-row.is-today .reading-day { color: var(--nb-text); text-decoration: underline; text-underline-offset: 3px; }
+.notebook .reading-bar-row:not(:disabled):hover, .notebook .reading-book:not(:disabled):hover { background: var(--nb-tint); }
+.reading-empty { padding: 24px 0; color: var(--nb-muted); font-size: 13px; line-height: 1.7; max-width: 260px; }
+.reading-empty p { color: var(--nb-text); margin-bottom: 8px; }
+.reading-log { margin-top: 36px; }
+.notebook .reading-log h2 { font-size: 16px; border-bottom-width: 1px; }
+.reading-log > button { display: grid; grid-template-columns: 75px minmax(0, 1fr) 80px; gap: 12px; width: 100%; padding: 12px 0; border-bottom: 1px solid var(--nb-line); text-align: left; font-size: 13px; }
+.reading-log > button span { color: var(--nb-muted); }
+.reading-log > button span:last-child { text-align: right; }
+.reading-colors { border: 0; padding: 0; margin: 20px 0; display: flex; gap: 12px; }
+.reading-colors legend { font-size: 13px; margin-bottom: 10px; }
+.notebook .reading-colors button { width: 28px; height: 28px; border-radius: 4px; color: #181818; }
+.reading-colors button[aria-pressed=true] { outline: 1px solid white; outline-offset: 3px; }
+@media (max-width: 700px) { .reading-spread { grid-template-columns: minmax(0, 1fr); gap: 32px; }.reading-toolbar { align-items: flex-start; flex-direction: column; gap: 16px; }.reading-bar-row { height: 28px; } }
+@media (pointer: coarse) { .notebook .reading-toolbar button, .reading-log > button { min-height: 44px; }.reading-bar-row { height: 44px; } }
+.notebook .reading-bar-row { height: 24px; min-height: 24px; padding: 0; font-size: 11px; }
+@media (max-width: 700px) and (pointer: coarse) { .notebook .reading-bar-row { height: 44px; min-height: 44px; } }
+.notebook .reading-dialog h2 { border: 0; padding: 0; margin: 0; }
+.notebook .reading-dialog .reading-colors { align-items: center; }
+.notebook .reading-dialog .reading-colors button { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; min-height: 28px; padding: 0; line-height: 1; border: 0; }
+.reading-bar-track > span {
+  border: 0;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16' viewBox='0 0 24 16'%3E%3Cpath d='M-3 14L5 2 0 14 10 1 5 15 15 2 10 14 20 1 16 15 26 2 22 14 30 3' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  mask-repeat: repeat-x;
+  mask-size: 24px 100%;
+  mask-position: left center;
+}
+.reading-book-row { display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px solid var(--nb-line); }
+.reading-book-row .reading-book { flex: 1; min-width: 0; border-bottom: 0; }
+.notebook .reading-book-row > .notebook-property-trigger { flex: 0 0 28px; width: 28px; min-height: 32px; margin-top: 14px; padding: 0; display: grid; place-items: center; color: var(--nb-muted); }
+.notebook .reading-remove-action { color: #e99589; }
+.reading-remove-description { color: var(--nb-muted); font-size: 14px; line-height: 1.6; margin: 24px 0; }
+.reading-remove-description strong { color: var(--nb-text); }
+.notebook .reading-log h2 { font-size: 14px; line-height: 20px; }
+.notebook .reading-log > button { font-size: 12px; line-height: 18px; }
+.notebook .reading-log > button strong { font-size: inherit; font-weight: 500; }
+.reading-day-entries { margin: 20px 0; }
+.notebook .reading-day-entries > button { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 12px 8px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--nb-line); }
+.reading-day-entries > button strong { font-weight: 500; }
+.reading-day-entries > button span { color: var(--nb-muted); white-space: nowrap; }
+.notebook .reading-day-entries > button:hover { background: var(--nb-tint); }
+.reading-progress-help { font-weight: 400; font-size: 11px; line-height: 16px; color: var(--nb-muted); }
