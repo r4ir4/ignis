@@ -1,0 +1,67 @@
+/* The living flame logo (header). Layers: breathing glow, a ping ring every few seconds,
+   a body that sways while its outline morphs (SMIL in the markup), a pulsing core,
+   rising sparks, and a flare-up with extra sparks on hover. It ignites once on load. */
+
+.mark { width: 27px; height: 40px; display: grid; place-items: center; }
+.logo:hover .mark { z-index: 2; }
+
+.flame-logo { width: 27px; height: 40px; overflow: visible; display: block; transition: transform .35s cubic-bezier(.2, 1.5, .4, 1); }
+.flame-logo * { transform-box: fill-box; }
+.logo:hover .flame-logo { transform: scale(1.22) rotate(-5deg); }
+
+.flame-logo .halo { transform-origin: 50% 60%; animation: breathe 2.6s ease-in-out infinite; pointer-events: none; }
+.logo:hover .flame-logo .halo { animation-duration: .9s; }
+
+.flame-logo .ring {
+  transform-origin: 50% 50%; opacity: 0; pointer-events: none; vector-effect: non-scaling-stroke;
+  animation: ping 3.8s cubic-bezier(.2, .6, .3, 1) 1.4s infinite;
+}
+
+.flame-logo .body {
+  transform-origin: 50% 100%;
+  animation: ignite .95s cubic-bezier(.2, 1.5, .4, 1) both, sway 3.2s ease-in-out .95s infinite;
+}
+.logo:hover .flame-logo .body { animation: sway 1.1s ease-in-out infinite; }
+
+.flame-logo .core { transform-origin: 50% 100%; animation: pulse 1.2s ease-in-out infinite; }
+.logo:hover .flame-logo .core { animation-duration: .5s; }
+
+.flame-logo .sp { transform-origin: 50% 50%; animation: rise var(--t, 2s) ease-out var(--d, 0s) infinite; }
+.flame-logo .burst .sp { opacity: 0; animation: none; }
+.logo:hover .flame-logo .burst .sp { animation: rise var(--t, 1s) ease-out var(--d, 0s) infinite; }
+
+@keyframes ignite {
+  0%   { transform: scale(0, 0); opacity: 0; }
+  55%  { transform: scale(1.3, 1.45); opacity: 1; }
+  80%  { transform: scale(.94, .92); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-2.5deg) skewX(2deg) scaleY(1); }
+  35%      { transform: rotate(2deg) skewX(-2deg) scaleY(1.06); }
+  70%      { transform: rotate(-1deg) skewX(1deg) scaleY(.97); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(.82, .78); }
+  50%      { transform: scale(1.12, 1.2); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: .45; transform: scale(.85); }
+  50%      { opacity: 1;   transform: scale(1.12); }
+}
+@keyframes ping {
+  0%   { opacity: .8; transform: scale(.7); }
+  70%  { opacity: 0;  transform: scale(3.4); }
+  100% { opacity: 0;  transform: scale(3.4); }
+}
+@keyframes rise {
+  0%   { opacity: 0; transform: translate(0, 2px) scale(.5); }
+  12%  { opacity: 1; }
+  60%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx, 2px), -15px) scale(.3) rotate(120deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flame-logo *, .flame-logo { animation: none !important; transition: none !important; }
+  .flame-logo .ring, .flame-logo .burst .sp { display: none; }
+}

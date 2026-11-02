@@ -2,11 +2,7 @@
 
 /* Watch's graph-paper surface is scoped so the daily dashboard stays unchanged. */
 .watch-paper {
-  background-color: #eee7db;
-  background-image:
-    linear-gradient(rgb(99 78 46 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(99 78 46 / 0.055) 1px, transparent 1px);
-  background-size: 18px 18px;
+  background-color: #efe7d4;
 }
 
 /* Smaller star artwork with separate keyboard/pointer targets. */
@@ -29,7 +25,7 @@
 }
 
 .watch-rating.rr--group .rr--box:focus-visible .rr--svg {
-  outline: 2px solid #756655;
+  outline: 2px solid #7f3aed;
   outline-offset: 3px;
   border-radius: 3px;
 }
@@ -38,3 +34,15 @@
 .notebook-button-step { border: 1px solid var(--notebook-border, #373737); border-radius: 6px; padding: 10px; display: grid; gap: 8px; margin: 6px 0; }
 .notebook-button-step > button { justify-self: end; color: #9b9b9b; font-size: 12px; }
 .notebook-property-button-value > button { border: 1px solid #484848; border-radius: 5px; padding: 3px 10px; background: #2c2c2c; min-height: 28px; }
+
+/* Watch views fade and rise in when the route changes. */
+@keyframes watch-view-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.watch-view { animation: watch-view-in .24s cubic-bezier(.2, .7, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .watch-view { animation: none; } }
+
+/* Shorts slider: the new slide enters from the side it was reached from. */
+@keyframes watch-slide-next { from { opacity: 0; transform: translateX(48px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes watch-slide-prev { from { opacity: 0; transform: translateX(-48px) scale(.96); } to { opacity: 1; transform: none; } }
+.watch-slide-next { animation: watch-slide-next .28s cubic-bezier(.2, .7, .2, 1) both; }
+.watch-slide-prev { animation: watch-slide-prev .28s cubic-bezier(.2, .7, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .watch-slide-next, .watch-slide-prev { animation: none; } }

@@ -20,7 +20,7 @@ export function playbackTime(seconds: number) {
   const value = Math.max(0, Math.floor(seconds))
   return value >= 3600 ? `${Math.floor(value / 3600)}:${String(Math.floor(value / 60) % 60).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}` : `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`
 }
-export function ResumePlayer({ video, onSaved }: { video: Video; onSaved: (data: WatchState) => void }) {
+export function ResumePlayer({ video, onSaved, vertical = false, fill = false, autoplay = false, muted = false }: { video: Video; onSaved: (data: WatchState) => void; vertical?: boolean; fill?: boolean; autoplay?: boolean; muted?: boolean }) {
   const host = useRef<HTMLDivElement>(null)
   const callback = useRef(onSaved); callback.current = onSaved
   const playerRef = useRef<Player | null>(null)
@@ -31,8 +31,8 @@ export function ResumePlayer({ video, onSaved }: { video: Video; onSaved: (data:
     let pending: { seconds: number; duration: number } | null = null
     const frame = document.createElement('iframe')
     frame.title = video.title
-    frame.className = 'aspect-video min-h-[200px] w-full bg-black'
-    frame.src = `https://www.youtube-nocookie.com/embed/${video.videoId}?enablejsapi=1&origin=${encodeURIComponent(location.origin)}&playsinline=1&rel=0&start=${Math.floor(initial.current)}`
+    frame.className = fill ? 'h-full w-full bg-transparent' : vertical ? 'mx-auto aspect-[9/16] max-h-[80svh] w-full rounded-[18px] border-2 border-[#15000b] bg-black' : 'aspect-video min-h-[200px] w-full rounded-[16px] bg-black'
+    frame.src = `https://www.youtube-nocookie.com/embed/${video.videoId}?enablejsapi=1&origin=${encodeURIComponent(location.origin)}&playsinline=1&rel=0&start=${Math.floor(initial.current)}${autoplay ? '&autoplay=1' : ''}${autoplay && muted ? '&mute=1' : ''}`
     frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
     frame.allowFullscreen = true; frame.referrerPolicy = 'strict-origin-when-cross-origin'
     host.current?.append(frame)
@@ -66,5 +66,5 @@ export function ResumePlayer({ video, onSaved }: { video: Video; onSaved: (data:
     document.addEventListener('visibilitychange', hidden); window.addEventListener('pagehide', capture)
     return () => { capture(); disposed = true; clearInterval(timer); document.removeEventListener('visibilitychange', hidden); window.removeEventListener('pagehide', capture); playerRef.current?.destroy(); playerRef.current = null; frame.remove() }
   }, [video.id, video.videoId])
-  return <div><div ref={host} />{message && <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-[#756655]"><p role="status">{message}</p><button type="button" onClick={() => playerRef.current?.seekTo(0, true)} className="min-h-11 py-2 underline underline-offset-4 focus-visible:outline-2">Start from beginning</button></div>}</div>
+  return <div className={fill ? 'h-full' : undefined}><div ref={host} className={fill ? 'h-full' : undefined} />{message && !fill && <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-[#55464d]"><p role="status">{message}</p><button type="button" onClick={() => playerRef.current?.seekTo(0, true)} className="min-h-11 py-2 underline underline-offset-4 focus-visible:outline-2">Start from beginning</button></div>}</div>
 }
