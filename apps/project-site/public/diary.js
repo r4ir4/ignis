@@ -205,9 +205,8 @@
     const textEl = h('p', { class: 'd-text' });
     renderText(textEl, entry.text);
 
-    // device label (only for entries that came from the app) + time, kept together on the right
+    // time, kept together on the right
     const meta = h('span', { class: 'd-meta' },
-      entry.source && entry.source !== 'web' ? h('span', { class: 'd-src', text: entry.source }) : null,
       h('time', { datetime: entry.created_at, title: d.toLocaleString([], { dateStyle: 'full', timeStyle: 'short' }), text: d.toLocaleTimeString([], timeFmt) }),
       h('span', { class: 'd-ago', 'data-ts': entry.created_at, text: ago(d) ? ' · ' + ago(d) : '' }),
       entry.edited_at ? h('span', { text: ' · edited' }) : null);

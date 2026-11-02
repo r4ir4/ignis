@@ -146,7 +146,6 @@ body:has(dialog[open]) { overflow: hidden; }
 .d-entry > .d-edit { grid-area: edit; }
 .d-meta { margin-left: auto; text-align: right; white-space: nowrap; font: 500 13px/1.3 var(--sans); color: #4d3f45; }
 .d-meta time { font-weight: 700; color: var(--ink); }
-.d-src { display: inline-block; margin-right: 8px; padding: 1px 8px; border: 1.5px solid var(--ink); border-radius: 999px; font: 600 11px/1.5 var(--sans); text-transform: uppercase; letter-spacing: .08em; color: var(--ink); }
 .d-text { max-width: 78ch; margin: 16px 0 0; font: 400 clamp(18px, 1.9vw, 20px)/1.65 var(--serif); font-variation-settings: "SOFT" 100; color: #3a2d34; white-space: pre-wrap; overflow-wrap: anywhere; }
 .d-text a { color: var(--ultra); text-underline-offset: 3px; }
 .d-tag {
