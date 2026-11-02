@@ -1,0 +1,52 @@
+/* Check-in: a plain white page of pastel folders (pink, salmon, peach, coral). Each folder will hold forms about feelings and life. */
+body.checkin { background: #fff; color: #1a1013; }
+body.checkin .top { background: rgba(255, 255, 255, .94); }
+.ck-page { max-width: 1100px; padding-top: 44px; padding-bottom: 80px; }
+.ck-hero { text-align: center; display: grid; justify-items: center; gap: 10px; margin-bottom: 40px; }
+.ck-hero h1 { margin: 0; font: 800 clamp(44px, 8vw, 92px)/1 var(--sans); text-transform: uppercase; letter-spacing: -.01em; }
+
+.ck-grid { margin: 0; padding: 0; list-style: none; display: grid; gap: 34px 24px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { .ck-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 14px; } }
+.ck-item { display: grid; justify-items: center; opacity: 0; animation: ck-in .6s cubic-bezier(.2, .9, .3, 1.15) forwards; animation-delay: calc(var(--i) * 90ms + .1s); }
+@keyframes ck-in { from { opacity: 0; transform: translateY(24px) scale(.94); } to { opacity: 1; transform: none; } }
+.ck-folder { position: relative; width: 100%; max-width: 300px; display: grid; justify-items: center; gap: 10px; padding: 10px 10px 14px; cursor: pointer; border: 0; border-radius: 28px; background: transparent; color: inherit; transition: transform .25s cubic-bezier(.2, .9, .3, 1.3); }
+.ck-folder svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 12px 14px rgba(236, 91, 146, .16)); transition: filter .25s; }
+.ck-front { transform-box: view-box; transform-origin: 50% 100%; transition: transform .3s cubic-bezier(.2, .9, .3, 1.3); }
+.ck-name { font: 800 14px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .16em; }
+.ck-sub { font: 600 11px/1 var(--sans); letter-spacing: .08em; color: #8a7b80; }
+.ck-folder:hover, .ck-folder:focus-visible { transform: translateY(-8px) rotate(-1deg); }
+.ck-folder:hover svg, .ck-folder:focus-visible svg { filter: drop-shadow(0 18px 18px rgba(236, 91, 146, .26)); }
+.ck-folder:hover .ck-front, .ck-folder:focus-visible .ck-front { transform: perspective(500px) rotateX(-16deg) translateY(4px); }
+.ck-folder:focus-visible { outline: 3px solid #ec5b92; outline-offset: 2px; }
+.ck-folder:active { transform: translateY(-2px) scale(.98); }
+.ck-foot { margin: 46px 0 0; text-align: center; font: 600 12px/1.5 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #8a7b80; }
+
+/* the opened folder */
+dialog.ck-modal { width: min(460px, calc(100vw - 32px)); padding: 34px 28px 30px; border: 0; border-radius: 30px; background: #fff; color: #1a1013; text-align: center; box-shadow: 0 30px 70px rgba(140, 40, 90, .25); overflow: visible; }
+dialog.ck-modal::backdrop { background: rgba(255, 238, 244, .72); backdrop-filter: blur(6px); }
+dialog.ck-modal[open] { animation: ck-pop .45s cubic-bezier(.2, .9, .3, 1.25); }
+@keyframes ck-pop { from { opacity: 0; transform: translateY(26px) scale(.9) rotate(-1.5deg); } to { opacity: 1; transform: none; } }
+.ck-x { position: absolute; right: 16px; top: 16px; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer; border: 0; border-radius: 50%; background: #fff0f5; color: #ec5b92; transition: transform .3s cubic-bezier(.2, .9, .3, 1.5), background .2s; }
+.ck-x svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; }
+.ck-x:hover { transform: rotate(90deg) scale(1.08); background: #ec5b92; color: #fff; }
+.ck-open { width: 190px; margin: -8px auto 8px; }
+.ck-open svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 12px 14px rgba(236, 91, 146, .22)); }
+.ck-open .ck-front { transform: perspective(500px) rotateX(-22deg) translateY(6px); animation: ck-flap .6s cubic-bezier(.2, .9, .3, 1.3) both; }
+@keyframes ck-flap { from { transform: none; } }
+.ck-open .ck-paper { animation: ck-paper .7s cubic-bezier(.2, .9, .3, 1.2) .15s both; }
+@keyframes ck-paper { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+dialog.ck-modal h2 { margin: 6px 0 8px; font: 800 26px/1.1 var(--sans); text-transform: uppercase; letter-spacing: .14em; }
+.ck-hint { margin: 0 0 14px; font: 700 13px/1.5 var(--sans); color: #ec5b92; letter-spacing: .02em; }
+.ck-soon { margin: 0; padding: 14px 16px; border-radius: 16px; background: #fff5f8; font: 600 13px/1.6 var(--sans); color: #4b3f43; }
+@media (prefers-reduced-motion: reduce) { .ck-item, dialog.ck-modal[open], .ck-open .ck-paper { animation: none; opacity: 1; } .ck-folder, .ck-front { transition: none; } }
+
+/* sparkles: twinkling stars on the folders and a trail behind the pointer */
+.ck-folder svg.ck-sp { position: absolute; z-index: 2; fill: #ec5b92; opacity: 0; transform: scale(0); animation: ck-twinkle 3.4s ease-in-out var(--d) infinite; pointer-events: none; filter: none; overflow: visible; }
+.ck-item:nth-child(3n + 2) svg.ck-sp { fill: #ff8f98; }
+.ck-item:nth-child(3n) svg.ck-sp { fill: #ffa56a; }
+@keyframes ck-twinkle { 0%, 65%, 100% { opacity: 0; transform: scale(0) rotate(0); } 78% { opacity: 1; transform: scale(1) rotate(45deg); } 90% { opacity: .85; transform: scale(.6) rotate(90deg); } }
+.ck-folder:hover svg.ck-sp, .ck-folder:focus-visible svg.ck-sp { animation-duration: 1.3s; }
+.ck-trail { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; }
+.ck-bs { position: absolute; pointer-events: none; margin: -8px 0 0 -8px; fill: currentColor; animation: ck-bs .85s ease-out forwards; }
+@keyframes ck-bs { 0% { opacity: 0; transform: translate(0, 0) scale(0) rotate(0deg); } 25% { opacity: 1; transform: translate(calc(var(--dx) * .3), calc(var(--dy) * .3)) scale(1) rotate(35deg); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.2) rotate(110deg); } }
+@media (prefers-reduced-motion: reduce) { .ck-folder svg.ck-sp { display: none; } }

@@ -1,0 +1,28 @@
+# Template: deploy.sh swaps __WEB_SECRET__ for the secret kept in /opt/ignis/api/secrets/web-secret.
+server {
+    listen 80;
+    server_name project.ignis.farm;
+    root /usr/share/nginx/html;
+    index index.html;
+    server_tokens off;
+    client_max_body_size 1m;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header Cache-Control "no-cache" always;
+
+    # Same-origin proxy to the shared backend. Only requests that passed the tinyauth
+    # login reach this server, so it vouches for them with the web secret.
+    location /api/ {
+        resolver 127.0.0.11 valid=5s ipv6=off;
+        set $ignis_api http://ignis-api:8000;
+        rewrite ^/api/(.*)$ /$1 break;
+        proxy_pass $ignis_api;
+        proxy_set_header Host $host;
+        proxy_set_header Authorization "";
+        proxy_set_header X-Ignis-Web-Secret "__WEB_SECRET__";
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 25s;
+    }
+
+    location / { try_files $uri $uri.html $uri/ /index.html; }
+}

@@ -1,0 +1,414 @@
+/* Health page. Tokens, header and the film grain come from home.css; the flame logo from flame.css.
+   Cards share the diary's hard ink outline and offset shadow. */
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- banner ---------- */
+/* Dark ultramarine with lime type and the five-petal flower, as in the palette card; rounded serif
+   pills like the identity-board tags; a labeled hairline rule across the top. */
+.h-banner { position: relative; margin-top: 28px; overflow: hidden; isolation: isolate; border-radius: var(--r); background: var(--ultra); color: var(--eggshell); }
+.h-banner::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: multiply;
+  background-image: radial-gradient(rgba(0, 0, 0, .22) 1px, transparent 1.5px); background-size: 5px 5px;
+}
+.h-flower {
+  position: absolute; z-index: 0; right: clamp(-90px, -6vw, -30px); top: 50%; width: clamp(190px, 32vw, 340px); height: auto;
+  margin-top: calc(clamp(190px, 32vw, 340px) / -2); fill: var(--lime); animation: h-spin 90s linear infinite;
+}
+.h-flower .hole { fill: var(--ultra); }
+.h-tw { position: absolute; z-index: 1; left: var(--x); top: var(--y); width: var(--s); height: var(--s); color: var(--lime); opacity: 0; transform: scale(0); animation: h-twinkle 3.2s ease-in-out infinite; animation-delay: var(--d); }
+.h-banner-in { position: relative; z-index: 2; padding: 24px 22px 24px; display: grid; gap: 6px; }
+.h-banner h1 { margin: 6px 0 4px; font: 400 clamp(76px, 15vw, 168px)/.86 var(--display); text-transform: uppercase; letter-spacing: -.01em; color: var(--lime); }
+
+.h-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; max-width: 760px; }
+.h-pills li {
+  padding: 10px 16px 11px; border-radius: 16px; color: var(--ink); white-space: nowrap;
+  font: 500 15px/1 var(--serif); font-variation-settings: "SOFT" 100; animation: h-pop .55s cubic-bezier(.2, .9, .3, 1.25) both; animation-delay: calc(var(--i) * 90ms + 150ms);
+}
+.h-pills li b { margin-left: 6px; font-weight: 800; }
+.h-pills .p-lime { background: var(--lime); }
+.h-pills .p-egg { background: var(--eggshell); }
+.h-pills .p-yellow { background: var(--yellow); }
+.h-pills .p-pink { background: var(--pink); }
+.h-pills .p-flame { background: var(--flame); }
+.h-pills .p-ultra { background: var(--ultra); color: var(--eggshell); }
+.h-pills .p-ink { background: var(--ink); color: var(--eggshell); }
+@media (max-width: 699px) {
+  .h-flower { top: auto; bottom: -58px; right: -46px; margin-top: 0; width: 180px; }
+}
+@keyframes h-spin { to { transform: rotate(360deg); } }
+@keyframes h-pop { from { opacity: 0; transform: translateY(8px) scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes h-twinkle { 0%, 55%, 100% { opacity: 0; transform: scale(0) rotate(0deg); } 25% { opacity: 1; transform: scale(1) rotate(45deg); } }
+@media (prefers-reduced-motion: reduce) { .h-flower, .h-tw, .h-pills li { animation: none !important; } .h-tw { display: none; } }
+
+.h-empty { margin: 20px 0 0; padding: 18px 20px; border: 2px dashed var(--ink); border-radius: 22px; font: 500 15px/1.5 var(--sans); }
+
+/* ---------- cards ---------- */
+.h-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin: 20px 0 8px; }
+.h-card {
+  position: relative; overflow: hidden; min-width: 0; padding: 18px 20px 16px; background: #fffdf6; color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink);
+}
+.h-card h2 { margin: 0 0 6px; font: 700 12px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .14em; }
+.h-big { margin: 0; display: flex; align-items: baseline; gap: 8px; }
+.h-big b { font: 400 clamp(56px, 8vw, 84px)/1 var(--display); letter-spacing: .005em; }
+.h-big span { font: 600 16px/1 var(--sans); }
+.h-when { margin: 4px 0 0; min-height: 1.4em; font: 500 13px/1.4 var(--sans); color: #4d3f45; }
+
+/* recovery: the card color follows the score (lime / yellow / flame); the numerals, bars and star take the
+   matching accent from the palette pairs (pink on lime, blue on yellow, eggshell on flame). */
+.h-recovery { display: flex; flex-direction: column; }
+.h-recovery h2, .h-recovery .h-when { color: var(--ink); position: relative; z-index: 2; }
+.hr-num { position: relative; z-index: 2; margin: 2px 0 0; color: var(--accent); white-space: nowrap; }
+.hr-num b { font: 400 clamp(112px, 18vw, 176px)/.86 var(--display); letter-spacing: .005em; }
+.hr-num small { margin-left: .05em; font: 400 clamp(48px, 7.6vw, 74px)/1 var(--display); }
+.hr-star { position: absolute; z-index: 1; top: -26px; right: -22px; width: clamp(110px, 16vw, 170px); height: auto; color: var(--accent); animation: hr-spin 46s linear infinite; }
+/* one capsule per night for the last 30 nights, as tall as that night's score; the latest is dark */
+.hr-bars { position: relative; z-index: 2; flex: 1; min-height: 96px; margin-top: 14px; display: flex; align-items: flex-end; gap: 4px; }
+.hr-bars i { flex: 1 1 0; min-width: 3px; height: var(--h); min-height: 8px; border-radius: 999px; background: var(--accent); transform-origin: bottom; animation: hr-grow .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i) * 25ms + 200ms); }
+.hr-bars i:last-child { background: var(--ink); }
+@keyframes hr-spin { to { transform: rotate(360deg); } }
+@keyframes hr-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .hr-star, .hr-bars i { animation: none !important; } }
+.h-battery h2 em { margin-left: 6px; padding: 2px 8px; border: 1.5px solid var(--ink); border-radius: 999px; background: #fffdf6; font: 600 10px/1 var(--sans); letter-spacing: .08em; }
+.h-battery .h-when { color: #2a1a22; }
+
+/* sparkline: stretches to the card, strokes keep their width */
+.h-spark { display: block; width: 100%; height: 48px; margin-top: 10px; overflow: visible; }
+.h-spark path { fill: none; stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.h-spark .line { stroke-width: 2.5; }
+.h-spark .dot { stroke-width: 9; }
+.h-spark .base { stroke-width: 1; stroke-dasharray: 2 5; opacity: .4; }
+
+/* sleep: giant numerals with small units, the stages as serif-labeled rounded tiles (like the identity-board
+   tags), a crescent moon with twinkling stars, and one capsule per night for the last two weeks */
+.h-sleep { overflow: hidden; }
+.hs-num { position: relative; z-index: 2; margin: 2px 0 0; color: var(--ink); white-space: nowrap; }
+.hs-num b { font: 400 clamp(108px, 17vw, 168px)/.86 var(--display); letter-spacing: .005em; }
+.hs-num small { margin: 0 .22em 0 .04em; font: 400 clamp(40px, 6.4vw, 66px)/1 var(--display); }
+.h-sleep h2, .h-sleep .h-when { position: relative; z-index: 2; }
+.hs-moon { position: absolute; z-index: 1; top: 14px; right: clamp(18px, 4vw, 54px); width: clamp(96px, 15vw, 160px); height: auto; fill: var(--lime); transform-origin: 70% 70%; animation: hs-sway 7s ease-in-out infinite; }
+.hs-tw { position: absolute; z-index: 1; left: var(--x); top: var(--y); width: var(--s); height: var(--s); color: var(--eggshell); opacity: 0; transform: scale(0); animation: hs-twinkle 3.4s ease-in-out infinite; animation-delay: var(--d); }
+.hs-stages { position: relative; z-index: 2; display: flex; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
+.hs-stages li {
+  flex: var(--g) 1 0; min-width: 0; padding: 10px 14px 11px; border-radius: 16px; display: grid; gap: 4px;
+  animation: hs-pop .55s cubic-bezier(.2, .9, .3, 1.25) both; animation-delay: calc(var(--i) * 110ms + 200ms);
+}
+.hs-stages span { font: 700 11px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; }
+.hs-stages span i { font-style: normal; font-weight: 600; opacity: .85; letter-spacing: .04em; margin-left: 4px; }
+.hs-stages b { font: 700 clamp(15px, 2vw, 20px)/1.1 var(--serif); font-variation-settings: "SOFT" 100; white-space: nowrap; }
+.hs-stages .st-deep { background: var(--ultra); color: var(--lime); }
+.hs-stages .st-rem { background: var(--violet); color: var(--eggshell); }
+.hs-stages .st-light { background: var(--peri); color: var(--ink); }
+/* nights chart: hours above each bar, the weekday under it, a labeled 8 h line; bars grow from a 0-9 h scale */
+.hs-nights { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 4px; margin-top: 18px; }
+.hs-nights::after { content: ""; position: absolute; left: 0; right: 0; top: calc(20px + 9.33px); height: 0; border-top: 1.5px dashed rgba(21, 0, 11, .5); pointer-events: none; }
+.hs-n { display: grid; grid-template-rows: 16px 84px auto; gap: 4px; justify-items: center; min-width: 0; }
+.hs-n em { align-self: end; font: 600 10.5px/1 var(--sans); font-style: normal; color: var(--ink); white-space: nowrap; }
+.hs-track { display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 84px; }
+.hs-bar { width: 100%; max-width: 26px; height: var(--h); min-height: 6px; border-radius: 999px; background: var(--ultra); transform-origin: bottom; animation: hs-grow .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i) * 40ms + 400ms); }
+.hs-n span { font: 600 11px/1 var(--sans); color: #2a1a7a; }
+.hs-n.today .hs-bar { background: var(--flame); box-shadow: 0 0 0 2px var(--ultra); }
+.hs-n.today em, .hs-n.today span { font-weight: 800; color: var(--ultra); }
+.hs-stats { margin-top: 12px; }
+.hs-stats li b { margin-left: 6px; }
+.hs-stats .p-goal { background: transparent; border: 1.5px dashed rgba(21, 0, 11, .55); padding: 8.5px 14px 9.5px; }
+@keyframes hs-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes hs-twinkle { 0%, 55%, 100% { opacity: 0; transform: scale(0) rotate(0deg); } 25% { opacity: 1; transform: scale(1) rotate(45deg); } }
+@keyframes hs-pop { from { opacity: 0; transform: translateY(8px) scale(.8); } to { opacity: 1; transform: none; } }
+@keyframes hs-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .hs-moon, .hs-tw, .hs-stages li, .hs-bar { animation: none !important; } .hs-tw { display: none; } }
+@media (max-width: 520px) { .hs-stages { gap: 6px; } .hs-stages li { padding: 8px 9px 9px; border-radius: 14px; } .hs-stages span { font-size: 10px; letter-spacing: .08em; } }
+
+/* body battery: giant numerals, the five-petal flower as the gauge, serif pills, capsule bars for the days */
+.h-battery h2 { margin: 0; }
+.hb-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "left flower" "pills pills"; align-items: center; gap: 4px 14px; }
+.hb-left { grid-area: left; min-width: 0; }
+.hb-num { margin: 2px 0 0; color: var(--ultra); white-space: nowrap; }
+.hb-num b { font: 400 clamp(108px, 18vw, 170px)/.86 var(--display); letter-spacing: .005em; }
+.hb-num small { margin-left: .05em; font: 400 clamp(46px, 7.6vw, 72px)/1 var(--display); }
+.hb-flowerwrap { grid-area: flower; position: relative; width: clamp(104px, 21vw, 190px); aspect-ratio: 1; }
+.hb-flower { position: relative; z-index: 2; width: 100%; height: 100%; overflow: visible; animation: hb-spin 70s linear infinite; }
+.hb-flower .petal { fill: none; stroke: var(--ultra); stroke-width: 2.4; opacity: .45; }
+.hb-flower .petal.on { fill: var(--ultra); stroke: none; opacity: 1; transform-box: fill-box; transform-origin: center; animation: hb-bloom .8s cubic-bezier(.2, .9, .3, 1.25) both; animation-delay: calc(var(--i) * 140ms + 250ms); }
+.hb-flower .hole { fill: var(--peri); }
+.hb-glow { position: absolute; z-index: 1; inset: -14%; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255, 255, 240, .9), rgba(255, 255, 240, 0) 66%); filter: blur(8px); animation: hb-pulse 4.5s ease-in-out infinite; }
+.hb-sp { position: absolute; z-index: 3; left: var(--x); top: var(--y); width: var(--s); height: var(--s); color: var(--ultra); opacity: 0; transform: scale(0); pointer-events: none; }
+.h-battery:hover .hb-sp { animation: hb-twinkle 1.2s ease-in-out infinite; animation-delay: var(--d); }
+.hb-pills { grid-area: pills; margin: 6px 0 0; }
+
+/* body battery by day: a scale from 0 to 100, one bar per day running from that day's low to its high, with
+   the numbers printed right at the two ends of the bar */
+.hb-days { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 0 6px; margin-top: 18px; --top: 22px; --plot: 132px; }
+.hb-axis { position: relative; height: calc(var(--top) + var(--plot) + 22px); }
+.hb-axis i { position: absolute; right: 0; top: calc(var(--top) + (100 - var(--v)) * var(--plot) / 100 - 6px); font: 600 10.5px/1 var(--sans); font-style: normal; }
+.hb-body { position: relative; min-width: 0; }
+.hb-line { position: absolute; left: 0; right: 0; top: calc(var(--top) + (100 - var(--v)) * var(--plot) / 100); height: 0; border-top: 1.5px dashed currentColor; opacity: .32; }
+.hb-cols { position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.hb-d { display: grid; grid-template-rows: calc(var(--top) + var(--plot) + 6px) auto; justify-items: center; min-width: 0; }
+.hb-track { position: relative; width: 100%; height: calc(var(--top) + var(--plot) + 6px); }
+.hb-bar {
+  position: absolute; left: 50%; width: min(28px, 70%); margin-left: calc(min(28px, 70%) / -2);
+  top: calc(var(--top) + (100 - var(--hi)) * var(--plot) / 100); height: calc((var(--hi) - var(--lo)) * var(--plot) / 100); min-height: 8px;
+  border-radius: 999px; transform-origin: bottom; animation: hb-grow .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i) * 60ms + 300ms);
+}
+.hb-hi, .hb-lo { position: absolute; left: 0; right: 0; text-align: center; font: 700 12.5px/1 var(--sans); font-style: normal; }
+.hb-hi { top: calc(var(--top) + (100 - var(--hi)) * var(--plot) / 100 - 18px); }
+.hb-lo { top: calc(var(--top) + (100 - var(--lo)) * var(--plot) / 100 + 6px); opacity: .85; }
+.hb-none { position: absolute; left: 50%; width: 12px; margin-left: -6px; top: calc(var(--top) + var(--plot) - 7px); height: 0; border-top: 2.5px solid currentColor; border-radius: 2px; opacity: .35; }
+.hb-d span { margin-top: 2px; font: 600 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .06em; }
+.hb-d.today span { font-weight: 800; }
+@keyframes hb-spin { to { transform: rotate(360deg); } }
+@keyframes hb-bloom { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes hb-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes hb-pulse { 0%, 100% { opacity: .55; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes hb-twinkle { 0% { opacity: 0; transform: scale(0) rotate(0deg); } 40% { opacity: 1; transform: scale(1) rotate(45deg); } 100% { opacity: 0; transform: scale(0) rotate(90deg); } }
+@media (prefers-reduced-motion: reduce) { .hb-flower, .hb-flower .petal.on, .hb-glow, .hb-bar, .hb-sp { animation: none !important; } }
+
+/* small stats */
+.h-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; margin: 10px 0 0; }
+.h-stats-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 14px; }
+.h-stats dt { font: 500 12px/1.3 var(--sans); color: #4d3f45; }
+.h-stats dd { margin: 2px 0 0; font: 400 30px/1 var(--display); letter-spacing: .01em; }
+
+/* workouts */
+.h-wk { margin: 8px 0 0; padding: 0; list-style: none; display: grid; }
+.h-wk li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 14px; padding: 12px 0; border-top: 1.5px solid rgba(21, 0, 11, .18); }
+.h-wk li:first-child { border-top: 0; }
+.h-wk .n { font: 600 16px/1.3 var(--sans); }
+.h-wk .m { grid-column: 1; font: 500 13px/1.4 var(--sans); color: #4d3f45; }
+.h-wk .s { grid-column: 2; grid-row: 1 / span 2; align-self: center; text-align: right; font: 400 28px/1 var(--display); }
+.h-wk .s small { display: block; font: 600 11px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.h-none { margin: 8px 0 0; font: 500 14px/1.4 var(--sans); color: #4d3f45; }
+
+/* ---------- layout ---------- */
+@media (min-width: 700px) {
+  .h-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .h-battery, .h-recovery, .h-sleep, .h-nights, .h-activity, .h-workouts { grid-column: 1 / -1; }
+  .h-banner-in { padding: 30px 30px 30px; }
+}
+@media (min-width: 1001px) {
+  .h-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .h-battery, .h-recovery, .h-sleep, .h-nights { grid-column: span 2; }
+  .h-activity { grid-column: 1 / -1; }
+  .h-workouts { grid-column: 1 / -1; }
+}
+
+
+/* ---------- palette: ultramarine + lime, with pink as the only highlight ----------
+   Each card is either lime with ultramarine type or ultramarine with lime type. The card sets five variables
+   and everything inside (numerals, charts, pills, outlines) reads them, so nothing can clash:
+     --bg backdrop   --fg big numerals and bars   --txt small text   --soft muted text   --acc the highlight */
+.h-grid > .h-card:nth-child(odd) { --bg: var(--lime); --fg: var(--ultra); --txt: var(--ultra); --soft: rgba(26, 0, 136, .72); --track: rgba(26, 0, 136, .14); --acc: var(--pink); }
+.h-grid > .h-card:nth-child(even) { --bg: var(--ultra); --fg: var(--lime); --txt: var(--eggshell); --soft: rgba(239, 231, 212, .78); --track: rgba(239, 231, 212, .16); --acc: var(--pink); }
+/* desktop: battery lime | recovery ultra / sleep ultra | strain lime | hrv ultra / nights lime | rhr ultra | also lime / activity ultra */
+@media (min-width: 1001px) {
+  .h-grid > .h-card:nth-child(1), .h-grid > .h-card:nth-child(4), .h-grid > .h-card:nth-child(6), .h-grid > .h-card:nth-child(8) { --bg: var(--lime); --fg: var(--ultra); --txt: var(--ultra); --soft: rgba(26, 0, 136, .72); --track: rgba(26, 0, 136, .14); }
+  .h-grid > .h-card:nth-child(2), .h-grid > .h-card:nth-child(3), .h-grid > .h-card:nth-child(5), .h-grid > .h-card:nth-child(7), .h-grid > .h-card:nth-child(9) { --bg: var(--ultra); --fg: var(--lime); --txt: var(--eggshell); --soft: rgba(239, 231, 212, .78); --track: rgba(239, 231, 212, .16); }
+}
+
+.h-card { background: var(--bg, #fffdf6); color: var(--txt, var(--ink)); }
+.h-card h2 { color: var(--txt); }
+.h-card .h-when, .h-card .h-stats dt { color: var(--soft); }
+.h-card .h-big b { color: var(--fg); }
+.h-card .h-big span { color: var(--txt); }
+.h-card .h-stats dd { color: var(--fg); }
+.h-card .h-spark path { stroke: var(--fg); }
+.h-card .h-spark .dot { stroke: var(--acc); }
+
+/* pills inside cards: the card's two colors, inverted; the one highlight pill is pink */
+.h-card .h-pills li { background: var(--fg); color: var(--bg); }
+.h-card .h-pills li.p-ink { background: var(--acc); color: var(--ink); }
+.h-card .h-pills li.p-goal { background: transparent; color: var(--txt); border: 1.5px dashed var(--soft); }
+
+/* body battery */
+.hb-num { color: var(--fg); }
+.hb-flower .petal { stroke: var(--fg); opacity: .6; }
+.hb-flower .petal.on { fill: var(--fg); }
+.hb-flower .hole { fill: var(--bg); }
+.hb-glow { background: radial-gradient(circle, rgba(255, 255, 240, .4), rgba(255, 255, 240, 0) 66%); }
+.hb-sp { color: var(--acc); }
+
+/* recovery */
+.hr-num { color: var(--fg); }
+.hr-star { color: var(--acc); }
+.hr-bars i { background: var(--fg); }
+.hr-bars i:last-child { background: var(--acc); }
+
+/* sleep */
+.hs-num { color: var(--fg); }
+.hs-moon { fill: var(--txt); }
+.hs-tw { color: var(--acc); }
+.hs-stages .st-deep { background: var(--fg); color: var(--bg); }
+.hs-stages .st-rem { background: var(--acc); color: var(--ink); }
+.hs-stages .st-light { background: transparent; color: var(--txt); box-shadow: inset 0 0 0 2px var(--fg); }
+.hs-nights::after { border-top-color: var(--soft); }
+.hs-n em, .hs-n span { color: var(--txt); }
+.hs-bar { background: var(--fg); }
+.hs-n.today .hs-bar { background: var(--acc); box-shadow: 0 0 0 2px var(--fg); }
+.hs-n.today em, .hs-n.today span { color: var(--txt); }
+
+/* strain */
+
+/* ---------- texture pass (from the identity boards) ----------
+   tone-on-tone organic shapes and film grain on every card, a looping text ribbon in the banner, small text
+   circling the battery flower, and a slow blurred glow in the sleep card */
+.h-card { isolation: isolate; }
+.h-card::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--fg); opacity: .085;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 420'><g fill='black'><rect x='24' y='18' width='64' height='170' rx='32'/><rect x='118' y='40' width='60' height='110' rx='30' transform='rotate(18 148 95)'/><circle cx='250' cy='64' r='38'/><rect x='316' y='20' width='84' height='84' rx='26' transform='rotate(-12 358 62)'/><circle cx='96' cy='262' r='44'/><rect x='170' y='210' width='150' height='62' rx='31' transform='rotate(-24 245 241)'/><rect x='350' y='170' width='58' height='170' rx='29'/><circle cx='286' cy='330' r='30'/><rect x='30' y='340' width='170' height='56' rx='28' transform='rotate(8 115 368)'/></g><path d='M150 150 C190 140 214 170 200 205' fill='none' stroke='black' stroke-width='34' stroke-linecap='round'/></svg>") 0 0 / 420px repeat; mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 420'><g fill='black'><rect x='24' y='18' width='64' height='170' rx='32'/><rect x='118' y='40' width='60' height='110' rx='30' transform='rotate(18 148 95)'/><circle cx='250' cy='64' r='38'/><rect x='316' y='20' width='84' height='84' rx='26' transform='rotate(-12 358 62)'/><circle cx='96' cy='262' r='44'/><rect x='170' y='210' width='150' height='62' rx='31' transform='rotate(-24 245 241)'/><rect x='350' y='170' width='58' height='170' rx='29'/><circle cx='286' cy='330' r='30'/><rect x='30' y='340' width='170' height='56' rx='28' transform='rotate(8 115 368)'/></g><path d='M150 150 C190 140 214 170 200 205' fill='none' stroke='black' stroke-width='34' stroke-linecap='round'/></svg>") 0 0 / 420px repeat;
+}
+
+.h-ribbon { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+.h-ribbon-text { font: 700 15px/1 var(--sans); letter-spacing: .3em; fill: var(--lime); opacity: .85; }
+
+.hb-flowerwrap .hb-flower { position: absolute; inset: 15%; width: 70%; height: 70%; }
+.hb-ring { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; overflow: visible; animation: hb-ring 48s linear infinite reverse; }
+.hb-ring text { font: 700 10px/1 var(--sans); letter-spacing: .2em; fill: var(--txt); }
+@keyframes hb-ring { to { transform: rotate(360deg); } }
+
+.hs-aur { position: absolute; z-index: -1; width: 58%; aspect-ratio: 1; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, var(--fg), transparent 68%); filter: blur(34px); opacity: .32; animation: hs-drift 16s ease-in-out infinite alternate; }
+.hs-aur.a1 { left: -14%; bottom: -34%; }
+.hs-aur.a2 { right: 6%; top: -40%; animation-duration: 21s; animation-direction: alternate-reverse; }
+@keyframes hs-drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(8%, -10%) scale(1.18); } }
+@media (prefers-reduced-motion: reduce) { .hb-ring, .hs-aur { animation: none !important; } }
+
+/* the day charts sit on a calm solid plate so the texture behind the card never interferes with reading them */
+.h-card { --plate: color-mix(in srgb, var(--bg) 88%, var(--fg) 12%); }
+.hb-days, .hs-nights, .hr-bars, .ha-line, .hst-gauge { background: var(--plate); border-radius: 18px; padding: 14px 14px 12px; }
+.hs-nights::after { left: 14px; right: 14px; top: calc(14px + 20px + 9.33px); }
+.hr-bars { padding-bottom: 14px; }
+
+/* body battery chart colors */
+.hb-days { color: var(--txt); }
+.hb-axis i { color: var(--soft); }
+.hb-bar { background: var(--fg); }
+.hb-d.today .hb-bar { background: var(--acc); box-shadow: 0 0 0 2px var(--fg); }
+.hb-hi, .hb-lo, .hb-d span { color: var(--txt); }
+
+/* last 14 nights card: the average as the big number */
+.hn-num { position: relative; z-index: 2; margin: 2px 0 0; color: var(--fg); white-space: nowrap; }
+.hn-num b { font: 400 clamp(84px, 11vw, 124px)/.86 var(--display); letter-spacing: .005em; }
+.hn-num small { margin: 0 .22em 0 .04em; font: 400 clamp(34px, 4.6vw, 52px)/1 var(--display); }
+.h-nights .hs-stats { margin-top: 12px; }
+.h-nights .hs-nights { margin-top: 14px; }
+
+/* activity as a full-width row on desktop: steps on the left, the trend on the right, the three stats underneath */
+@media (min-width: 1001px) {
+  .h-activity { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "title title" "big spark" "when spark" "stats stats"; column-gap: 32px; align-items: center; }
+  .h-activity h2 { grid-area: title; }
+  .h-activity .h-big { grid-area: big; }
+  .h-activity .h-when { grid-area: when; }
+  .h-activity .ha-line { grid-area: spark; align-self: center; margin: 0; height: 168px; }
+  .h-activity .h-stats { grid-area: stats; }
+}
+
+/* activity: steps as a line over a soft area, drawn in on load, with a hover tooltip and a dashed 10,000 line */
+.ha-line { position: relative; z-index: 2; height: 150px; margin-top: 12px; touch-action: pan-y; }
+.ha-svg { display: block; overflow: visible; cursor: crosshair; }
+.ha-path { fill: none; stroke: var(--fg); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.ha-area { fill: var(--fg); opacity: .17; stroke: none; }
+.ha-lone { fill: var(--fg); }
+.ha-goal { stroke: var(--soft); stroke-width: 1.4; stroke-dasharray: 3 5; }
+.ha-goal-text { fill: var(--soft); font: 700 10px/1 var(--sans); paint-order: stroke; stroke: var(--plate); stroke-width: 4px; }
+.ha-last { fill: var(--acc); stroke: var(--bg); stroke-width: 2; }
+.ha-pulse { fill: var(--acc); opacity: .4; transform-box: fill-box; transform-origin: center; animation: ha-pulse 2.4s ease-out infinite; }
+.ha-guide { stroke: var(--soft); stroke-width: 1.5; opacity: 0; }
+.ha-dot { fill: var(--bg); stroke: var(--fg); stroke-width: 2.5; opacity: 0; }
+.ha-svg.hover .ha-guide, .ha-svg.hover .ha-dot { opacity: 1; }
+.ha-svg.fresh .ha-path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ha-draw 1.5s cubic-bezier(.3, .7, .2, 1) .25s forwards; }
+.ha-svg.fresh .ha-area { animation: ha-fade 1s ease-out 1s both; }
+.ha-svg.fresh .ha-last { animation: ha-pop .5s cubic-bezier(.2, .9, .3, 1.4) 1.6s both; }
+.ha-svg.fresh .ha-pulse { animation-delay: 1.8s; opacity: 0; animation-fill-mode: backwards; }
+.ha-tip { position: absolute; z-index: 5; padding: 6px 10px; border-radius: 10px; background: var(--fg); color: var(--bg); font: 700 12px/1 var(--sans); white-space: nowrap; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; }
+.ha-tip.on { opacity: 1; transform: none; }
+@keyframes ha-draw { to { stroke-dashoffset: 0; } }
+@keyframes ha-fade { from { opacity: 0; } to { opacity: .17; } }
+@keyframes ha-pop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes ha-pulse { 0% { transform: scale(1); opacity: .45; } 100% { transform: scale(3.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .ha-svg.fresh .ha-path { animation: none; stroke-dashoffset: 0; }
+  .ha-svg.fresh .ha-area, .ha-svg.fresh .ha-last, .ha-pulse { animation: none; }
+  .ha-pulse { display: none; }
+}
+
+/* strain: a big number, 21 capsules (one per point) filled to the value, and the four zones with yours lit */
+.h-strain { display: flex; flex-direction: column; }
+.hst-num { position: relative; z-index: 2; margin: 2px 0 0; color: var(--fg); white-space: nowrap; }
+.hst-num b { font: 400 84px/.86 var(--display); letter-spacing: .005em; }
+.hst-num small { margin-left: .2em; font: 400 28px/1 var(--display); color: var(--txt); }
+@media (max-width: 1000px) {
+  .hst-num b { font-size: clamp(96px, 14vw, 124px); }
+  .hst-num small { font-size: clamp(34px, 5vw, 46px); }
+}
+.hst-star { position: absolute; z-index: 1; top: -18px; right: -14px; width: clamp(80px, 8vw, 104px); height: auto; color: var(--acc); animation: hr-spin 46s linear infinite; }
+.hst-gauge { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(21, minmax(0, 1fr)); gap: 3px; margin-top: 14px; padding: 12px 12px 12px; }
+.hst-gauge i { position: relative; display: block; height: 52px; overflow: hidden; border: 2px solid var(--fg); border-radius: 999px; }
+.hst-gauge i::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--p, 0) * 100%); background: var(--fg); transform-origin: bottom; animation: hb-grow .6s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i) * 40ms + 250ms); }
+.hst-gauge i.now::after { background: var(--acc); }
+.hst-zones { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: auto 0 0; padding: 14px 0 0; list-style: none; }
+.hst-zones li { min-width: 0; padding: 10px 10px 11px; border-radius: 14px; text-align: center; border: 1.5px dashed var(--soft); color: var(--txt); font: 600 15px/1.1 var(--serif); font-variation-settings: "SOFT" 100; overflow-wrap: anywhere; }
+.hst-zones li small { display: block; margin-top: 4px; font: 600 12px/1 var(--sans); letter-spacing: .04em; opacity: .85; }
+.hst-zones li.on { background: var(--fg); border: 1.5px solid var(--fg); color: var(--bg); }
+.hst-zones li.on small { opacity: 1; }
+@media (max-width: 520px) { .hst-gauge { gap: 2px; padding: 10px 8px; } .hst-gauge i { height: 44px; border-width: 1.5px; } .hst-zones li { font-size: 14px; padding: 9px 8px 10px; } }
+@media (prefers-reduced-motion: reduce) { .hst-star, .hst-gauge i::after { animation: none !important; } }
+
+/* the "i" button and its explanation, reusable on any card */
+.h-card h2 { position: relative; z-index: 6; display: flex; align-items: center; gap: 8px; }
+.h-card h2 .h-info { position: relative; z-index: 6; }
+.h-info {
+  display: inline-grid; place-items: center; width: 22px; height: 22px; padding: 0; cursor: pointer; border-radius: 50%;
+  border: 2px solid currentColor; background: transparent; color: inherit; font: italic 700 13px/1 var(--serif); text-transform: none; letter-spacing: 0;
+  transition: background .15s, color .15s, transform .15s;
+}
+.h-info:hover, .h-info[aria-expanded="true"] { background: var(--fg); color: var(--bg); transform: scale(1.08); }
+.h-info:focus-visible { outline: 3px solid var(--acc); outline-offset: 2px; }
+@media (pointer: coarse) { .h-info { width: 30px; height: 30px; font-size: 15px; } }
+.h-pop {
+  position: absolute; z-index: 8; left: 14px; right: 14px; top: 50px; max-height: calc(100% - 64px); overflow: auto; padding: 12px 14px 13px; border: 2px solid var(--ink); border-radius: 16px;
+  background: var(--fg); color: var(--bg); box-shadow: 0 5px 0 var(--ink);
+  font: 500 12.5px/1.45 var(--sans); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .16s, transform .16s, visibility .16s;
+}
+.h-pop.on { opacity: 1; visibility: visible; transform: none; }
+.h-pop b { display: block; margin-bottom: 6px; font: 400 20px/1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+.h-pop p { margin: 0 0 7px; }
+.h-pop p:last-child { margin-bottom: 0; }
+.h-pop .h-pop-zones { margin: 10px 0 0; padding-top: 10px; border-top: 1.5px dashed currentColor; font-weight: 700; font-size: 12px; opacity: .95; }
+@media (prefers-reduced-motion: reduce) { .h-pop, .h-info { transition: none; } }
+
+/* hrv: giant numerals, how it compares with your own average, and 30 nights with your typical range as a soft band */
+.h-hrv, .h-rhr { display: flex; flex-direction: column; }
+.hv-num { position: relative; z-index: 2; margin: 2px 0 0; color: var(--fg); white-space: nowrap; }
+.hv-num b { font: 400 84px/.86 var(--display); letter-spacing: .005em; }
+.hv-num small { margin-left: .2em; font: 400 30px/1 var(--display); color: var(--txt); }
+@media (max-width: 1000px) { .hv-num b { font-size: clamp(96px, 14vw, 124px); } .hv-num small { font-size: clamp(34px, 5vw, 46px); } }
+.hv-star { position: absolute; z-index: 1; top: -20px; right: -16px; width: clamp(80px, 8vw, 104px); height: auto; color: var(--acc); animation: hr-spin 46s linear infinite; }
+.hv-pills { margin-top: 12px; position: relative; z-index: 2; }
+.h-card .hv-pills li { padding: 8px 12px 9px; font-size: 14px; }
+.hv-line { flex: 1 1 auto; min-height: 150px; margin-top: 14px; }
+.ha-band { fill: var(--fg); opacity: .13; }
+@media (prefers-reduced-motion: reduce) { .hv-star { animation: none !important; } }
+
+/* resting heart rate: the same layout as HRV, with a heart that beats at your own rate */
+.rh-heart { position: absolute; z-index: 1; top: -12px; right: -8px; width: clamp(76px, 7.5vw, 98px); height: auto; fill: var(--acc); transform-origin: 50% 55%; animation: rh-beat var(--beat, 1.2s) ease-in-out infinite; }
+@keyframes rh-beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.16); } 24% { transform: scale(1); } 38% { transform: scale(1.1); } 52% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .rh-heart { animation: none !important; } }
+
+/* vitals: four compact tiles on calm plates, each with a small visual (meters, a circle that breathes at your rate) */
+.h-more { display: flex; flex-direction: column; }
+.bv-list { position: relative; z-index: 2; flex: 1; display: grid; grid-auto-rows: 1fr; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.bv-tile { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; align-items: center; gap: 6px 8px; min-width: 0; padding: 9px 13px 10px; border-radius: 16px; background: var(--plate); }
+.bv-tile[hidden] { display: none; }
+.bv-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+.bv-name { min-width: 0; font: 600 14px/1.15 var(--serif); font-variation-settings: "SOFT" 100; color: var(--txt); }
+.bv-name em { display: block; margin-top: 2px; font: 600 11px/1 var(--sans); font-style: normal; color: var(--soft); }
+.bv-val { font: 400 34px/1 var(--display); letter-spacing: .01em; color: var(--fg); white-space: nowrap; }
+.bv-val small { margin-left: .16em; font: 600 13px/1 var(--sans); letter-spacing: 0; color: var(--txt); }
+.bv-meter { grid-column: 1 / -1; height: 10px; overflow: hidden; border: 1.5px solid var(--fg); border-radius: 999px; }
+.bv-meter i { display: block; height: 100%; width: var(--w, 0%); border-radius: 999px; background: var(--fg); transform-origin: left; animation: bv-grow .9s cubic-bezier(.2, .8, .2, 1) .3s both; }
+.bv-breath { width: 20px; height: 20px; margin-right: 2px; border-radius: 50%; background: var(--acc); animation: bv-breathe var(--breath, 4s) ease-in-out infinite; }
+.h-pop strong { font-weight: 800; }
+@keyframes bv-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes bv-breathe { 0%, 100% { transform: scale(.62); opacity: .75; } 50% { transform: scale(1.2); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .bv-meter i, .bv-breath { animation: none !important; } }

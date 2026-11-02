@@ -1,0 +1,50 @@
+/* Palette and top bar shared by the home page and the scans page. */
+:root {
+  --sunshine: #ffca26;
+  --cream: #f3e8cc;
+  --carrot: #f86015;
+  --forest: #19532b;
+  --tomato: #d42518;
+  --kiwi: #9abc04;
+  --ink: #1b2a1f;        /* dark text; 4.6:1 on carrot, higher on the rest */
+  --page: var(--cream);
+  --display: "Raleway", system-ui, sans-serif;
+  --body: "Poppins", system-ui, sans-serif;
+}
+
+.nav { background: var(--carrot); color: var(--ink); position: sticky; top: 0; z-index: 5; }
+.nav-in {
+  max-width: 1240px; margin: 0 auto; padding: 14px 24px;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+}
+.nav .brand {
+  display: flex; align-items: center; gap: 10px; width: fit-content;
+  color: var(--ink); text-decoration: none; font: 800 24px/1 var(--display); letter-spacing: -.5px;
+}
+.nav .brand img { border-radius: 9px; display: block; }
+.nav .links { display: flex; gap: 28px; }
+.nav .links a {
+  color: var(--ink); text-decoration: none; font: 600 15px/1 var(--body);
+  padding: 6px 0; border-bottom: 2px solid transparent;
+}
+.nav .links a:hover,
+.nav .links a[aria-current="page"] { border-bottom-color: var(--ink); }
+.nav .nav-right { display: flex; align-items: center; justify-content: flex-end; gap: 18px; }
+.nav .login { color: var(--ink); text-decoration: none; font: 600 15px/1 var(--body); }
+.nav .login:hover { text-decoration: underline; }
+
+.pill {
+  display: inline-block; background: var(--sunshine); color: var(--ink); cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 999px; padding: 9px 20px;
+  font: 600 15px/1.2 var(--body); text-decoration: none; box-shadow: 0 3px 0 var(--ink);
+}
+.pill:hover { filter: brightness(1.05); }
+.pill:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.pill.dark { background: var(--forest); color: var(--cream); }
+
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .nav-in { grid-template-columns: 1fr auto; padding: 12px 16px; }
+  .nav .links, .nav .login { display: none; }
+}
