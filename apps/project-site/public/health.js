@@ -66,9 +66,7 @@
     if (slp) items.push(['Sleep', hm(slp.value), 'p-lime']);
     if (str) items.push(['Strain', str.value.toFixed(1), 'p-lime']);
     if (hrv) items.push(['HRV', Math.round(hrv.value) + ' ms', 'p-lime']);
-    const g = b && b.garmin && b.garmin.latest;
-    const est = b && b.latest && b.latest.now != null ? b.latest.now : null;
-    const level = g && Date.now() - new Date(g.day) < 60 * HOUR ? g.now : est;
+    const level = b && b.latest && b.latest.now != null ? b.latest.now : null;
     if (level != null) items.push(['Battery', level + '%', 'p-pink']);
     const list = $('hPills');
     list.replaceChildren();
@@ -279,23 +277,20 @@
   }
 
   function battery(b, days) {
-    // Garmin's own number when the watch was worn in the last couple of days, else the Whoop estimate.
-    const g = b.garmin && b.garmin.latest;
-    const useGarmin = !!g && Date.now() - new Date(g.day) < 60 * HOUR;
+    // Whoop-based estimate (the calculation will later also draw on Apple Health).
     const est = b.latest && b.latest.now != null ? b.latest : null;
-    if (!useGarmin && !est) return;
+    if (!est) return;
 
     $('cBattery').hidden = false;
-    const value = useGarmin ? g.now : est.now;
+    const value = est.now;
     countUp($('vBattery'), value);
     document.querySelectorAll('#bFlower .petal').forEach((petal, n) => petal.classList.toggle('on', value > n * 20 + 10));
 
-    const charged = useGarmin ? g.charged : est.charged;
-    const drained = useGarmin ? g.drained : est.drained;
-    const items = [[useGarmin ? 'Garmin · ' + (sameDay(g.day) ? 'today' : dayLabel(g.day)) : 'Whoop estimate', '', 'p-egg']];
+    const charged = est.charged;
+    const drained = est.drained;
+    const items = [['Whoop estimate', '', 'p-egg']];
     if (charged != null) items.push(['Charged', '+' + charged, 'p-lime']);
     if (drained != null) items.push(['Drained', '−' + drained, 'p-ultra']);
-    if (useGarmin && est) items.push(['Whoop estimate', est.now + '%', 'p-ink']);
     const pillsEl = $('bPills');
     pillsEl.replaceChildren();
     items.forEach(([name, amount, cls], i) => {
@@ -315,11 +310,7 @@
     // high, with the two numbers printed at the ends of the bar. Days without a reading get a short grey dash.
     const key = (d) => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
     const ranges = new Map();
-    if (useGarmin) {
-      b.garmin.days.forEach((d) => { if (d.high != null && d.low != null) ranges.set(key(new Date(d.day)), [d.low, d.high]); });
-    } else {
-      b.days.forEach((d) => { if (d.now != null) ranges.set(key(new Date(new Date(d.night).getTime() + 12 * HOUR)), [d.now, d.charged]); });
-    }
+    b.days.forEach((d) => { if (d.now != null) ranges.set(key(new Date(new Date(d.night).getTime() + 12 * HOUR)), [d.now, d.charged]); });
     const make = (tag, cls, text) => {
       const el = document.createElement(tag);
       if (cls) el.className = cls;

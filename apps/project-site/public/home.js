@@ -103,19 +103,16 @@
   }
 })();
 
-// Fills the lime hero panel with the body battery: Garmin's own number when the watch was worn in the
-// last couple of days, otherwise the Whoop-based estimate. Keeps "–" if neither is available.
+// Fills the lime hero panel with the body battery estimate. Keeps "–" if it is not available.
 (async () => {
   try {
     const res = await fetch('api/v1/health/battery?days=3');
     if (!res.ok) return;
     const b = await res.json();
-    const g = b.garmin && b.garmin.latest;
-    const garmin = !!g && Date.now() - new Date(g.day) < 60 * 3600e3;
     const est = b.latest && b.latest.now != null ? b.latest : null;
-    const value = garmin ? g.now : est && est.now;
+    const value = est && est.now;
     if (value == null) return;
-    document.querySelector('#batteryLabel').textContent = 'Body battery · ' + (garmin ? 'Garmin' : 'estimate');
+    document.querySelector('#batteryLabel').textContent = 'Body battery · estimate';
     // One petal per 20 points; the lit ones bloom in turn.
     document.querySelectorAll('#batteryFlower .petal').forEach((petal, n) => petal.classList.toggle('on', value > n * 20 + 10));
     countUp(document.querySelector('#batteryValue'), value);
