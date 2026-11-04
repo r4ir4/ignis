@@ -118,6 +118,8 @@ export default function WatchApp() {
 
   useEffect(() => {
     document.title = 'Watch · Ignis Farm'
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
+    if (icon) icon.href = '/watch-favicon.svg?v=1'
     const fonts = document.createElement('link')
     fonts.rel = 'stylesheet'; fonts.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,900;1,9..144,900&family=Poppins:wght@400;500;600;700&display=swap'
     document.head.append(fonts)
