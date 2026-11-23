@@ -1,0 +1,64 @@
+{
+  "name": "ignis-api",
+  "services": {
+    "api": {
+      "build": {
+        "context": "/opt/ignis/api"
+      },
+      "image": "ignis-api:local",
+      "restart": "unless-stopped",
+      "read_only": true,
+      "tmpfs": [
+        "/tmp"
+      ],
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        "/opt/ignis/api/secrets:/run/ignis:ro",
+        "/opt/ignis/api/data:/data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+        ],
+        "interval": "30s",
+        "timeout": "5s",
+        "retries": 3
+      },
+      "networks": {
+        "proxy": {
+          "aliases": [
+            "ignis-api"
+          ]
+        }
+      },
+      "labels": {
+        "traefik.enable": "true",
+        "traefik.docker.network": "n8n_default",
+        "traefik.http.services.ignis-api.loadbalancer.server.port": "8000",
+        "traefik.http.routers.ignis-api.rule": "Host(`api.ignis.farm`)",
+        "traefik.http.routers.ignis-api.entrypoints": "websecure",
+        "traefik.http.routers.ignis-api.tls": "true",
+        "traefik.http.routers.ignis-api.tls.certresolver": "mytlschallenge",
+        "traefik.http.routers.ignis-api.service": "ignis-api",
+        "traefik.http.routers.ignis-api.middlewares": "ignis-api-limit,ignis-api-body",
+        "traefik.http.middlewares.ignis-api-limit.ratelimit.average": "20",
+        "traefik.http.middlewares.ignis-api-limit.ratelimit.burst": "40",
+        "traefik.http.middlewares.ignis-api-body.buffering.maxRequestBodyBytes": "1048576"
+      }
+    }
+  },
+  "networks": {
+    "proxy": {
+      "name": "n8n_default",
+      "external": true
+    }
+  }
+}

@@ -10,3 +10,7 @@ node_modules/
 dist/
 *.tsbuildinfo
 .venv/
+
+# Live project API. Credentials and the SQLite database stay on the server.
+services/project-api/secrets/
+services/project-api/data/
