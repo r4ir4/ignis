@@ -4,6 +4,7 @@
 - The web app uses Vite and Tailwind CSS. Use utility classes and the Tailwind import in `apps/web/src/index.css`; use Node.js 24 and follow `apps/web/README.md` for commands.
 - Keep app interfaces separate. Put shared API definitions in `shared/contracts/` and backend implementation in `services/api/` when those are designed.
 - The accepted backend stack is FastAPI with Python, a dedicated PostgreSQL database, SQLAlchemy and Alembic. Follow the folder responsibilities in `services/api/README.md` and `docs/backend.md`.
+- `apps/project-site` and `services/project-api` are the live project.ignis.farm site. Keep them as hand-written pages, FastAPI, and SQLite. Do not rewrite them into the React notebook or move that database to PostgreSQL.
 - Generate the OpenAPI contract from the implemented FastAPI app and keep exports in `shared/contracts/` consistent with it.
 - Do not initialize Git until the user explicitly requests it.
 - Do not initialize frameworks or add dependencies solely to fill empty folders. Follow the requested implementation scope.
@@ -11,3 +12,4 @@
 - Change the live deployment only when requested. Local folder changes do not imply a production deployment.
 - Keep Raira's existing medication and other data separate; do not migrate or delete it without an explicit request.
 - Update the README and architecture decisions when paths or accepted project choices change.
+- `apps/portfolio` is the public raira.dev portfolio: hand-written HTML, CSS and JavaScript only, deployed as its own container at `/opt/ignis/portfolio`. Keep it separate from the project site and the web app, and without login or personal data.

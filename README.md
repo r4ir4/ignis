@@ -15,11 +15,16 @@ ignis/
       public/             # Static assets
       src/                # Minimal React/TypeScript app and Tailwind CSS
       package.json        # Web dependencies and local commands
+    project-site/         # Static pages for https://project.ignis.farm (vendor-src/ holds the Tiptap bundle source)
+    portfolio/            # Hand-written one-page portfolio, live at https://raira.dev (public/: index.html, style.css, script.js, img/)
   services/
     api/                  # FastAPI backend shared by the apps
       app/                # Routes, settings, database access, models, schemas, services
       migrations/versions/ # Alembic migration revisions
       tests/              # Future backend tests
+    project-api/          # Source copy of the live api.ignis.farm service
+      app/                # FastAPI app: auth, SQLite, and the project.ignis.farm routes
+      connectors/         # Whoop and Garmin sync scripts
   shared/
     contracts/            # Future language-neutral API definitions
   deploy/                 # Production Docker Compose and nginx configuration
@@ -30,6 +35,10 @@ ignis/
 ```
 
 Each application owns its interface. The planned shared API owns persistent data and common business rules. The backend folder structure is prepared, with a runnable local Structured connection proof but no application database yet. See `services/api/README.md` for the folders and `docs/backend.md` for the accepted backend stack.
+
+`services/project-api` is a source copy of the live service at `/opt/ignis/api`, which backs https://project.ignis.farm and https://api.ignis.farm. It is separate from the notebook API in `services/api`. Secrets stay in `/opt/ignis/api/secrets` and the SQLite database stays in `/opt/ignis/api/data`; neither is in this folder. The four `import_*.py` scripts are local one-offs and are not deployed. A consistent copy of that database is pulled to this Mac every six hours. See `deploy/project-api/README.md`.
+
+The project site stays hand-written pages. It is not part of the React app in `apps/web`, and its SQLite database is not migrated into the notebook's PostgreSQL. See `docs/architecture.md`.
 
 ## Run the web app locally
 
@@ -116,3 +125,18 @@ New intakes, stage marks, edits and removals write only in Ignis. Existing five-
 The Markdown Notes editor has been removed locally at the user’s request. Legacy `/notes` URLs open the notebook. Its saved drafts, images, backend services and published Quartz reader are preserved; reader assets now live in `apps/quartz/assets/`.
 
 Quartz has also been retired locally. Its source, publisher/reader code, and local runtime were removed. The saved Markdown notes/images and previously published files are preserved under the private Ignis application-support folder; Tiptap remains the active notebook.
+
+### Custom check-in folders and forms (2026-11-22, local only)
+
+On https://project.ignis.farm/checkin you can make your own folders and forms. A form is a list of questions (single choice, 0-4 or 0-10 scale, yes/no with a detail field, number, time, free text), filled in once a day and shown as charts per question. Built-in folders (Meds, Corpo, Mente, Energia, Pessoas, Rotina) stay on the pages and also accept custom forms. Pages: `checkin-pasta`, `checkin-editor`, `checkin-preencher`, `checkin-registros` in `apps/project-site/public`. API: `services/project-api/app/checkin_forms.py` (tables `checkin_folders`, `checkin_forms`, `checkin_form_responses` in the SQLite database; forms are archived, never deleted, so answers stay). Not deployed: the API module must be copied to `/opt/ignis/api/app/` and registered in `main.py` (see the module docstring) before the pages work in production.
+
+The Venvanse check-in is now one of these forms (id `venvanse`, folder Meds, questions q46-q50). On the first API start after the upgrade, `checkin_forms.init_tables()` creates it and copies the check-ins from `daily_checkins` into `checkin_form_responses`; the old table is left untouched and nothing is recreated if the form is archived. `checkin-venvanse` and `checkin-venvanse-dados` only redirect to the generic pages. The old long-form answers (q1-q45) are kept but not charted.
+
+### Mobile layer (2026-11-22, local only)
+
+`apps/project-site/public/mobile.css` is loaded last on every page and only acts on phones and small tablets (max-width 900/760/560px): tap targets of about 40px, 16px form fields (no zoom on focus in iOS), nothing under 11.5px, safe-area padding (pages use `viewport-fit=cover`), money numbers that never break across lines, the Workout plan with all six days fitting, and bottom-sheet dialogs. The Rotina page has its own phone view (day tabs plus an agenda; `rotina.js`/`rotina.css`). Audit method: load each page in a 375px iframe and check horizontal overflow, targets under 32px and text under 11px.
+
+
+## Portfolio (raira.dev)
+
+`apps/portfolio/public` is a static, public one-page site (no login, no API, no database). It runs on the same server as the Ignis sites, as its own nginx container (`raira-portfolio`) behind Traefik at `/opt/ignis/portfolio` (`compose.json`, `nginx.conf`, `public/`). Traefik routes `raira.dev` with a Let's Encrypt certificate and redirects `www.raira.dev` to it. The DNS records for `raira.dev` (A and a wildcard A to the server, `www` CNAME) are managed at Hostinger. To deploy a change, copy the files in `apps/portfolio/public` to `/opt/ignis/portfolio/public`; no restart is needed. The text and images come from the previous WordPress site at raira.io, which is a separate hosting account that this repository does not touch.

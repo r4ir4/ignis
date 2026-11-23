@@ -13,6 +13,14 @@
 - Deployment configuration under `deploy/`.
 - A separate local Git repository on `main`, initialized through GitKraken's personal profile on October 13, 2026. Remote hosting is not configured yet.
 
+## project.ignis.farm stays as it is (17 November 2026)
+
+https://project.ignis.farm is a different product from the notebook at https://ignis.farm. It stays hand-written HTML, CSS, and JavaScript in `apps/project-site/public`, with FastAPI in `services/project-api` and SQLite at `/opt/ignis/api/data/ignis.db`. The Notes page uses Tiptap, bundled once into `apps/project-site/public/vendor/tiptap/tiptap.js` from `apps/project-site/vendor-src/tiptap` (see its README); the site itself still has no build step.
+
+A new module is one HTML page, one script, and one router. `shell.js` is the shared header. `home-minimal.css` is the shared skin. These pages are not moved into `apps/web`. This database is not moved onto PostgreSQL, SQLAlchemy, or Alembic. PostgreSQL remains the notebook database until a second writer needs the same records.
+
+The notebook stays React, TypeScript, Vite, Tailwind, PostgreSQL, SQLAlchemy, and Alembic.
+
 ## Tiptap workspace experiment (local, October 17, 2026)
 
 The workspace now uses the official Tiptap React DragHandle and BubbleMenu integrations for top-level block reordering and selection formatting. Lists and quotes remain intact when moved; a single-transaction move command supplies keyboard and button alternatives and preserves editor selection. Moves are undoable and use the existing JSON autosave. Floating-menu and drag-position options keep stable references to avoid editor plugin registration loops during selection changes. No document storage format or backend contract changed.

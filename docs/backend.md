@@ -12,6 +12,8 @@
 
 One backend application will serve the SwiftUI and React clients. Core permissions, validation and business rules belong to this backend; each client owns its interface.
 
+`services/project-api` is not this backend. It already serves project.ignis.farm with SQLite and stays that way. See the project.ignis.farm decision in `architecture.md`.
+
 ## Code organization
 
 The backend lives in `services/api/`:
