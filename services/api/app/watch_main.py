@@ -2,6 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from .watch import router
+from .titles import router as titles_router
 app = FastAPI(title='Ignis Watch API')
 @app.middleware('http')
 async def boundary(request: Request, call_next):
@@ -12,4 +13,5 @@ async def boundary(request: Request, call_next):
     response = await call_next(request)
     response.headers['Cache-Control'] = 'no-store'
     return response
+app.include_router(titles_router)
 app.include_router(router)

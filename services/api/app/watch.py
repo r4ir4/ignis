@@ -141,15 +141,18 @@ async def write(state: WatchState):
         return saved
 
 
-def persist(saved):
+def persist_file(name, content):
     try:
         PRIVATE.mkdir(parents=True, exist_ok=True); os.chmod(PRIVATE, 0o700)
-        path = PRIVATE / 'records.json'; temp = path.with_suffix('.tmp')
+        path = PRIVATE / name; temp = path.with_suffix('.tmp')
         fd = os.open(temp, os.O_CREAT | os.O_TRUNC | os.O_WRONLY, 0o600)
         with os.fdopen(fd, 'w') as output:
-            output.write(saved.model_dump_json()); output.flush(); os.fsync(output.fileno())
+            output.write(content); output.flush(); os.fsync(output.fileno())
         temp.replace(path)
     except OSError: raise HTTPException(500, 'Library could not be saved. Previous records were preserved.')
+
+
+def persist(saved): persist_file('records.json', saved.model_dump_json())
 
 
 @router.patch('/{record_id}/progress', response_model=WatchState)

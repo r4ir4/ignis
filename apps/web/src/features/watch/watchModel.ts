@@ -19,7 +19,7 @@ export function videoCollections(video: Pick<Video, 'collection' | 'collections'
 }
 export function filterVideos(videos: Video[], query: string, collection: string, status: string) {
   const needle = query.trim().toLowerCase()
-  return videos.filter(video => (!collection || videoCollections(video).includes(collection)) && (!status || video.status === status) && `${video.title} ${video.channel ?? ""} ${video.notes} ${video.tags.join(' ')}`.toLowerCase().includes(needle))
+  return videos.filter(video => (!collection || videoCollections(video).includes(collection)) && (!status || video.status === status) && `${video.title} ${video.channel ?? ""} ${video.notes}`.toLowerCase().includes(needle))
 }
 
 export function paginateVideos(videos: Video[], requestedPage: number) {

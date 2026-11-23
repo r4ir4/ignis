@@ -46,3 +46,55 @@
 .watch-slide-next { animation: watch-slide-next .28s cubic-bezier(.2, .7, .2, 1) both; }
 .watch-slide-prev { animation: watch-slide-prev .28s cubic-bezier(.2, .7, .2, 1) both; }
 @media (prefers-reduced-motion: reduce) { .watch-slide-next, .watch-slide-prev { animation: none; } }
+
+/* Watch x project site: chunky hard shadows, springy easing, staggered pop-in, pastel accents. */
+:root { --w-spring: cubic-bezier(.2, .9, .3, 1.2); --w-ink: #15000b; }
+@keyframes watch-pop { from { opacity: 0; transform: translateY(14px) rotate(-1.5deg) scale(.97); } to { opacity: 1; transform: none; } }
+.watch-card { opacity: 0; animation: watch-pop .55s var(--w-spring) forwards; animation-delay: calc(min(var(--i, 0), 11) * 45ms); }
+.watch-thumb { box-shadow: 0 4px 0 var(--w-ink); transition: transform .25s var(--w-spring), box-shadow .25s var(--w-spring); }
+.watch-card:hover .watch-thumb, .watch-card:focus-within .watch-thumb { transform: translateY(-3px) rotate(-.6deg); box-shadow: 0 8px 0 var(--w-ink); }
+.watch-card:active .watch-thumb { transform: translateY(2px); box-shadow: 0 1px 0 var(--w-ink); transition-duration: .08s; }
+.watch-prog { background: repeating-linear-gradient(135deg, rgba(193, 255, 26, .95) 0 6px, rgba(193, 255, 26, .55) 6px 12px); background-size: 17px 100%; animation: watch-stripes 1.2s linear infinite; transition: width .6s var(--w-spring); }
+@keyframes watch-stripes { to { background-position: 17px 0; } }
+.watch-nav { transition: background-color .2s, color .2s, transform .25s var(--w-spring); }
+.watch-nav:hover { transform: translateX(3px); }
+.watch-nav:active { transform: scale(.97); }
+.watch-chip { transition: transform .25s var(--w-spring), background-color .2s; }
+.watch-chip:hover { transform: translateY(-1px) rotate(-1deg); }
+.watch-chip-on { transform: scale(1.04); box-shadow: 0 3px 0 var(--w-ink); }
+.watch-new .watch-thumb { animation: watch-glow 2.2s ease-out; }
+@keyframes watch-glow { 0%, 60% { box-shadow: 0 4px 0 var(--w-ink), 0 0 0 6px #ff00ae, 0 0 28px 8px rgba(255, 0, 174, .55); } 100% { box-shadow: 0 4px 0 var(--w-ink), 0 0 0 0 rgba(255, 0, 174, 0); } }
+.watch-skeleton { background: linear-gradient(100deg, rgba(21, 0, 11, .07) 30%, rgba(255, 255, 255, .55) 50%, rgba(21, 0, 11, .07) 70%) 0 0 / 220% 100%; animation: watch-shimmer 1.3s ease-in-out infinite; }
+@keyframes watch-shimmer { to { background-position: -120% 0; } }
+@keyframes watch-toast-in { from { opacity: 0; transform: translate(-50%, 24px) scale(.9); } to { opacity: 1; transform: translate(-50%, 0); } }
+.watch-toast { animation: watch-toast-in .45s var(--w-spring) both; }
+dialog[data-watch-dialog][open] { animation: watch-dialog-in .42s var(--w-spring) both; }
+dialog[data-watch-dialog][open]::backdrop { animation: watch-fade .3s ease both; backdrop-filter: blur(3px); }
+@keyframes watch-dialog-in { from { opacity: 0; transform: translateY(24px) scale(.94) rotate(-1deg); } to { opacity: 1; transform: none; } }
+@keyframes watch-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .watch-card { opacity: 1; animation: none; }
+  .watch-thumb, .watch-nav, .watch-chip, .watch-toast, dialog[data-watch-dialog][open], dialog[data-watch-dialog][open]::backdrop, .watch-new .watch-thumb { animation: none; transition: none; }
+  .watch-card:hover .watch-thumb, .watch-nav:hover, .watch-chip:hover { transform: none; }
+  .watch-prog, .watch-skeleton { animation: none; }
+}
+
+/* Sidebar stays scrollable (wheel, touch, keyboard) without a visible scrollbar. */
+.watch-noscrollbar { scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior: contain; }
+.watch-noscrollbar::-webkit-scrollbar { display: none; }
+
+/* Header: screen badge on the flame, search bar that lifts on focus. */
+.watch-screen { position: absolute; top: -9px; right: -5px; width: 24px; height: 20px; overflow: visible; transform: rotate(8deg); transform-origin: 50% 100%; filter: drop-shadow(0 2px 0 rgba(21, 0, 11, .25)); opacity: 0; animation: watch-screen-in .6s var(--w-spring) 1s forwards, watch-screen-bob 3.4s ease-in-out 1.7s infinite; transition: transform .3s var(--w-spring); }
+.logo:hover .watch-screen { animation-play-state: running, paused; transform: rotate(-4deg) scale(1.18); }
+.watch-screen-play { transform-box: fill-box; transform-origin: center; animation: watch-play 2.4s ease-in-out 1.7s infinite; }
+@keyframes watch-screen-in { from { opacity: 0; transform: translateY(8px) rotate(-16deg) scale(.4); } to { opacity: 1; transform: rotate(8deg); } }
+@keyframes watch-screen-bob { 0%, 100% { transform: rotate(8deg) translateY(0); } 50% { transform: rotate(5deg) translateY(-2px); } }
+@keyframes watch-play { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .75; transform: scale(.88); } }
+.watch-search { transition: transform .25s var(--w-spring), box-shadow .25s var(--w-spring); }
+.watch-search:focus-within { transform: translateY(-2px); box-shadow: 0 4px 0 var(--w-ink); }
+.watch-search-btn:active { transform: scale(.96); }
+@media (prefers-reduced-motion: reduce) {
+  .watch-screen { opacity: 1; animation: none; transform: rotate(8deg); transition: none; }
+  .watch-screen-play { animation: none; }
+  .watch-search, .watch-search:focus-within { transition: none; transform: none; }
+}
