@@ -12,9 +12,9 @@
     if (text != null) el.textContent = text;
     return el;
   };
-  const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString(undefined, { maximumFractionDigits: 1 });
+  const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
   const signed = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + fmt(Math.abs(n));
-  const short = (k) => parseDay(k).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const short = (k) => parseDay(k).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
   const num = (v) => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
 
   async function api(path, options) {
@@ -23,7 +23,7 @@
     if (!res.ok) {
       let detail = '';
       try { const body = await res.json(); if (typeof body.detail === 'string') detail = body.detail; } catch (e) { /* not json */ }
-      throw new Error(detail || 'Something went wrong (' + res.status + ').');
+      throw new Error(detail || 'Algo deu errado (' + res.status + ').');
     }
     return res.status === 204 ? null : res.json();
   }
@@ -38,11 +38,13 @@
 
   const todayKey = () => dayKey(new Date());
   const S = { data: null, sel: 'weight', range: 90 };
+  const LABELS = { weight: 'Peso', body_fat: 'Gordura corporal', neck: 'Pescoço', shoulders: 'Ombros', chest: 'Peito', arm: 'Braço', waist: 'Cintura', hips: 'Quadril', thigh: 'Coxa', calf: 'Panturrilha' };
   const by = (k) => S.data.metrics.find((m) => m.key === k);
   const unitOf = (m) => (m.unit === '%' ? '%' : ' ' + m.unit);
 
   async function load() {
     S.data = await api('/v1/metrics/overview?day=' + todayKey());
+    S.data.metrics.forEach((m) => { m.label = LABELS[m.key] || m.label; });
     render();
   }
 
@@ -78,12 +80,12 @@
     const top = $('mtTop');
     top.replaceChildren();
     const word = make('figure', 'mt-fig mt-word grain');
-    word.innerHTML = '<p class="mt-wordt">Body<br>metrics</p><svg class="mt-tw" style="--x:88%;--y:12%;--s:22px;--d:0s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="mt-tw mt-tw-p" style="--x:76%;--y:68%;--s:16px;--d:1.1s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="mt-tw" style="--x:52%;--y:10%;--s:12px;--d:2s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>';
+    word.innerHTML = '<p class="mt-wordt">Medidas corporais</p><svg class="mt-tw" style="--x:88%;--y:12%;--s:22px;--d:0s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="mt-tw mt-tw-p" style="--x:76%;--y:68%;--s:16px;--d:1.1s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="mt-tw" style="--x:52%;--y:10%;--s:12px;--d:2s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>';
     const row = make('div', 'mt-wordrow');
-    row.appendChild(make('small', '', d.days_logged ? d.days_logged + (d.days_logged === 1 ? ' day' : ' days') + ' logged' : 'Nothing logged yet'));
+    row.appendChild(make('small', '', d.days_logged ? d.days_logged + (d.days_logged === 1 ? ' dia' : ' dias') + ' registrados' : 'Nada registrado ainda'));
     const add = make('button', 'mt-mini');
     add.type = 'button';
-    add.innerHTML = '<span class="mt-plus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Log measurements';
+    add.innerHTML = '<span class="mt-plus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Registrar medidas';
     add.addEventListener('click', () => openLog(todayKey()));
     row.appendChild(add);
     word.appendChild(row);
@@ -91,12 +93,12 @@
     const w = by('weight'), f = by('body_fat'), c = by('waist');
     const tiles = make('ul', 'mt-tiles');
     const li = (node) => { const x = make('li'); x.style.display = 'contents'; x.appendChild(node); tiles.appendChild(x); };
-    const chg = (m) => (m.change_30 == null ? (m.latest ? 'last ' + short(m.latest.day) : 'not logged') : signed(m.change_30) + ' ' + m.unit + ' in 30 days');
-    li(tile('t-w', 'weight', 'Weight', w.latest && w.latest.value, 'kg', 'scale', chg(w)));
-    li(tile('t-f', 'body_fat', 'Body fat', f.latest && f.latest.value, '%', 'drop', chg(f)));
-    li(tile('t-c', 'waist', 'Waist', c.latest && c.latest.value, 'cm', 'tape', chg(c)));
+    const chg = (m) => (m.change_30 == null ? (m.latest ? 'último em ' + short(m.latest.day) : 'sem registro') : signed(m.change_30) + ' ' + m.unit + ' em 30 dias');
+    li(tile('t-w', 'weight', 'Peso', w.latest && w.latest.value, 'kg', 'scale', chg(w)));
+    li(tile('t-f', 'body_fat', 'Gordura corporal', f.latest && f.latest.value, '%', 'drop', chg(f)));
+    li(tile('t-c', 'waist', 'Cintura', c.latest && c.latest.value, 'cm', 'tape', chg(c)));
     const goalsSet = d.metrics.filter((m) => m.goal != null).length;
-    li(tile('t-d', null, 'Days logged', d.days_logged, '', 'cal', goalsSet ? goalsSet + (goalsSet === 1 ? ' goal set' : ' goals set') : 'no goals yet'));
+    li(tile('t-d', null, 'Dias registrados', d.days_logged, '', 'cal', goalsSet ? goalsSet + (goalsSet === 1 ? ' meta definida' : ' metas definidas') : 'sem metas ainda'));
     top.append(word, tiles);
   }
 
@@ -106,10 +108,10 @@
     const box = $('mtChart');
     box.replaceChildren();
     const head = make('div', 'mt-head');
-    head.appendChild(make('p', 'mt-k', 'Progress'));
+    head.appendChild(make('p', 'mt-k', 'Progresso'));
     const pills = make('div', 'mt-pills');
     pills.setAttribute('role', 'group');
-    pills.setAttribute('aria-label', 'Metric');
+    pills.setAttribute('aria-label', 'Medida');
     S.data.metrics.forEach((x) => {
       const b = make('button', '', x.label);
       b.type = 'button';
@@ -130,13 +132,13 @@
     const badges = make('div', 'mt-badges');
     if (pts.length > 1) {
       const d = pts[pts.length - 1].value - pts[0].value;
-      badges.appendChild(make('span', 'mt-badge', signed(d) + ' ' + m.unit + ' since ' + short(pts[0].day)));
+      badges.appendChild(make('span', 'mt-badge', signed(d) + ' ' + m.unit + ' desde ' + short(pts[0].day)));
     }
     if (m.goal != null && m.latest) {
       const left = m.goal - m.latest.value;
-      badges.appendChild(make('span', 'mt-badge', Math.abs(left) < 0.05 ? 'Goal reached' : fmt(Math.abs(left)) + ' ' + m.unit + (left < 0 ? ' to lose' : ' to gain')));
+      badges.appendChild(make('span', 'mt-badge', Math.abs(left) < 0.05 ? 'Meta atingida' : fmt(Math.abs(left)) + ' ' + m.unit + (left < 0 ? ' para perder' : ' para ganhar')));
     }
-    const goalBtn = make('button', 'mt-badge', m.goal != null ? 'Goal ' + fmt(m.goal) + ' ' + m.unit + ' ✎' : '+ Set a goal');
+    const goalBtn = make('button', 'mt-badge', m.goal != null ? 'Meta ' + fmt(m.goal) + ' ' + m.unit + ' ✎' : '+ Definir meta');
     goalBtn.type = 'button';
     goalBtn.addEventListener('click', () => openGoal(m));
     badges.appendChild(goalBtn);
@@ -145,8 +147,8 @@
 
     const ranges = make('div', 'mt-pills');
     ranges.setAttribute('role', 'group');
-    ranges.setAttribute('aria-label', 'Range');
-    [[30, '30 days'], [90, '90 days'], [365, 'Year'], [0, 'All']].forEach(([r, label]) => {
+    ranges.setAttribute('aria-label', 'Período');
+    [[30, '30 dias'], [90, '90 dias'], [365, 'Ano'], [0, 'Tudo']].forEach(([r, label]) => {
       const b = make('button', '', label);
       b.type = 'button';
       b.setAttribute('aria-pressed', String(S.range === r));
@@ -156,7 +158,7 @@
     box.appendChild(ranges);
 
     if (!pts.length) {
-      box.appendChild(make('p', 'mt-empty', m.points.length ? 'No ' + m.label.toLowerCase() + ' entries in this range. Try a longer one.' : 'Nothing logged for ' + m.label.toLowerCase() + ' yet. Log your first measurement and the graph will draw itself.'));
+      box.appendChild(make('p', 'mt-empty', m.points.length ? 'Nenhum registro de ' + m.label.toLowerCase() + ' neste período. Tente um período maior.' : 'Nada registrado de ' + m.label.toLowerCase() + ' ainda. Registre sua primeira medida e o gráfico aparece.'));
       return;
     }
     const readout = make('p', 'mt-readout');
@@ -178,13 +180,13 @@
       const val = lo + ((hi - lo) * (i + 0.5)) / 3;
       g += '<line class="gd" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(val).toFixed(1) + '" y2="' + y(val).toFixed(1) + '"/><text x="' + (L - 8) + '" y="' + (y(val) + 4).toFixed(1) + '" text-anchor="end">' + fmt(val) + '</text>';
     });
-    if (m.goal != null) g += '<line class="goal" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(m.goal).toFixed(1) + '" y2="' + y(m.goal).toFixed(1) + '"/><text class="gl" x="' + (W - R) + '" y="' + (y(m.goal) - 8).toFixed(1) + '" text-anchor="end">goal</text>';
+    if (m.goal != null) g += '<line class="goal" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(m.goal).toFixed(1) + '" y2="' + y(m.goal).toFixed(1) + '"/><text class="gl" x="' + (W - R) + '" y="' + (y(m.goal) - 8).toFixed(1) + '" text-anchor="end">meta</text>';
     if (pts.length > 1) g += '<path class="ar" d="' + area + '"/><path class="ln" pathLength="1" d="' + line + '"/>';
     pts.forEach((p, i) => { g += '<circle class="pt' + (i === pts.length - 1 ? ' last' : '') + '" style="--i:' + Math.min(i, 30) + '" cx="' + x(p.day).toFixed(1) + '" cy="' + y(p.value).toFixed(1) + '" r="' + (i === pts.length - 1 ? 6 : 4.5) + '"/>'; });
     g += '<line class="guide" y1="' + T + '" y2="' + (H - B) + '"/><circle class="hov" r="8"/>';
     g += '<text x="' + L + '" y="' + (H - 8) + '">' + short(pts[0].day) + '</text>' + (pts.length > 1 ? '<text x="' + (W - R) + '" y="' + (H - 8) + '" text-anchor="end">' + short(pts[pts.length - 1].day) + '</text>' : '');
     const svg = make('div');
-    svg.innerHTML = '<svg class="mt-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + m.label + ' over time">' + g + '</svg>';
+    svg.innerHTML = '<svg class="mt-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + m.label + ' ao longo do tempo">' + g + '</svg>';
     box.appendChild(svg);
     const el = svg.firstChild, guide = el.querySelector('.guide'), hov = el.querySelector('.hov');
     const last = pts[pts.length - 1];
@@ -226,7 +228,7 @@
       v.textContent = m.latest ? fmt(m.latest.value) : '–';
       if (m.latest) v.appendChild(make('em', '', m.unit));
       b.appendChild(v);
-      b.appendChild(make('span', 'mt-ch', m.latest ? (m.change_30 != null ? signed(m.change_30) + ' ' + m.unit + ' / 30 d' : short(m.latest.day)) : 'not logged'));
+      b.appendChild(make('span', 'mt-ch', m.latest ? (m.change_30 != null ? signed(m.change_30) + ' ' + m.unit + ' / 30 d' : short(m.latest.day)) : 'sem registro'));
       b.insertAdjacentHTML('beforeend', spark(m.points));
       b.addEventListener('click', () => { sel(m.key); $('mtChart').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
       li.appendChild(b);
@@ -239,12 +241,12 @@
   function renderHistory() {
     const box = $('mtHist');
     box.replaceChildren();
-    if (!S.data.entries.length) { box.appendChild(make('li', 'mt-empty', 'No measurements yet. Tap “Log measurements” to add the first.')); return; }
+    if (!S.data.entries.length) { box.appendChild(make('li', 'mt-empty', 'Nenhuma medida ainda. Toque em “Registrar medidas” para adicionar a primeira.')); return; }
     S.data.entries.forEach((e) => {
       const li = make('li');
       const b = make('button', 'mt-hrow');
       b.type = 'button';
-      b.appendChild(make('span', 'mt-hd', parseDay(e.day).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })));
+      b.appendChild(make('span', 'mt-hd', parseDay(e.day).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })));
       const vals = make('span', 'mt-hv');
       S.data.metrics.filter((m) => e.values[m.key] != null).forEach((m) => {
         const s = make('span', '', m.label + ' ');
@@ -288,11 +290,64 @@
       box.appendChild(lab);
     });
     $('mtLogDelete').hidden = !Object.keys(vals).length;
-    $('mtLogTitle').textContent = Object.keys(vals).length ? 'Edit measurements' : 'Log measurements';
+    $('mtLogTitle').textContent = Object.keys(vals).length ? 'Editar medidas' : 'Registrar medidas';
+  }
+  // custom calendar for the day (same pattern as the medication dialog): a button that opens a month grid, dots on days with measurements
+  let calMonth = new Date();
+  function renderDayCal() {
+    const y = calMonth.getFullYear(), mo = calMonth.getMonth(), now = new Date();
+    $('mtCalTitle').textContent = calMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    const lead = (new Date(y, mo, 1).getDay() + 6) % 7;
+    const total = new Date(y, mo + 1, 0).getDate();
+    const logged = new Set(S.data.entries.map((e) => e.day));
+    S.data.metrics.forEach((m) => m.points.forEach((p) => logged.add(p.day)));
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push(make('span', 'mt-pad'));
+    for (let d = 1; d <= total; d++) {
+      const key = y + '-' + pad(mo + 1) + '-' + pad(d);
+      const future = new Date(y, mo, d) > new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const b = make('button', 'mt-dayb' + (logged.has(key) ? ' has' : '') + (key === todayKey() ? ' today' : '') + (key === logDay ? ' sel' : ''), String(d));
+      b.type = 'button';
+      b.disabled = future;
+      b.setAttribute('aria-pressed', String(key === logDay));
+      b.addEventListener('click', () => { setDay(key); toggleDayCal(false); });
+      cells.push(b);
+    }
+    $('mtCalGrid').replaceChildren(...cells);
+    $('mtCalNext').disabled = new Date(y, mo + 1, 1) > now;
+  }
+  let calAnim = null;
+  function toggleDayCal(force) {
+    const box = $('mtCal'), btn = $('mtDayBtn');
+    const open = force == null ? (box.hidden || (calAnim && calAnim.closing)) : force;
+    if (!force && force != null && box.hidden) return;
+    if (open && !box.hidden && !(calAnim && calAnim.closing)) return;
+    btn.setAttribute('aria-expanded', String(open));
+    if (calAnim) { calAnim.cancel(); calAnim = null; }
+    const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (open) {
+      renderDayCal();
+      box.hidden = false;
+      if (still || !box.animate) return;
+      const h = box.scrollHeight;
+      box.style.overflow = 'hidden';
+      calAnim = box.animate([{ height: '0px', opacity: 0, transform: 'translateY(-6px)' }, { height: h + 'px', opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+      calAnim.onfinish = () => { box.style.overflow = ''; calAnim = null; };
+    } else {
+      if (still || !box.animate) { box.hidden = true; return; }
+      const h = box.getBoundingClientRect().height;
+      box.style.overflow = 'hidden';
+      calAnim = box.animate([{ height: h + 'px', opacity: 1, transform: 'none' }, { height: '0px', opacity: 0, transform: 'translateY(-6px)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
+      calAnim.closing = true;
+      calAnim.onfinish = () => { box.hidden = true; box.style.overflow = ''; calAnim.cancel(); calAnim = null; };
+    }
   }
   function setDay(day) {
     logDay = day;
     $('mtDay').value = day;
+    $('mtDayText').textContent = parseDay(day).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    calMonth = new Date(parseDay(day).getFullYear(), parseDay(day).getMonth(), 1);
+    renderDayCal();
     const t = parseDay(todayKey());
     $('mtQuick').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(dayKey(addDays(t, -Number(b.dataset.v))) === day)));
     fillFields(day);
@@ -301,9 +356,10 @@
     $('mtLogErr').hidden = true;
     $('mtLogSave').disabled = false;
     $('mtDay').max = todayKey();
+    $('mtCal').hidden = true; $('mtDayBtn').setAttribute('aria-expanded', 'false');
     const del = $('mtLogDelete');
     del.classList.remove('sure');
-    del.textContent = 'Delete this day';
+    del.textContent = 'Apagar este dia';
     setDay(day);
     $('mtLogDialog').showModal();
     const first = [...$('mtFields').querySelectorAll('input')].find((i) => !i.value) || $('mtFields').querySelector('input');
@@ -317,15 +373,15 @@
     for (const inp of $('mtFields').querySelectorAll('input')) {
       if (inp.value.trim() === '') { if (inp.dataset.was) values[inp.dataset.k] = null; continue; }
       const n = num(inp.value);
-      if (n == null || n <= 0) { err.textContent = 'Check the numbers: they must be positive.'; err.hidden = false; inp.focus(); return; }
+      if (n == null || n <= 0) { err.textContent = 'Confira os números: eles devem ser positivos.'; err.hidden = false; inp.focus(); return; }
       values[inp.dataset.k] = n;
     }
-    if (!Object.keys(values).length) { err.textContent = 'Fill in at least one measurement.'; err.hidden = false; return; }
+    if (!Object.keys(values).length) { err.textContent = 'Preencha pelo menos uma medida.'; err.hidden = false; return; }
     $('mtLogSave').disabled = true;
     try {
       await api('/v1/metrics/entries/' + logDay, { method: 'PUT', body: { values } });
       $('mtLogDialog').close();
-      toast('Saved');
+      toast('Salvo');
       await load();
     } catch (e) {
       err.textContent = e.message;
@@ -334,19 +390,11 @@
     }
   }
   async function deleteDay() {
-    const del = $('mtLogDelete');
-    if (!armed) {
-      armed = setTimeout(() => { armed = 0; del.classList.remove('sure'); del.textContent = 'Delete this day'; }, 4000);
-      del.classList.add('sure');
-      del.textContent = 'Sure? Tap again to delete';
-      return;
-    }
-    clearTimeout(armed);
-    armed = 0;
+    if (!(await IgnisConfirm.ask({ title: 'Apagar dia', text: 'Apagar todas as medidas deste dia? Isso não pode ser desfeito.' }))) return;
     try {
       await api('/v1/metrics/entries/' + logDay, { method: 'DELETE' });
       $('mtLogDialog').close();
-      toast('Deleted');
+      toast('Apagado');
       await load();
     } catch (e) { toast(e.message); }
   }
@@ -355,8 +403,8 @@
   let goalMetric = null;
   function openGoal(m) {
     goalMetric = m;
-    $('mtGoalTitle').textContent = m.label + ' goal';
-    $('mtGoalLabel').textContent = 'Target (' + m.unit + ')';
+    $('mtGoalTitle').textContent = 'Meta de ' + m.label.toLowerCase();
+    $('mtGoalLabel').textContent = 'Alvo (' + m.unit + ')';
     $('mtGoalVal').value = m.goal != null ? m.goal : '';
     $('mtGoalErr').hidden = true;
     $('mtGoalSave').disabled = false;
@@ -369,12 +417,12 @@
     err.hidden = true;
     const raw = $('mtGoalVal').value.trim();
     const n = raw === '' ? null : num(raw);
-    if (raw !== '' && (n == null || n <= 0)) { err.textContent = 'Enter a positive number.'; err.hidden = false; return; }
+    if (raw !== '' && (n == null || n <= 0)) { err.textContent = 'Digite um número positivo.'; err.hidden = false; return; }
     $('mtGoalSave').disabled = true;
     try {
       await api('/v1/metrics/goals/' + goalMetric.key, { method: 'PUT', body: { value: n } });
       $('mtGoalDialog').close();
-      toast(n == null ? 'Goal removed' : 'Goal saved');
+      toast(n == null ? 'Meta removida' : 'Meta salva');
       await load();
     } catch (e) {
       err.textContent = e.message;
@@ -388,8 +436,8 @@
     grid.innerHTML = '<div class="identity mt-board">'
       + '<div class="mt-idgrid" id="mtTop"></div>'
       + '<figure class="mt-fig mt-chartc" id="mtChart"></figure>'
-      + '<figure class="mt-fig mt-cardsc"><div class="mt-head"><p class="mt-k">Measurements</p></div><ul class="mt-cards" id="mtCards"></ul></figure>'
-      + '<figure class="mt-fig mt-histc"><div class="mt-head"><p class="mt-k">History</p></div><ul class="mt-hist" id="mtHist"></ul></figure>'
+      + '<figure class="mt-fig mt-cardsc"><div class="mt-head"><p class="mt-k">Medidas</p></div><ul class="mt-cards" id="mtCards"></ul></figure>'
+      + '<figure class="mt-fig mt-histc"><div class="mt-head"><p class="mt-k">Histórico</p></div><ul class="mt-hist" id="mtHist"></ul></figure>'
       + '</div>';
   }
 
@@ -402,10 +450,12 @@
     $('mtGoalForm').addEventListener('submit', saveGoal);
     $('mtLogDelete').addEventListener('click', deleteDay);
     $('mtQuick').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setDay(dayKey(addDays(parseDay(todayKey()), -Number(b.dataset.v)))); });
-    $('mtDay').addEventListener('change', () => { if ($('mtDay').value) setDay($('mtDay').value); });
+    $('mtDayBtn').addEventListener('click', () => toggleDayCal());
+    $('mtCalPrev').addEventListener('click', () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderDayCal(); });
+    $('mtCalNext').addEventListener('click', () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderDayCal(); });
     load().catch(() => {
       const el = $('mtEmpty');
-      el.textContent = 'Could not load your metrics. Reload to try again.';
+      el.textContent = 'Não foi possível carregar suas medidas. Recarregue para tentar de novo.';
       el.hidden = false;
     });
   }

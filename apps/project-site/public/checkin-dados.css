@@ -1,0 +1,51 @@
+/* Venvanse check-in records page (checkin-venvanse-dados): centred cards with charts, in the sand theme. */
+body.checkin .cd-page { max-width: 860px !important; }
+.cd-sub { margin: 18px 0 28px; text-align: center; font: 500 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: rgba(21, 18, 16, .6); }
+.cd-empty { margin: 0; padding: 22px; border: 1px dashed rgba(21, 18, 16, .3); border-radius: 14px; text-align: center; font: 400 13px/1.5 var(--mono); color: rgba(21, 18, 16, .65); }
+
+#cdBody { display: grid; gap: 20px; }
+.cd-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.cd-tile { display: grid; align-content: center; justify-items: center; gap: 10px; min-height: 104px; padding: 18px 14px; box-sizing: border-box; text-align: center; border: 1px solid rgba(21, 18, 16, .16); border-radius: 16px; background: rgba(255, 255, 255, .45); }
+.cd-tile b { font: 700 30px/1 var(--head); letter-spacing: -.01em; color: #151210; }
+.cd-tile.cd-nodata b { color: rgba(21, 18, 16, .3); }
+.cd-tile small { font: 500 10.5px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: rgba(21, 18, 16, .6); }
+
+.cd-card { margin: 0; padding: 24px 26px 26px; border: 1px solid rgba(21, 18, 16, .16); border-radius: 20px; background: rgba(255, 255, 255, .45); box-shadow: 0 18px 40px -28px rgba(21, 18, 16, .35); }
+.cd-card h2 { margin: 0; font: 700 20px/1.2 var(--head); letter-spacing: -.01em; color: #151210; text-align: center; }
+.cd-cardsub { margin: 8px 0 0; text-align: center; font: 400 12px/1.5 var(--mono); color: rgba(21, 18, 16, .6); }
+.cd-card > :last-child:not(h2) { margin-top: 20px; }
+
+.cd-svg { display: block; width: 100%; height: auto; max-width: 100%; overflow: visible; }
+.cd-tick { font: 400 11.5px/1 var(--mono); fill: rgba(21, 18, 16, .6); }
+.cd-note { margin: 10px 0 0; text-align: center; font: 400 11.5px/1.5 var(--mono); color: rgba(21, 18, 16, .6); }
+
+.cd-qbody { display: grid; gap: 22px; }
+.cd-qbody .cd-dist { padding-top: 18px; border-top: 1px solid rgba(21, 18, 16, .1); }
+.cd-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.cd-grid .cd-card { margin: 0; padding: 20px 18px 22px; }
+.cd-grid .cd-card h2 { font-size: 16px; }
+.cd-stack { display: flex; height: 18px; overflow: hidden; border-radius: 999px; background: rgba(21, 18, 16, .08); }
+.cd-stack i { display: block; min-width: 6px; }
+.cd-stack i + i { border-left: 2px solid #f7e9d7; }
+.cd-legend { margin: 14px 0 0; padding: 0; list-style: none; display: grid; }
+.cd-legend li { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid rgba(21, 18, 16, .08); font: 400 12px/1.3 var(--mono); }
+.cd-legend li:first-child { border-top: 0; }
+.cd-legend li i { width: 10px; height: 10px; border-radius: 50%; }
+.cd-legend li b { font: 500 12px/1.3 var(--mono); color: rgba(21, 18, 16, .7); }
+
+.cd-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cd-cmp { display: grid; gap: 8px; padding: 18px 12px; text-align: center; border-radius: 14px; background: rgba(238, 93, 27, .08); }
+.cd-cmp b { font: 700 32px/1 var(--head); }
+.cd-cmp small { font: 500 10.5px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: rgba(21, 18, 16, .65); }
+
+@media (max-width: 700px) {
+  .cd-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cd-grid { grid-template-columns: 1fr; }
+  .cd-card { padding: 20px 16px 22px; }
+}
+
+.cd-wait { display: grid; gap: 14px; justify-items: center; text-align: center; }
+.cd-wait p { margin: 0; max-width: 520px; font: 400 12.5px/1.6 var(--mono); color: rgba(21, 18, 16, .65); }
+.cd-wait ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.cd-wait li { padding: 8px 14px; border: 1px dashed rgba(21, 18, 16, .28); border-radius: 999px; font: 500 12px/1.2 var(--mono); color: rgba(21, 18, 16, .75); }
+@media (max-width: 700px) { #cdBody { gap: 14px; } .cd-tile { min-height: 92px; } }

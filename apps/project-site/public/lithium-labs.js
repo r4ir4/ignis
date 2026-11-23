@@ -91,10 +91,13 @@
         const v0 = sel.latest.value;
         const low = ref ? ref.low : null, high = ref ? ref.high : null;
         const base = sel.baseline ? sel.baseline.value : null;
-        const pts0 = [v0, base, low, high].filter((x) => x != null);
+        const pts0 = [v0, base, low, high, ...sel.results.map((r) => r.value)].filter((x) => x != null);
         const lo0 = Math.min(...pts0), hi0 = Math.max(...pts0);
         const pad = (hi0 - lo0 || Math.abs(v0) * 0.2 || 1) * 0.35;
-        const min = Math.max(0, lo0 - pad), max = hi0 + pad;
+        let min = Math.max(0, lo0 - pad), max = hi0 + pad;
+        // with only one limit, keep the limit well inside the bar so a small step past it does not look huge
+        if (low == null && high != null) min = Math.max(0, Math.min(min, high * 0.5));
+        else if (high == null && low != null) max = Math.max(max, low * 1.5);
         const pct = (x) => Math.max(0, Math.min(100, ((x - min) / (max - min)) * 100));
         const scale = make('div', 'li-scale');
         scale.setAttribute('aria-hidden', 'true');

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="subscriptions.css?v=10">
+  <link rel="stylesheet" href="todo.css?v=30">
+  <title>Tarefas · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="sb-theme td-theme home health todo">
+  <script src="shell.js?v=2"></script>
+
+
+  <main id="main" class="page h-page td-page" lang="pt-BR">
+    <div class="td-wrap td-grid">
+      <section class="td-main" aria-label="Tarefas">
+        <header class="td-head">
+          <svg class="h-tw td-tw" style="--x:34%;--y:18%;--s:20px;--d:0s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>
+          <svg class="h-tw td-tw td-tw-2" style="--x:46%;--y:58%;--s:13px;--d:1.1s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>
+          <div>
+            <h1 id="tdTitle">Hoje</h1>
+            <p class="td-sub" id="tdSub"></p>
+          </div>
+          <div class="td-nav">
+            <button class="td-today" id="tdToday" type="button" hidden>Hoje</button>
+            <button class="td-step" id="tdPrev" type="button" aria-label="Dia anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.500 6-6 6 6 6"/></svg></button>
+            <button class="td-step" id="tdNext" type="button" aria-label="Próximo dia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.500 6 6 6-6 6"/></svg></button>
+          </div>
+        </header>
+        <ul class="td-list" id="tdList"></ul>
+        <p class="td-empty" id="tdEmpty" hidden><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#flame"/></svg><span id="tdEmptyText"></span></p>
+      </section>
+      <aside class="td-side" aria-label="Adicionar e filtrar">
+        <button class="td-add" id="tdAdd" type="button"><span aria-hidden="true">+</span>Adicionar tarefa</button>
+        <section class="td-stat" id="tdStat" aria-label="Resumo do dia">
+          <svg class="td-stat-flower" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><use href="#flower"/></svg>
+          <svg class="h-tw td-stat-tw" style="--x:62%;--y:14%;--s:14px;--d:0s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>
+          <svg class="h-tw td-stat-tw" style="--x:84%;--y:46%;--s:10px;--d:1.2s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>
+          <p class="td-stat-k" id="tdStatK">Hoje</p>
+          <div class="td-stat-main">
+            <div class="td-stat-num"><b id="tdStatN">0</b><span id="tdStatU">tarefas restantes</span></div>
+            <div class="td-ring" aria-hidden="true">
+              <svg viewBox="0 0 44 44"><circle class="td-ring-bg" cx="22" cy="22" r="18"/><circle class="td-ring-fg" id="tdRing" cx="22" cy="22" r="18"/></svg>
+              <span id="tdPct">0%</span>
+            </div>
+          </div>
+          <div class="td-dots" id="tdDots" aria-hidden="true"></div>
+          <p class="td-stat-sub" id="tdStatS"></p>
+        </section>
+        <div id="tdCatsBox">
+          <h2 class="td-side-h">Categorias</h2>
+          <nav class="td-cats" id="tdCats"></nav>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <dialog class="bd-modal td-modal" id="tdDialog" aria-labelledby="tdDlgTitle" lang="pt-BR">
+    <form method="dialog" id="tdForm" novalidate>
+      <header><h2 id="tdDlgTitle">Nova tarefa</h2><button type="button" class="bd-x" id="tdClose" aria-label="Fechar"></button></header>
+      <div class="td-cols">
+        <div class="td-col">
+          <div class="td-field">
+            <input class="td-title-in" id="tdText" maxlength="300" autocomplete="off" placeholder="O que precisa ser feito?" aria-label="Tarefa">
+          </div>
+          <div class="td-field">
+            <span class="bd-label" id="tdCatL">Categoria</span>
+            <div class="td-chiprow" role="group" aria-labelledby="tdCatL">
+              <div class="td-chips" id="tdChips"></div>
+              <label class="td-new"><span aria-hidden="true">#</span><input id="tdCat" maxlength="40" autocomplete="off" placeholder="nova" aria-label="Nova categoria"></label>
+            </div>
+          </div>
+        </div>
+        <div class="td-col td-col-day" id="tdDayF">
+          <div class="td-field">
+            <span class="bd-label" id="tdDayL">Para quando</span>
+            <input type="hidden" id="tdDay">
+            <div class="td-chips td-quick" id="tdDays" role="group" aria-labelledby="tdDayL"></div>
+          </div>
+          <div class="td-calwrap" id="tdCalWrap" inert>
+            <div class="td-calin">
+              <div class="td-cal" id="tdCal">
+                <header>
+                  <h3 id="tdCalTitle"></h3>
+                  <div class="td-calnavs">
+                    <button type="button" class="td-calnav" id="tdCalPrev" aria-label="Mês anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.500 6-6 6 6 6"/></svg></button>
+                    <button type="button" class="td-calnav" id="tdCalNext" aria-label="Próximo mês"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.500 6 6 6-6 6"/></svg></button>
+                  </div>
+                </header>
+                <div class="td-dow" aria-hidden="true"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
+                <div class="td-days" id="tdCalGrid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="bd-err" id="tdErr" role="alert" hidden></p>
+      <div class="td-foot">
+        <button class="bd-del" type="button" id="tdDelete" hidden>Apagar</button>
+        <button class="bd-save" type="submit">Salvar tarefa</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="td-toasts" id="tdToasts" aria-live="polite"></div>
+
+  <script src="todo.js?v=15"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="sparkle.js?v=4"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+</body>
+</html>

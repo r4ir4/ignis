@@ -1,0 +1,129 @@
+/* Wishlist page: the light Check-in look (white page, pastel pinks and peaches, soft shadows) as a gallery of picture cards.
+   Each card only shows a picture, a name and a price; everything else opens when you click one. The add/edit and "got it" dialogs
+   keep the shared dialog styles (subscriptions.css and subscriptions-page.css) under this page's pink palette. */
+body.wishlist {
+  background: #fff; color: #1a1013;
+  --f-green: #2b1620;   /* ink of the dialogs */
+  --f-kiwi: #ffd9b8;    /* peach */
+  --f-sun: #ff97a9;     /* pink: buttons and accents */
+  --f-carrot: #ec5b92;  /* deep pink */
+  --f-tomato: #c2406f;
+  --f-cream: #fff5f8;
+  --ink: #2b1620;
+  --w-sheet: #fff0f5;
+  --w-rgb: 43, 22, 32; --w-sun-rgb: 255, 151, 169;
+}
+body.wishlist .top { background: rgba(255, 255, 255, .94); }
+
+/* ---- dialogs under the pink palette -------------------------------------------------------------------------------------------------------------------- */
+.wishlist .bd-modal { box-shadow: 0 30px 70px rgba(140, 40, 90, .25); }
+.wishlist .bd-modal::backdrop { background: rgba(255, 238, 244, .72); backdrop-filter: blur(6px); }
+.wishlist .sb-card { background: #fff; }
+.wishlist .bd-label { color: rgba(43, 22, 32, .55); }
+.wishlist .bd-modal .bd-input { background-color: #fff5f8; }
+.wishlist .bd-modal .bd-input::placeholder { color: rgba(43, 22, 32, .35); }
+.wishlist .bd-modal select.bd-input { background-color: #fff5f8; }
+.wishlist .bd-modal .bd-input:focus { border-color: var(--f-carrot); background-color: #fff; box-shadow: 0 0 0 3px rgba(236, 91, 146, .2); }
+.wishlist .bd-label em { font-style: normal; font-weight: 700; letter-spacing: .08em; opacity: .7; text-transform: none; }
+.wishlist .bd-x:hover { background: var(--f-carrot); color: #fff; }
+.wishlist .bd-save { background: var(--f-carrot); color: #fff; box-shadow: 0 5px 0 #b8386f; }
+.wishlist .bd-save:hover { box-shadow: 0 8px 0 #b8386f; }
+.wishlist .bd-save:active { box-shadow: 0 2px 0 #b8386f; }
+.wishlist .sb-mbtn { cursor: pointer; background: var(--f-sun); }
+label.sb-mbtn { display: inline-block; }
+
+/* ---- heading, controls ---------------------------------------------------------------------------------------------------------------------------------- */
+.wl-wrap { max-width: 1100px; margin: 0 auto; padding: 44px 0 80px; }
+.wl-hero { gap: 8px; margin-bottom: 30px; }
+.wl-sub { margin: 0; font: 700 13px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #8a7b80; }
+.wl-controls { display: grid; gap: 16px; margin: 0 0 30px; }
+.wl-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wl-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: #fff0f5; }
+.wl-tab { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; cursor: pointer; border: 0; border-radius: 999px; background: transparent; color: #8a7b80; font: 800 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; transition: background .2s, color .2s, transform .25s cubic-bezier(.2, .9, .3, 1.5); }
+.wl-tab b { font: 800 11px/1 var(--sans); letter-spacing: 0; opacity: .7; }
+.wl-tab:hover { color: #ec5b92; }
+.wl-tab[aria-pressed="true"] { background: #ec5b92; color: #fff; box-shadow: 0 8px 16px rgba(236, 91, 146, .3); }
+.wl-add { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px 13px 16px; cursor: pointer; border: 0; border-radius: 999px; background: #ec5b92; color: #fff; font: 800 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; box-shadow: 0 12px 24px rgba(236, 91, 146, .35); transition: transform .25s cubic-bezier(.2, .9, .3, 1.5), box-shadow .2s; }
+.wl-add svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; transition: transform .3s cubic-bezier(.2, .9, .3, 1.5); }
+.wl-add:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 18px 28px rgba(236, 91, 146, .4); }
+.wl-add:hover svg { transform: rotate(90deg); }
+.wl-add:active { transform: scale(.97); }
+.wl-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.wl-pill { padding: 10px 16px; cursor: pointer; border: 0; border-radius: 999px; background: #fff5f8; color: #4b3f43; font: 800 12px/1 var(--sans); transition: transform .25s cubic-bezier(.2, .9, .3, 1.5), background .2s, color .2s, box-shadow .2s; }
+.wl-pill:hover { transform: translateY(-2px); background: #ffe3ec; }
+.wl-pill[aria-pressed="true"] { background: var(--pc, #ec5b92); color: #fff; box-shadow: 0 8px 16px rgba(236, 91, 146, .28); transform: translateY(-2px); }
+.wl-tab:focus-visible, .wl-pill:focus-visible, .wl-add:focus-visible, .wl-card:focus-visible, .wl-vbtn:focus-visible { outline: 3px solid #ec5b92; outline-offset: 3px; }
+
+/* ---- the gallery ---------------------------------------------------------------------------------------------------------------------------------------- */
+.wl-grid { margin: 0; padding: 0; list-style: none; display: grid; gap: 34px 22px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 980px) { .wl-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 680px) { .wl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 14px; } .wl-wrap { padding-top: 28px; } }
+.wl-item { display: grid; opacity: 0; animation: ck-in .6s cubic-bezier(.2, .9, .3, 1.15) forwards; animation-delay: calc(var(--i) * 60ms + .1s); }
+.wl-card { display: grid; gap: 6px; justify-items: center; width: 100%; padding: 0; cursor: pointer; border: 0; background: transparent; color: inherit; text-align: center; transition: transform .25s cubic-bezier(.2, .9, .3, 1.3); }
+.wl-img { position: relative; width: 100%; aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; border-radius: 28px; box-shadow: 0 12px 14px rgba(236, 91, 146, .13); transition: box-shadow .25s; }
+.wl-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; mix-blend-mode: multiply; filter: brightness(var(--b, 1)); transform: translate(var(--tx, 0), var(--ty, 0)) scale(var(--s, 1)); transition: transform .35s cubic-bezier(.2, .9, .3, 1.3); }
+.wl-img i { font: 800 56px/1 var(--sans); font-style: normal; color: rgba(26, 16, 19, .25); }
+.wl-name { margin-top: 8px; max-width: 100%; font: 800 12px/1.3 var(--sans); text-transform: uppercase; letter-spacing: .1em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.wl-price { font: 700 13px/1 var(--sans); letter-spacing: .04em; color: #ec5b92; font-variant-numeric: tabular-nums; }
+.wl-price.none { color: #b3a7ab; font-weight: 600; }
+.wl-card:hover, .wl-card:focus-visible { transform: translateY(-8px) rotate(-1deg); }
+.wl-card:hover .wl-img, .wl-card:focus-visible .wl-img { box-shadow: 0 18px 18px rgba(236, 91, 146, .24); }
+.wl-card:hover .wl-img img, .wl-card:focus-visible .wl-img img { transform: translate(var(--tx, 0), var(--ty, 0)) scale(calc(var(--s, 1) * 1.06)) rotate(1.5deg); }
+.wl-card:active { transform: translateY(-2px) scale(.98); }
+.wl-tick { position: absolute; right: 10px; top: 10px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #8fbf6f; color: #fff; box-shadow: 0 4px 10px rgba(0, 0, 0, .15); }
+.wl-tick svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
+.wl-empty { margin: 40px auto; max-width: 360px; padding: 20px; border-radius: 20px; background: #fff5f8; text-align: center; font: 600 14px/1.5 var(--sans); color: #6b5d62; }
+@media (prefers-reduced-motion: reduce) { .wl-item { animation: none; opacity: 1; } .wl-card, .wl-img img { transition: none; } }
+
+/* ---- an item opened ------------------------------------------------------------------------------------------------------------------------------------- */
+dialog.wl-view { width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow-y: auto; padding: 30px 26px 26px; }
+.wl-vimg { width: 220px; height: 220px; margin: 6px auto 16px; display: grid; place-items: center; overflow: hidden; border-radius: 30px; box-shadow: 0 12px 14px rgba(236, 91, 146, .16); animation: ck-paper .6s cubic-bezier(.2, .9, .3, 1.2) both; }
+.wl-vimg img { width: 100%; height: 100%; object-fit: contain; display: block; mix-blend-mode: multiply; }
+.wl-vimg i { font: 800 72px/1 var(--sans); font-style: normal; color: rgba(26, 16, 19, .25); }
+.wl-vname { margin: 0 0 6px; font: 800 20px/1.25 var(--sans); text-transform: uppercase; letter-spacing: .1em; overflow-wrap: anywhere; }
+.wl-vprice { margin: 0 0 14px; font: 800 26px/1 var(--sans); color: #ec5b92; font-variant-numeric: tabular-nums; }
+.wl-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 16px; }
+.wl-chip { padding: 8px 14px; border-radius: 999px; background: #ec5b92; color: #fff; font: 800 11px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; }
+.wl-chip.happy { background: #8fbf6f; }
+.wl-chip.regret { background: #ff6b78; }
+.wl-vwant { display: grid; justify-items: center; gap: 8px; margin: 0 0 14px; }
+.wl-vwant small { font: 800 10px/1 var(--sans); text-transform: uppercase; letter-spacing: .14em; color: #8a7b80; }
+.wl-pips { display: inline-flex; align-items: center; gap: 4px; }
+.wl-pips i { width: 11px; height: 11px; border-radius: 50%; background: #ffe3ec; }
+.wl-pips i.on { background: #ec5b92; }
+.wl-vfact { margin: 0 0 8px; padding: 12px 16px; border-radius: 16px; background: #fff5f8; font: 600 13px/1.5 var(--sans); color: #4b3f43; overflow-wrap: anywhere; }
+.wl-vacts { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+.wl-vbtn { padding: 14px 22px; cursor: pointer; border: 0; border-radius: 999px; background: #fff0f5; color: #ec5b92; font: 800 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; transition: transform .25s cubic-bezier(.2, .9, .3, 1.5), background .2s, color .2s; }
+.wl-vbtn:hover { transform: translateY(-2px); background: #ffe3ec; }
+.wl-vbtn.primary { background: #ec5b92; color: #fff; box-shadow: 0 10px 20px rgba(236, 91, 146, .33); }
+.wl-vbtn.primary:hover { background: #ec5b92; box-shadow: 0 14px 24px rgba(236, 91, 146, .4); }
+
+/* ---- the add / edit dialog and the "got it" dialog ------------------------------------------------------------------------------------------------------ */
+.wl-pic { display: flex; align-items: center; gap: 16px; }
+.wl-pic-box { flex: none; width: 96px; height: 96px; margin: 0; display: grid; place-items: center; overflow: hidden; border: 2px dashed rgba(236, 91, 146, .4); border-radius: 22px; background: #fff5f8; font: 700 11px/1.2 var(--sans); color: rgba(43, 22, 32, .5); text-align: center; }
+.wl-pic-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.wl-pic-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.wl-range { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; margin: 2px 0 0; padding: 0; border: 0; border-radius: 999px; cursor: pointer; background: linear-gradient(90deg, #ec5b92 var(--p, 50%), #ffe3ec var(--p, 50%)); }
+.wl-range::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 5px solid #ec5b92; box-shadow: 0 6px 12px rgba(236, 91, 146, .35); transition: transform .2s cubic-bezier(.2, .9, .3, 1.5); }
+.wl-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 5px solid #ec5b92; box-shadow: 0 6px 12px rgba(236, 91, 146, .35); }
+.wl-range:active::-webkit-slider-thumb { transform: scale(1.18); }
+.wl-range:focus-visible { outline: 3px solid #ec5b92; outline-offset: 4px; }
+.wl-out { display: inline-grid; place-items: center; min-width: 24px; height: 20px; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: #ec5b92; color: #fff; font: 800 11px/1 var(--sans); letter-spacing: 0; vertical-align: middle; }
+.wl-gotname { margin: -8px 0 16px; font: 800 15px/1.3 var(--sans); text-transform: uppercase; letter-spacing: .08em; overflow-wrap: anywhere; }
+.wl-verdict { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wl-verdict button { padding: 13px 8px; cursor: pointer; border: 0; border-radius: 14px; background: #fff5f8; color: #4b3f43; font: 800 11px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .06em; transition: background .2s, color .2s, transform .25s cubic-bezier(.2, .9, .3, 1.5); }
+.wl-verdict button:hover { transform: translateY(-2px); background: #ffe3ec; }
+.wl-verdict button[aria-pressed="true"] { background: #ec5b92; color: #fff; box-shadow: 0 8px 16px rgba(236, 91, 146, .3); }
+.wl-verdict button:focus-visible { outline: 3px solid #ec5b92; outline-offset: 2px; }
+@media (max-width: 520px) { .wl-top { flex-wrap: wrap; justify-content: center; } .wl-pic { flex-direction: column; align-items: flex-start; } .wl-verdict { grid-template-columns: 1fr; } }
+
+/* ---- pagination ------------------------------------------------------------------------------------------------------------------------------------------ */
+.wl-pager { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 44px 0 0; }
+.wl-pg { min-width: 42px; height: 42px; padding: 0 12px; display: inline-grid; place-items: center; cursor: pointer; border: 0; border-radius: 999px; background: #fff5f8; color: #4b3f43; font: 800 13px/1 var(--sans); font-variant-numeric: tabular-nums; transition: transform .25s cubic-bezier(.2, .9, .3, 1.5), background .2s, color .2s, box-shadow .2s; }
+.wl-pg:hover:not(:disabled):not([aria-current]) { transform: translateY(-2px); background: #ffe3ec; color: #ec5b92; }
+.wl-pg[aria-current="page"] { background: #ec5b92; color: #fff; box-shadow: 0 8px 16px rgba(236, 91, 146, .3); cursor: default; }
+.wl-pg:disabled { opacity: .35; cursor: default; }
+.wl-pg-arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.wl-pg:focus-visible { outline: 3px solid #ec5b92; outline-offset: 3px; }
+.wl-gap { min-width: 22px; text-align: center; font: 800 13px/1 var(--sans); color: #b3a7ab; }
+@media (max-width: 420px) { .wl-pg { min-width: 38px; height: 38px; padding: 0 8px; } .wl-pager { gap: 4px; } }

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="food.css?v=48">
+  <link rel="stylesheet" href="subscriptions.css?v=10">
+  <link rel="stylesheet" href="subscriptions-page.css?v=8">
+  <link rel="stylesheet" href="toast.css?v=1">
+  <title>Subscriptions · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="sb-theme home health food subscriptions">
+  <script src="shell.js?v=2"></script>
+
+
+  <main id="main" class="page h-page">
+    <p class="h-empty" id="sbEmpty" hidden></p>
+    <div id="sbGrid"></div>
+  </main>
+
+  <dialog class="bd-modal" id="sbDialog" aria-labelledby="sbDlgTitle">
+    <form method="dialog" id="sbForm" novalidate>
+      <header><h2 id="sbDlgTitle">Nova assinatura</h2><button type="button" class="bd-x" id="sbClose" aria-label="Fechar"></button></header>
+      <div class="sb-card">
+      <div class="bd-f"><label class="bd-label" for="sbName">Nome</label><input class="bd-input" id="sbName" maxlength="80" autocomplete="off" placeholder="Netflix, iCloud, academia…"></div>
+      <div class="bd-row2">
+        <div class="bd-f"><label class="bd-label" for="sbAmount">Valor</label><div class="sb-money"><span id="sbSym" aria-hidden="true">$</span><input class="bd-input" id="sbAmount" inputmode="decimal" autocomplete="off" placeholder="0,00"></div></div>
+        <div class="bd-f"><label class="bd-label" for="sbCycle">Repete</label><select class="bd-input" id="sbCycle"><option value="weekly">Semanal</option><option value="monthly">Mensal</option><option value="quarterly">Trimestral</option><option value="yearly">Anual</option></select></div>
+      </div>
+      <div class="bd-row2">
+        <div class="bd-f"><label class="bd-label" for="sbNext">Próximo pagamento</label><input class="bd-input" id="sbNext" type="date"></div>
+        <div class="bd-f"><label class="bd-label" for="sbCat">Categoria</label><select class="bd-input" id="sbCat"></select></div>
+      </div>
+      <div class="bd-f"><label class="bd-label" for="sbCard">Pago com <em>(opcional)</em></label><select class="bd-input" id="sbCard"></select></div>
+      <div class="bd-f"><label class="bd-label" for="sbNote">Nota <em>(opcional)</em></label><input class="bd-input" id="sbNote" maxlength="200" autocomplete="off" placeholder="Plano compartilhado, cancelar antes de…"></div>
+      <label class="sb-switch"><input type="checkbox" id="sbActive" checked><span class="sb-track" aria-hidden="true"></span><span class="sb-sw-text"><b>Ativa</b><small>Conta nos totais mensais e anuais</small></span></label>
+      </div>
+      <p class="bd-err" id="sbErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit">Salvar</button>
+      <button class="bd-del" type="button" id="sbDelete" hidden>Apagar esta assinatura</button>
+    </form>
+  </dialog>
+
+  <dialog class="sb-mdlg" id="sbCatDialog" aria-labelledby="sbCatTitle">
+    <header><h2 id="sbCatTitle">Categorias</h2><button type="button" class="sb-mx" id="sbCatClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+    <ul class="sb-mlist" id="sbCatList"></ul>
+    <form class="sb-madd" id="sbCatForm" novalidate>
+      <input class="sb-minput" id="sbCatNew" maxlength="30" autocomplete="off" placeholder="Nova categoria, como Filhos" aria-label="Nome da nova categoria">
+      <div class="sb-swatches" id="sbCatSw" role="group" aria-label="Cor"></div>
+      <button type="submit" class="sb-mbtn">Adicionar</button>
+    </form>
+  </dialog>
+
+  <dialog class="sb-mdlg" id="sbCardDialog" aria-labelledby="sbCardTitle">
+    <header><h2 id="sbCardTitle">Cartões</h2><button type="button" class="sb-mx" id="sbCardClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+    <ul class="sb-mlist" id="sbCardList"></ul>
+    <form class="sb-madd" id="sbCardForm" novalidate>
+      <input class="sb-minput" id="sbCardNew" maxlength="30" autocomplete="off" placeholder="Nome do cartão, como Nubank" aria-label="Nome do cartão">
+      <input class="sb-minput sb-last4" id="sbCardLast4" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="1234" aria-label="Últimos quatro dígitos (opcional)">
+      <div class="sb-swatches" id="sbCardSw" role="group" aria-label="Cor"></div>
+      <button type="submit" class="sb-mbtn">Adicionar</button>
+    </form>
+    <p class="sb-mnote">Guardamos só o nome do cartão e os últimos quatro dígitos.</p>
+  </dialog>
+
+  <dialog class="sb-mdlg sb-confirm" id="sbDelDialog" aria-labelledby="sbDelTitle">
+    <header><h2 id="sbDelTitle">Remover</h2><button type="button" class="sb-mx" id="sbDelClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+    <div class="sb-delbox">
+      <p id="sbDelText"></p>
+      <label class="sb-delmove" id="sbDelMoveWrap"><span>Mover para</span><select class="sb-minput" id="sbDelSel"></select></label>
+    </div>
+    <div class="sb-delacts"><button type="button" class="sb-mbtn ghost" id="sbDelCancel">Cancelar</button><button type="button" class="sb-mbtn danger" id="sbDelGo">Remover</button></div>
+  </dialog>
+
+  <script src="toast.js?v=2"></script>
+  <script src="datepick.js?v=1"></script>
+  <script src="confirm.js?v=1"></script>
+  <script src="subscriptions.js?v=16"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+  <script src="sparkle.js?v=4"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="toast.css?v=1">
+  <title>Backpack · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="home health backpack">
+  <script src="shell.js?v=2"></script>
+
+  <main id="main" class="page bp-page">
+    <header class="bp-head">
+      <div><h1>Backpack</h1><p id="bpSub">Carregando…</p></div>
+      <div class="bp-hbtns">
+        <button class="bp-hbtn" id="bpCats" type="button" aria-label="Gerenciar categorias" title="Gerenciar categorias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9zM7.5 7.500h.01"/></svg></button>
+        <button class="bp-hbtn primary" id="bpAdd" type="button" aria-label="Adicionar item" title="Adicionar item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </header>
+    <p class="bp-empty" id="bpEmpty" hidden></p>
+    <div class="bp-pills" id="bpPills" role="group" aria-label="Grupo" hidden></div>
+    <ul class="bp-list" id="bpList" aria-label="Seus itens"></ul>
+  </main>
+
+  <dialog class="bp-modal" id="bpDialog" aria-labelledby="bpDlgTitle">
+    <form method="dialog" id="bpForm" novalidate>
+      <header><h2 id="bpDlgTitle">Novo item</h2><button type="button" class="bp-x" id="bpClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div class="bp-cols">
+        <section class="bp-col">
+          <h3 class="bp-sec">Sobre o item</h3>
+          <div class="bp-f"><label class="bp-label" for="bpName">Nome</label><input class="bp-input" id="bpName" maxlength="120" autocomplete="off" placeholder="Canetas de Mounjaro, café, lâminas…"></div>
+          <div class="bp-two">
+            <div class="bp-f"><label class="bp-label" for="bpGroup">Categoria</label><select class="bp-input" id="bpGroup"></select></div>
+            <div class="bp-f"><label class="bp-label" for="bpUnit">Unidade <em>(opcional)</em></label><input class="bp-input" id="bpUnit" maxlength="30" autocomplete="off" placeholder="canetas, caixas…"></div>
+          </div>
+          <div class="bp-f"><label class="bp-label" for="bpNote">Nota <em>(opcional)</em></label><input class="bp-input" id="bpNote" maxlength="1000" autocomplete="off" placeholder="Onde comprar, marca, dose…"></div>
+        </section>
+        <section class="bp-col">
+          <h3 class="bp-sec">Estoque e uso</h3>
+          <div class="bp-two">
+            <div class="bp-f"><label class="bp-label" for="bpQty">Tenho agora</label><input class="bp-input" id="bpQty" inputmode="decimal" autocomplete="off" placeholder="5"></div>
+            <div class="bp-f"><label class="bp-label" for="bpReorder">Comprar ao restar</label><input class="bp-input" id="bpReorder" inputmode="decimal" autocomplete="off" placeholder="1"></div>
+          </div>
+          <div class="bp-f">
+            <span class="bp-label">Uso</span>
+            <div class="bp-use"><input class="bp-input" id="bpUseQty" inputmode="decimal" autocomplete="off" placeholder="1" aria-label="Quantidade usada"><span>a cada</span><input class="bp-input" id="bpUseEvery" inputmode="numeric" autocomplete="off" value="1" aria-label="Intervalo"><select class="bp-input" id="bpUsePeriod" aria-label="Período"><option value="day">dia(s)</option><option value="week" selected>semana(s)</option><option value="month">mês(es)</option><option value="year">ano(s)</option></select></div>
+          </div>
+          <div class="bp-preview" id="bpPreview" aria-live="polite"></div>
+        </section>
+      </div>
+      <p class="bp-err" id="bpErr" role="alert" hidden></p>
+      <button class="bp-save" type="submit">Salvar</button>
+      <button class="bp-del" type="button" id="bpDelete" hidden>Apagar este item</button>
+    </form>
+  </dialog>
+
+  <dialog class="bp-modal bp-small" id="bpCatDialog" aria-labelledby="bpCatTitle">
+    <form method="dialog" id="bpCatForm" novalidate>
+      <header><h2 id="bpCatTitle">Categorias</h2><button type="button" class="bp-x" id="bpCatClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <ul class="bp-catrows" id="bpCatRows"></ul>
+      <div class="bp-catadd"><input class="bp-input" id="bpCatNew" maxlength="40" autocomplete="off" placeholder="Nova categoria" aria-label="Nome da nova categoria"><button type="submit" class="bp-mini">Adicionar</button></div>
+      <p class="bp-err" id="bpCatErr" role="alert" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog class="bp-modal bp-small" id="bpActDialog" aria-labelledby="bpActTitle">
+    <form method="dialog" id="bpActForm" novalidate>
+      <header><h2 id="bpActTitle">Comprei</h2><button type="button" class="bp-x" id="bpActClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <p class="bp-acthint" id="bpActHint"></p>
+      <div class="bp-f"><label class="bp-label" id="bpActLabel" for="bpActVal">Quantidade</label><input class="bp-input" id="bpActVal" inputmode="decimal" autocomplete="off"></div>
+      <p class="bp-err" id="bpActErr" role="alert" hidden></p>
+      <button class="bp-save" type="submit" id="bpActSave">Salvar</button>
+    </form>
+  </dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="toast.js?v=2"></script>
+  <script src="confirm.js?v=1"></script>
+  <script src="backpack.js?v=5"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+  <script src="sparkle.js?v=4"></script>
+</body>
+</html>

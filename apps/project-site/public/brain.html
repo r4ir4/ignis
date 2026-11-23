@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="toast.css?v=1">
+  <title>Brain · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="home health brain">
+  <script src="shell.js?v=2"></script>
+
+  <main id="main" class="page bn-page">
+    <header class="bn-head">
+      <div><h1>Brain</h1><p id="bnSub">Carregando…</p></div>
+      <div class="bn-hbtns">
+        <button class="bn-hbtn" id="bnInfo" type="button" aria-label="Como funciona" title="Como funciona"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.500M12 7.500h.01"/></svg></button>
+        <button class="bn-hbtn primary" id="bnNew" type="button" aria-label="Novo baralho" title="Novo baralho"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </header>
+    <p class="bn-empty" id="bnEmpty" hidden></p>
+    <ul class="bn-decks" id="bnDecks" aria-label="Seus baralhos"></ul>
+    <section class="bn-deck" id="bnDeck" hidden></section>
+  </main>
+
+  <dialog class="bn-modal" id="bnDialog" aria-labelledby="bnDlgTitle">
+    <form method="dialog" id="bnForm" novalidate>
+      <header><h2 id="bnDlgTitle">Novo baralho</h2><button type="button" class="bn-x" id="bnClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div class="bn-f"><label class="bn-label" for="bnTitle">Nome do baralho</label><input class="bn-input" id="bnTitle" maxlength="120" autocomplete="off" placeholder="Inglês: verbos, Anatomia, Capitais da Europa…"></div>
+      <div class="bn-f"><label class="bn-label" for="bnNote">Descrição <em>(opcional)</em></label><input class="bn-input" id="bnNote" maxlength="1000" autocomplete="off" placeholder="Para que você está estudando isso"></div>
+      <div class="bn-f" id="bnPasteBox"><label class="bn-label" for="bnPaste">Cartões <em>(opcional, um por linha: pergunta :: resposta)</em></label><textarea class="bn-input bn-area" id="bnPaste" rows="6" placeholder="Capital da França :: Paris&#10;Capital da Itália :: Roma"></textarea></div>
+      <p class="bn-err" id="bnErr" role="alert" hidden></p>
+      <button class="bn-save" type="submit">Salvar</button>
+    </form>
+  </dialog>
+
+  <dialog class="bn-modal bn-info" id="bnInfoDialog" aria-labelledby="bnInfoTitle">
+    <div class="bn-ibox">
+      <header><h2 id="bnInfoTitle">Como funciona o Brain</h2><button type="button" class="bn-x" id="bnInfoClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div class="bn-itabbar" id="bnInfoTabs"></div>
+      <div class="bn-ibody" id="bnInfoBody"></div>
+    </div>
+  </dialog>
+
+  <dialog class="bn-modal bn-addm" id="bnAddDialog" aria-labelledby="bnAddTitle">
+    <div class="bn-abox">
+      <header><h2 id="bnAddTitle">Adicionar cartões</h2><button type="button" class="bn-x" id="bnAddClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div class="bn-atabs" role="tablist"><button type="button" role="tab" id="bnTabOne" aria-selected="true">Um a um</button><button type="button" role="tab" id="bnTabBulk" aria-selected="false">Em lote</button></div>
+      <form id="bnOneForm" novalidate>
+        <div class="bn-f"><label class="bn-label" for="bnOneF">Frente <em>(pergunta ou termo)</em></label><input class="bn-input" id="bnOneF" maxlength="500" autocomplete="off" placeholder="Capital da França"></div>
+        <div class="bn-f"><label class="bn-label" for="bnOneB">Verso <em>(resposta)</em></label><input class="bn-input" id="bnOneB" maxlength="500" autocomplete="off" placeholder="Paris"></div>
+        <p class="bn-err" id="bnOneErr" role="alert" hidden></p>
+        <p class="bn-aok" id="bnOneOk" hidden></p>
+        <div class="bn-aacts"><button class="bn-save" type="submit">Adicionar e continuar</button><button class="bn-ghost" type="button" id="bnOneDone">Concluir</button></div>
+      </form>
+      <form id="bnBulkForm" novalidate hidden>
+        <div class="bn-f"><label class="bn-label" for="bnBulk">Um cartão por linha: pergunta <b>::</b> resposta <em>(ou separados por tab, se vier de uma planilha)</em></label><textarea class="bn-input bn-area" id="bnBulk" rows="9" placeholder="Capital da França :: Paris&#10;Capital da Itália :: Roma"></textarea></div>
+        <p class="bn-err" id="bnBulkErr" role="alert" hidden></p>
+        <div class="bn-aacts"><button class="bn-save" type="submit">Adicionar cartões</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog class="bn-stage" id="bnStage" aria-label="Sessão de estudo" data-no-backdrop-close></dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="toast.js?v=2"></script>
+  <script src="confirm.js?v=1"></script>
+  <script src="brain.js?v=16"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+  <script src="sparkle.js?v=4"></script>
+</body>
+</html>

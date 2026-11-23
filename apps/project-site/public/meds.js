@@ -16,7 +16,7 @@
     if (!res.ok) {
       let detail = '';
       try { const body = await res.json(); if (typeof body.detail === 'string') detail = body.detail; } catch (e) { /* not json */ }
-      throw new Error(detail || 'Something went wrong (' + res.status + ').');
+      throw new Error(detail || 'Algo deu errado (' + res.status + ').');
     }
     return res.status === 204 ? null : res.json();
   }
@@ -27,22 +27,22 @@
     if (m < 60) return m + 'm';
     return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm';
   };
-  const clock = (date) => date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  const dayName = (date) => date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  const clock = (date) => date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const dayName = (date) => date.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
   const minuteClock = (minute) => String(Math.floor(minute / 60)).padStart(2, '0') + ':' + String(minute % 60).padStart(2, '0');
   const agoText = (ms) => {
     const mins = Math.round(ms / MIN);
-    if (mins < 2) return 'just now';
-    if (mins < 60) return mins + ' min ago';
-    if (mins < 36 * 60) return Math.floor(mins / 60) + ' h ago';
+    if (mins < 2) return 'agora há pouco';
+    if (mins < 60) return 'há ' + mins + ' min';
+    if (mins < 36 * 60) return 'há ' + Math.floor(mins / 60) + ' h';
     const days = Math.floor(mins / 1440);
-    return days + (days === 1 ? ' day ago' : ' days ago');
+    return 'há ' + days + (days === 1 ? ' dia' : ' dias');
   };
   const sameDay = (a, b) => a.toDateString() === b.toDateString();
   const dayKey = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  const SOURCES = { ios: 'iPhone', shortcut: 'Shortcut', watch: 'Watch', legacy: 'Imported', ignis: 'Ignis', web: 'Web' };
-  const ENOUGH = { yes: 'Yes, enough', no_but_fine: 'Not enough, but fine', no_second_vyvanse: 'Not enough, took a second' };
-  const EVENTS = { onset: 'kicked in', strongest: 'strongest', wearing_off: 'wearing off' };
+  const SOURCES = { ios: 'iPhone', shortcut: 'Shortcut', watch: 'Watch', legacy: 'Importado', ignis: 'Ignis', web: 'Web' };
+  const ENOUGH = { yes: 'Sim, o suficiente', no_but_fine: 'Não o suficiente, mas ok', no_second_vyvanse: 'Não o suficiente, tomei uma segunda' };
+  const EVENTS = { onset: 'começou a fazer efeito', strongest: 'no auge', wearing_off: 'passando o efeito' };
 
   const make = (tag, cls, text) => {
     const el = document.createElement(tag);
@@ -74,13 +74,13 @@
     const on = timing('onset', 60);
     const st = timing('strongest', 140);
     const off = timing('wearing_off', 330);
-    if (elapsedMin < on.p25) return 'Waiting for it to kick in';
-    if (elapsedMin < st.p25) return 'Kicking in';
-    if (elapsedMin <= st.p75) return 'Around its strongest';
-    if (elapsedMin < off.p25) return 'Holding steady';
-    if (elapsedMin <= off.p75) return 'Starting to wear off';
-    if (elapsedMin < 14 * 60) return 'Mostly worn off';
-    return 'Done for the day';
+    if (elapsedMin < on.p25) return 'Esperando o efeito começar';
+    if (elapsedMin < st.p25) return 'Começando a fazer efeito';
+    if (elapsedMin <= st.p75) return 'Perto do auge';
+    if (elapsedMin < off.p25) return 'Estável';
+    if (elapsedMin <= off.p75) return 'Começando a passar';
+    if (elapsedMin < 14 * 60) return 'Quase sem efeito';
+    return 'Fim do dia';
   }
 
   // ---- the banner -------------------------------------------------------------------------------------------------
@@ -92,13 +92,13 @@
     const last = o.last_dose;
     if (last) {
       const taken = new Date(last.taken_at);
-      items.push([sameDay(taken, new Date()) ? 'Today' : 'Last dose', sameDay(taken, new Date()) ? clock(taken) + ' · ' + last.dose_mg + ' mg' : agoText(Date.now() - taken)]);
-      if (!sameDay(taken, new Date())) items.push(['Not logged today', '', 'p-pink']);
+      items.push([sameDay(taken, new Date()) ? 'Você tomou hoje às' : 'Última dose', sameDay(taken, new Date()) ? clock(taken) + ' · ' + last.dose_mg + ' mg' : agoText(Date.now() - taken)]);
+      if (!sameDay(taken, new Date())) items.push(['Nenhuma dose hoje', '', 'p-pink']);
     } else {
-      items.push(['No doses yet', '', 'p-pink']);
+      items.push(['Nenhuma dose registrada', '', 'p-pink']);
     }
-    if (o.timing.onset.n >= 5) items.push(['Kicks in', '~' + dur(o.timing.onset.median)]);
-    if (o.streak > 1) items.push(['Streak', o.streak + ' days']);
+    if (o.timing.onset.n >= 5) items.push(['O efeito costuma começar em', '~' + dur(o.timing.onset.median)]);
+    if (o.streak > 1) items.push(['Você não pula uma dose há', o.streak + ' dias']);
     items.forEach(([name, value, cls], i) => {
       const li = make('li', cls || '');
       li.style.setProperty('--i', i);
@@ -128,26 +128,28 @@
       const h = Math.floor(minutes / 60);
       if (h > 0) piece(h, 'h');
       piece(String(Math.floor(minutes % 60)).padStart(h > 0 ? 2 : 1, '0'), 'm');
-      $('wSince').textContent = 'since your ' + clock(new Date(last.taken_at)) + ' dose · ' + last.dose_mg + ' mg';
+      $('wSince').textContent = 'desde sua dose das ' + clock(new Date(last.taken_at)) + ' · ' + last.dose_mg + ' mg';
       phase.textContent = phaseFor(minutes);
       phase.hidden = false;
       quick.hidden = now - new Date(last.taken_at) > 24 * HOUR;
       const logged = new Map(((S.doses[0] && S.doses[0].id === last.id ? S.doses[0].events : []) || []).map((e) => [e.type, e]));
-      quick.querySelectorAll('button').forEach((btn) => {
+      quick.querySelectorAll('button[data-event]').forEach((btn) => {
         const e = logged.get(btn.dataset.event);
         btn.classList.toggle('done', !!e);
-        btn.textContent = e ? '✓ ' + EVENTS[btn.dataset.event] + ' ' + clock(new Date(e.occurred_at)) : { onset: 'It kicked in', strongest: 'At its strongest', wearing_off: 'Wearing off' }[btn.dataset.event];
+        btn.textContent = e ? '✓ ' + EVENTS[btn.dataset.event] + ' ' + clock(new Date(e.occurred_at)) : { onset: 'Começou a fazer efeito', strongest: 'No auge', wearing_off: 'Passando o efeito' }[btn.dataset.event];
       });
+      const ed = $('mQuickEdit'); ed.hidden = !logged.size;
+      ed.onclick = () => editTimes(S.doses[0], ['onset', 'strongest', 'wearing_off'].filter((t) => logged.has(t)).map((t) => logged.get(t)));
     } else if (last) {
       const days = Math.floor((now - new Date(last.taken_at)) / (24 * HOUR));
-      piece(days, days === 1 ? 'day' : 'days');
-      $('wSince').textContent = 'since the last dose you logged · ' + dayName(new Date(last.taken_at));
+      piece(days, days === 1 ? 'dia' : 'dias');
+      $('wSince').textContent = 'desde a última dose registrada · ' + dayName(new Date(last.taken_at));
       phase.hidden = true;
       quick.hidden = true;
-      note.push('Nothing logged today. Tap "Log a dose" to add it.');
+      note.push('Nada registrado hoje. Toque em "Registrar dose" para adicionar.');
     } else {
       piece('–', '');
-      $('wSince').textContent = 'No doses logged yet.';
+      $('wSince').textContent = 'Nenhuma dose registrada ainda.';
       phase.hidden = true;
       quick.hidden = true;
     }
@@ -158,18 +160,20 @@
     const big = $('mLvl');
     big.replaceChildren();
     const band = $('mLvlBand');
-    if (!level) { big.appendChild(make('b', '', '–')); band.hidden = true; $('mLvlSub').textContent = 'No level estimate yet.'; $('mMeter').hidden = true; return; }
+    if (!level) { big.appendChild(make('b', '', '–')); band.hidden = true; $('mLvlSub').textContent = 'Ainda sem estimativa de nível.'; $('mMeter').hidden = true; return; }
     big.appendChild(make('b', '', String(Math.round(level.ng))));
     big.appendChild(make('small', '', S.curve.unit));
     const r = level.rel;
-    band.textContent = r < 0.05 ? 'Almost none' : r < 0.35 ? 'Low' : r < 0.8 ? 'Moderate' : r <= 1.05 ? 'Around a ' + S.curve.reference_dose_mg + ' mg peak' : 'Above a ' + S.curve.reference_dose_mg + ' mg peak';
+    band.textContent = r < 0.05 ? 'Quase nenhum' : r < 0.35 ? 'Baixo' : r < 0.8 ? 'Moderado' : r <= 1.05 ? 'Perto de um pico de ' + S.curve.reference_dose_mg + ' mg' : 'Acima de um pico de ' + S.curve.reference_dose_mg + ' mg';
     band.hidden = false;
-    $('mLvlSub').textContent = Math.round(r * 100) + '% of a ' + S.curve.reference_dose_mg + ' mg peak';
+    $('mLvlSub').textContent = Math.round(r * 100) + '% de um pico de ' + S.curve.reference_dose_mg + ' mg';
     const pct = Math.min(100, (r / 2) * 100);
     const meter = $('mMeter');
     meter.hidden = false;
-    meter.querySelector('i').style.width = pct + '%';
-    meter.querySelector('.m-scale-dot').style.left = pct + '%';
+    // keep the dot (18px + its 2px outer ring) fully inside the bar, even at 0 and 2x: its centre travels from 11px to 100% - 11px
+    const at = 'calc(11px + (100% - 22px) * ' + (pct / 100).toFixed(4) + ')';
+    meter.querySelector('i').style.width = at;
+    meter.querySelector('.m-scale-dot').style.left = at;
   }
 
   function levelAt(t) { return levelIn(S.curve, t); }
@@ -210,19 +214,19 @@
         const t = d.getTime();
         if (weekly && n % 7) continue;
         svgEl('line', { class: 'm-grid-line', x1: x(t), x2: x(t), y1: 4, y2: h - BOTTOM }, svg);
-        svgEl('text', { class: 'm-axis', x: x(t), y: h - 6, 'text-anchor': 'middle' }, svg).textContent = weekly ? d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : d.toLocaleDateString(undefined, { weekday: 'short' });
+        svgEl('text', { class: 'm-axis', x: x(t), y: h - 6, 'text-anchor': 'middle' }, svg).textContent = weekly ? d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) : d.toLocaleDateString('pt-BR', { weekday: 'short' });
       }
     } else {
       const step = (w < 560 ? 6 : 3) * HOUR;
       for (let t = Math.ceil(t0 / step) * step; t <= t1; t += step) {
         svgEl('line', { class: 'm-grid-line', x1: x(t), x2: x(t), y1: 4, y2: h - BOTTOM }, svg);
-        svgEl('text', { class: 'm-axis', x: x(t), y: h - 6, 'text-anchor': 'middle' }, svg).textContent = new Date(t).toLocaleTimeString(undefined, { hour: 'numeric' });
+        svgEl('text', { class: 'm-axis', x: x(t), y: h - 6, 'text-anchor': 'middle' }, svg).textContent = new Date(t).toLocaleTimeString('pt-BR', { hour: 'numeric' });
       }
     }
     // the peak of one reference dose
     const gy = y(1);
     svgEl('line', { class: 'ha-goal', x1: 0, x2: w, y1: gy, y2: gy }, svg);
-    svgEl('text', { class: 'ha-goal-text', x: 2, y: gy - 5 }, svg).textContent = data.reference_dose_mg + ' mg peak';
+    svgEl('text', { class: 'ha-goal-text', x: 2, y: gy - 5 }, svg).textContent = 'pico de ' + data.reference_dose_mg + ' mg';
 
     const line = pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ' ' + y(p.rel).toFixed(1)).join('');
     svgEl('path', { class: 'ha-area', d: `${line}L${x(pts[pts.length - 1].t).toFixed(1)} ${h - BOTTOM}L${x(pts[0].t).toFixed(1)} ${h - BOTTOM}Z` }, svg);
@@ -235,7 +239,7 @@
       const here = levelIn(data, now);
       svgEl('circle', { class: 'ha-pulse', cx: x(now), cy: y(here.rel), r: 4.5 }, svg);
       svgEl('circle', { class: 'ha-last', cx: x(now), cy: y(here.rel), r: 4.5 }, svg);
-      svgEl('text', { class: 'm-now-tag', x: Math.min(w - 26, Math.max(14, x(now))), y: 12, 'text-anchor': 'middle' }, svg).textContent = 'NOW';
+      svgEl('text', { class: 'm-now-tag', x: Math.min(w - 26, Math.max(14, x(now))), y: 12, 'text-anchor': 'middle' }, svg).textContent = 'AGORA';
     }
     // doses (a pink dot on the baseline) and the moments you marked (rings on the curve)
     doses.filter((d) => { const t = new Date(d.taken_at).getTime(); return t >= t0 && t <= t1; }).forEach((d) => {
@@ -265,7 +269,7 @@
       dot.setAttribute('cy', y(best.rel));
       svg.classList.add('hover');
       const when = new Date(best.t);
-      tip.textContent = dayName(when) + ' ' + clock(when) + ' · about ' + best.ng.toFixed(data.decimals || 0) + ' ' + data.unit + ' · ' + Math.round(best.rel * 100) + '%';
+      tip.textContent = dayName(when) + ' ' + clock(when) + ' · cerca de ' + best.ng.toFixed(data.decimals || 0) + ' ' + data.unit + ' · ' + Math.round(best.rel * 100) + '%';
       tip.classList.add('on');
       const half = tip.offsetWidth / 2;
       tip.style.left = Math.max(14, Math.min(w + 14 - 2 * half, x(best.t) + 14 - half)) + 'px';
@@ -345,7 +349,7 @@
     }));
     window.addEventListener('scroll', () => {
       let current = links[0].dataset.sec;
-      links.forEach((a) => { const el = document.getElementById(a.dataset.sec); if (el && el.getBoundingClientRect().top < window.innerHeight * 0.4) current = a.dataset.sec; });
+      links.forEach((a) => { const el = document.getElementById(a.dataset.sec); if (el && el.offsetParent && el.getBoundingClientRect().top < window.innerHeight * 0.4) current = a.dataset.sec; });
       mark(current);
     }, { passive: true });
   }
@@ -367,6 +371,16 @@
       renderOther(slug);
     }));
   }
+  // Weekly medicine: how many doses in a row landed within one interval (+2 days of slack) of the one before it,
+  // counting back from the latest dose. If the latest one is already older than that, the streak is broken (0).
+  function weeklyStreak(doses, intervalDays) {
+    const limit = (intervalDays + 2) * 24 * HOUR;
+    const times = doses.map((d) => new Date(d.taken_at).getTime()).sort((a, b) => b - a);
+    if (!times.length || Date.now() - times[0] > limit) return 0;
+    let n = 1;
+    for (let i = 1; i < times.length; i++) { if (times[i - 1] - times[i] <= limit) n++; else break; }
+    return n;
+  }
   function bigSince(ms) {
     const mins = Math.max(0, Math.floor(ms / MIN));
     if (mins < 60) return [String(mins), 'm', '', ''];
@@ -376,8 +390,8 @@
   }
   // the same level curve as Venvanse, for the medications that have a model
   function bandFor(r, data, buildsUp) {
-    if (buildsUp && r > 1.05) return 'Built up from several doses';
-    return r < 0.05 ? 'Almost none' : r < 0.35 ? 'Low' : r < 0.8 ? 'Moderate' : r <= 1.05 ? 'Around a ' + data.reference_dose_mg + ' mg peak' : 'Above a ' + data.reference_dose_mg + ' mg peak';
+    if (buildsUp && r > 1.05) return 'Acumulado de várias doses';
+    return r < 0.05 ? 'Quase nenhum' : r < 0.35 ? 'Baixo' : r < 0.8 ? 'Moderado' : r <= 1.05 ? 'Perto de um pico de ' + data.reference_dose_mg + ' mg' : 'Acima de um pico de ' + data.reference_dose_mg + ' mg';
   }
   function curveCard(slug, st) {
     const data = st.curve;
@@ -385,10 +399,10 @@
     const card = make('article', 'h-card grain m-today m-xcurve');
     const long = (o.med.window_hours || [18])[0] > 40;
     const weeks = (o.med.window_hours || [18])[0] > 240;
-    const h2 = make('h2', '', (weeks ? 'Level, last few weeks' : long ? 'Level, last few days' : o.med.name + ' today') + ' ');
+    const h2 = make('h2', '', (weeks ? 'Nível, últimas semanas' : long ? 'Nível, últimos dias' : o.med.name + ' hoje') + ' ');
     const info = make('button', 'h-info', 'i');
     info.type = 'button';
-    info.setAttribute('aria-label', 'What is this curve?');
+    info.setAttribute('aria-label', 'O que é esta curva?');
     info.setAttribute('aria-expanded', 'false');
     info.setAttribute('aria-controls', 'xp-' + slug);
     h2.appendChild(info);
@@ -396,8 +410,8 @@
     const pop = make('div', 'h-pop m-pop');
     pop.id = 'xp-' + slug;
     pop.setAttribute('role', 'tooltip');
-    pop.appendChild(make('b', '', 'What is this curve?'));
-    pop.appendChild(make('p', '', 'This line is a guess of how much ' + o.med.name + ' is in your body: it climbs after a dose, then slides down' + (long ? ', and a slow medicine like this one piles up over ' + (weeks ? 'weeks.' : 'days.') : '.')));
+    pop.appendChild(make('b', '', 'O que é esta curva?'));
+    pop.appendChild(make('p', '', 'Esta linha é uma estimativa de quanto ' + o.med.name + ' há no seu corpo: sobe depois de uma dose e depois desce' + (long ? ', e um remédio lento como este se acumula ao longo de ' + (weeks ? 'semanas.' : 'dias.') : '.')));
     card.appendChild(pop);
     const grid = make('div', 'm-today-grid');
     const left = make('div', 'm-today-left');
@@ -406,20 +420,20 @@
     big.appendChild(make('b', '', level.ng.toFixed(data.decimals || 0)));
     big.appendChild(make('small', '', data.unit));
     left.appendChild(big);
-    left.appendChild(make('p', 'h-when', data.unit === 'mg' ? 'combined from your recent doses · estimated right now' : Math.round(level.rel * 100) + '% of a ' + data.reference_dose_mg + ' mg peak · estimated right now'));
+    left.appendChild(make('p', 'h-when', data.unit === 'mg' ? 'combinado das suas doses recentes · estimado agora' : Math.round(level.rel * 100) + '% de um pico de ' + data.reference_dose_mg + ' mg · estimado agora'));
     left.appendChild(make('p', 'm-phase', bandFor(level.rel, data, long)));
     const lastDose = o.last_dose;
     if (o.med.tracks_events && lastDose && Date.now() - new Date(lastDose.taken_at) < 24 * HOUR) {
       const logged = new Map(((st.doses[0] && st.doses[0].id === lastDose.id ? st.doses[0].events : []) || []).map((e) => [e.type, e]));
       const quick = make('div', 'm-quick');
-      [['onset', 'It kicked in'], ['strongest', 'At its strongest'], ['wearing_off', 'Wearing off']].forEach(([type, label]) => {
+      [['onset', 'Começou a fazer efeito'], ['strongest', 'No auge'], ['wearing_off', 'Passando o efeito']].forEach(([type, label]) => {
         const e = logged.get(type);
         const btn = make('button', e ? 'done' : '', e ? '✓ ' + EVENTS[type] + ' ' + clock(new Date(e.occurred_at)) : label);
         btn.type = 'button';
         btn.addEventListener('click', async () => {
           try {
             await api('/v1/meds/doses/' + lastDose.id + '/events', { method: 'POST', body: { event_type: type } });
-            toast('Saved');
+            toast('Salvo');
             await loadOthers();
           } catch (err) { toast(err.message); }
         });
@@ -430,7 +444,7 @@
     grid.appendChild(left);
     const chart = make('div', 'ha-line m-curve');
     chart.setAttribute('role', 'img');
-    chart.setAttribute('aria-label', 'Estimated level of ' + o.med.name + ' over time');
+    chart.setAttribute('aria-label', 'Nível estimado de ' + o.med.name + ' ao longo do tempo');
     grid.appendChild(chart);
     card.appendChild(grid);
     wireInfo(info);
@@ -449,7 +463,7 @@
     root.replaceChildren();
     if (st.curve) root.appendChild(curveCard(slug, st));
     const last = make('article', 'h-card grain m-xlast');
-    last.appendChild(make('h3', '', 'Last dose'));
+    last.appendChild(make('h3', '', 'Última dose'));
     if (o.last_dose) {
       const taken = new Date(o.last_dose.taken_at);
       const [a, au, b, bu] = bigSince(Date.now() - taken);
@@ -462,13 +476,20 @@
       if (o.med.interval_days) {
         // weekly medicines: say when the next one is due
         const left = Math.ceil((taken.getTime() + o.med.interval_days * 24 * HOUR - Date.now()) / (24 * HOUR));
-        last.appendChild(make('p', 'm-phase m-xpill', left > 1 ? 'Next dose in ' + left + ' days' : left === 1 ? 'Next dose tomorrow' : left === 0 ? 'Next dose is due today' : Math.abs(left) + (Math.abs(left) === 1 ? ' day' : ' days') + ' past the usual day'));
+        last.appendChild(make('p', 'm-phase m-xpill', left > 1 ? 'Próxima dose em ' + left + ' dias' : left === 1 ? 'Próxima dose amanhã' : left === 0 ? 'Próxima dose é hoje' : Math.abs(left) + (Math.abs(left) === 1 ? ' dia' : ' dias') + ' após o dia habitual'));
       }
     } else {
-      last.appendChild(make('p', 'm-xsub', 'No doses logged yet.'));
+      last.appendChild(make('p', 'm-xsub', 'Nenhuma dose registrada ainda.'));
     }
     const stats = make('ul', 'm-stats');
-    [['Total logged', String(o.total_doses), 'doses'], ['Last 30 days', String(o.days_taken_30), 'days'], ['Streak', String(o.streak), o.streak === 1 ? 'day' : 'days']].forEach(([k, v, u]) => {
+    // A weekly medicine (Mounjaro) is not taken every day, so its streak counts weeks in a row, not days.
+    const weekly = !!o.med.interval_days;
+    const weeks = weekly ? weeklyStreak(st.doses, o.med.interval_days) : 0;
+    const last30 = weekly ? st.doses.filter((d) => Date.now() - new Date(d.taken_at) <= 30 * 24 * HOUR).length : 0;
+    (weekly
+      ? [['Total registrado', String(o.total_doses), 'doses'], ['Últimos 30 dias', String(last30), last30 === 1 ? 'dose' : 'doses'], ['Sequência', String(weeks), weeks === 1 ? 'semana' : 'semanas']]
+      : [['Total registrado', String(o.total_doses), 'doses'], ['Últimos 30 dias', String(o.days_taken_30), 'dias'], ['Sequência', String(o.streak), o.streak === 1 ? 'dia' : 'dias']]
+    ).forEach(([k, v, u]) => {
       const li = make('li', 'm-stat');
       li.appendChild(make('span', '', k));
       const bold = make('b', '', v);
@@ -481,7 +502,7 @@
     const byDay = new Map(o.days30.map((d) => [d.day, d.doses]));
     const strip = make('div', 'm-strip');
     strip.setAttribute('role', 'img');
-    strip.setAttribute('aria-label', 'Which of the last 14 days you logged a dose');
+    strip.setAttribute('aria-label', 'Em quais dos últimos 14 dias você registrou uma dose');
     const pad = (n) => String(n).padStart(2, '0');
     const now = new Date();
     for (let i = 13; i >= 0; i--) {
@@ -490,11 +511,11 @@
       const n = (byDay.get(key) || []).length;
       const tile = make('div', 'm-tile' + (n ? ' on' : '') + (i === 0 ? ' now' : ''), String(date.getDate()));
       tile.style.setProperty('--i', 13 - i);
-      tile.title = date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) + (n ? ' · ' + n + (n === 1 ? ' dose' : ' doses') : ' · no dose');
+      tile.title = date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) + (n ? ' · ' + n + (n === 1 ? ' dose' : ' doses') : ' · sem dose');
       strip.appendChild(tile);
     }
     const stripBox = make('div', 'm-xstrip');
-    stripBox.appendChild(make('h4', 'm-xlbl', 'Last 14 days'));
+    stripBox.appendChild(make('h4', 'm-xlbl', 'Últimos 14 dias'));
     stripBox.appendChild(strip);
     if (!o.med.compact) last.appendChild(stripBox);
     root.appendChild(last);
@@ -502,10 +523,10 @@
     if (o.med.compact) {
       // the totals live in their own card; no history list
       const tally = make('article', 'h-card grain m-xtally');
-      tally.appendChild(make('h3', '', 'Your doses'));
+      tally.appendChild(make('h3', '', 'Suas doses'));
       tally.appendChild(stats);
       tally.appendChild(stripBox);
-      if (o.first_dose) tally.appendChild(make('p', 'm-xsub', 'since ' + new Date(o.first_dose).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })));
+      if (o.first_dose) tally.appendChild(make('p', 'm-xsub', 'desde ' + new Date(o.first_dose).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })));
       root.appendChild(tally);
       if (!o.med.tracks_events) return;
     }
@@ -513,10 +534,10 @@
     if (o.med.tracks_events) {
       // the moments you mark replace the history list for these medications
       const card = make('article', 'h-card grain m-works' + (o.med.compact ? ' m-xwide' : ''));
-      const h2 = make('h2', '', 'How it works for you ');
+      const h2 = make('h2', '', 'Como funciona para você ');
       const info = make('button', 'h-info', 'i');
       info.type = 'button';
-      info.setAttribute('aria-label', 'Where do these times come from?');
+      info.setAttribute('aria-label', 'De onde vêm estes horários?');
       info.setAttribute('aria-expanded', 'false');
       info.setAttribute('aria-controls', 'wp-' + slug);
       h2.appendChild(info);
@@ -524,8 +545,8 @@
       const pop = make('div', 'h-pop m-pop');
       pop.id = 'wp-' + slug;
       pop.setAttribute('role', 'tooltip');
-      pop.appendChild(make('b', '', 'Where do these come from?'));
-      pop.appendChild(make('p', '', 'These are your own times: how long after a dose it started, was strongest, and faded away.'));
+      pop.appendChild(make('b', '', 'De onde vêm estes dados?'));
+      pop.appendChild(make('p', '', 'Estes são os seus próprios tempos: quanto tempo depois da dose o efeito começou, foi mais forte e passou.'));
       card.appendChild(pop);
       const list = make('ul', 'm-works-list');
       worksList(list, o);
@@ -535,13 +556,13 @@
       return;
     }
     const hist = make('article', 'h-card grain m-xhist');
-    hist.appendChild(make('h3', '', 'History'));
+    hist.appendChild(make('h3', '', 'Histórico'));
     const list = make('ul', 'm-hist');
     st.doses.slice(0, st.shown).forEach((d) => list.appendChild(doseRow(d)));
-    if (!st.doses.length) list.appendChild(make('li', 'm-xsub', 'Nothing logged yet. Use Log a dose.'));
+    if (!st.doses.length) list.appendChild(make('li', 'm-xsub', 'Nada registrado ainda. Use Registrar dose.'));
     hist.appendChild(list);
     if (st.shown < st.doses.length) {
-      const more = make('button', 'm-more', 'Show older doses');
+      const more = make('button', 'm-more', 'Mostrar doses mais antigas');
       more.type = 'button';
       more.addEventListener('click', () => { st.shown += 6; renderOther(slug); });
       hist.appendChild(more);
@@ -557,17 +578,17 @@
     const q = (p) => { const i = (counts.length - 1) * p; const lo = Math.floor(i); return counts[lo] + (counts[Math.min(lo + 1, counts.length - 1)] - counts[lo]) * (i - lo); };
     const li = make('li', 'm-w m-w-count');
     const left = make('div', 'm-w-l');
-    left.appendChild(make('span', 'm-w-name', 'Doses per day'));
+    left.appendChild(make('span', 'm-w-name', 'Doses por dia'));
     const right = make('div', 'm-w-r');
     if (!counts.length) {
-      right.appendChild(make('span', 'm-w-note', 'No doses logged in the last 30 days.'));
+      right.appendChild(make('span', 'm-w-note', 'Nenhuma dose registrada nos últimos 30 dias.'));
       li.append(left, right);
       return li;
     }
     const median = q(0.5), p25 = q(0.25), p75 = q(0.75);
     const max = Math.max(4, counts[counts.length - 1]);
     const val = make('b', 'm-w-val', Number.isInteger(median) ? String(median) : median.toFixed(1));
-    left.append(val, make('small', 'm-w-after', 'on days you take it'));
+    left.append(val, make('small', 'm-w-after', 'nos dias em que você toma'));
     const range = make('span', 'm-w-range');
     range.setAttribute('aria-hidden', 'true');
     const seg = make('i');
@@ -584,8 +605,8 @@
     const key = t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate());
     const today = (o.days30.find((d) => d.day === key) || { doses: [] }).doses.length;
     const lo = Math.round(p25), hi = Math.round(p75);
-    const spread = lo === hi ? 'Most days: ' + lo + (lo === 1 ? ' dose' : ' doses') : 'Half of your days: ' + lo + ' to ' + hi + ' doses';
-    right.append(range, ticks, make('span', 'm-w-note', spread + ' · today: ' + today + ' so far.'), make('span', 'm-w-n', 'from ' + counts.length + ' days with doses'));
+    const spread = lo === hi ? 'Na maioria dos dias: ' + lo + (lo === 1 ? ' dose' : ' doses') : 'Metade dos seus dias: ' + lo + ' a ' + hi + ' doses';
+    right.append(range, ticks, make('span', 'm-w-note', spread + ' · hoje: ' + today + ' até agora.'), make('span', 'm-w-n', 'de ' + counts.length + ' dias com doses'));
     li.append(left, right);
     return li;
   }
@@ -594,42 +615,55 @@
     list.replaceChildren();
     if (o.med.daily_doses) list.appendChild(dailyCountRow(o));
     const MAX = o.med.timeline_minutes || 540; // the track runs from the dose to nine hours after it (six for Ritalina)
-    [['onset', 'Kicks in'], ['strongest', 'Strongest'], ['wearing_off', 'Wearing off']].forEach(([key, label]) => {
+    const PHASES = [['onset', 'Começa a fazer efeito'], ['strongest', 'Auge'], ['wearing_off', 'Passa o efeito']];
+    const pct = (min) => Math.max(0, Math.min(100, (min / MAX) * 100));
+
+    // 1) one shared timeline after the dose, with the three moments numbered on it
+    const tl = make('li', 'm-tl');
+    tl.setAttribute('aria-hidden', 'true');
+    const wrap = make('div', 'm-tl-wrap');
+    const track = make('div', 'm-tl-track');
+    wrap.appendChild(track);
+    PHASES.forEach(([key, label], i) => {
       const t = o.timing[key];
-      const li = make('li', 'm-w');
-      const left = make('div', 'm-w-l');
-      left.appendChild(make('span', 'm-w-name', label));
-      const right = make('div', 'm-w-r');
-      if (!t.n) {
-        right.appendChild(make('span', 'm-w-note', 'Not enough marks yet.'));
-        li.append(left, right);
-        list.appendChild(li);
-        return;
-      }
-      const val = make('b', 'm-w-val', dur(t.median));
-      left.append(val, make('small', 'm-w-after', 'after the dose'));
-      const range = make('span', 'm-w-range');
-      range.setAttribute('aria-hidden', 'true');
-      const seg = make('i');
-      // keep everything on the track even when a few marks were logged long after the dose
-      const a = Math.min(97, (t.p25 / MAX) * 100);
-      const bEnd = Math.min(100, (t.p75 / MAX) * 100);
-      seg.style.left = a + '%';
-      seg.style.width = Math.max(2.5, bEnd - a) + '%';
-      const mid = make('b');
-      mid.style.left = Math.min(98, (t.median / MAX) * 100) + '%';
-      range.append(seg, mid);
-      right.append(range, make('span', 'm-w-note', 'Half of your doses land between ' + dur(t.p25) + ' and ' + dur(t.p75) + '.'), make('span', 'm-w-n', 'from ' + t.n + ' doses'));
-      li.append(left, right);
-      list.appendChild(li);
+      if (!t.n) return;
+      const seg = make('i', 'm-tl-range');
+      const a0 = pct(t.p25), b0 = pct(t.p75);
+      seg.style.left = a0 + '%';
+      seg.style.width = Math.max(1.2, b0 - a0) + '%';
+      const dot = make('b', 'm-tl-dot', String(i + 1));
+      dot.style.left = pct(t.median) + '%';
+      const tag = make('span', 'm-tl-tag', dur(t.median));
+      tag.style.left = pct(t.median) + '%';
+      wrap.append(seg, dot, tag);
     });
-    const axis = make('li', 'm-w-axis');
-    axis.setAttribute('aria-hidden', 'true');
-    axis.appendChild(make('span', ''));
-    const ticks = make('div', 'm-w-ticks');
+    const ticks = make('div', 'm-tl-ticks');
     ['dose', MAX / 180 + 'h', MAX / 90 + 'h', MAX / 60 + 'h'].forEach((x) => ticks.appendChild(make('span', '', x)));
-    axis.appendChild(ticks);
-    list.appendChild(axis);
+    wrap.appendChild(ticks);
+    tl.appendChild(wrap);
+    list.appendChild(tl);
+
+    // 2) the same three moments as plain rows: what, typical time, the usual range, how many doses it is based on
+    const head = make('li', 'm-tt m-tt-head');
+    ['Momento', 'Costuma levar', 'Metade das doses', 'Base'].forEach((x) => head.appendChild(make('span', '', x)));
+    list.appendChild(head);
+    PHASES.forEach(([key, label], i) => {
+      const t = o.timing[key];
+      const row = make('li', 'm-tt');
+      const name = make('span', 'm-tt-name');
+      name.append(make('b', 'm-tt-n', String(i + 1)), document.createTextNode(label));
+      row.appendChild(name);
+      if (!t.n) {
+        row.appendChild(make('span', 'm-tt-empty', 'Ainda sem marcações suficientes.'));
+      } else {
+        row.append(
+          make('span', 'm-tt-val', dur(t.median) + ' após a dose'),
+          make('span', '', 'entre ' + dur(t.p25) + ' e ' + dur(t.p75)),
+          make('span', 'm-tt-n2', t.n + ' doses')
+        );
+      }
+      list.appendChild(row);
+    });
   }
 
   // ---- last 30 days -----------------------------------------------------------------------------------------------------
@@ -637,13 +671,13 @@
   function month() {
     const o = S.overview;
     set('vDays', o.days_taken_30);
-    $('wDays').textContent = o.days_taken_30 ? 'days with a dose logged' : 'No doses logged in the last 30 days.';
+    $('wDays').textContent = o.days_taken_30 ? 'dias com dose registrada' : 'Nenhuma dose registrada nos últimos 30 dias.';
     const stats = $('mMonthPills');
     stats.replaceChildren();
     const items = [];
-    if (o.avg_first_dose_minute != null) items.push(['Usually', minuteClock(o.avg_first_dose_minute)]);
-    items.push(['Streak', String(o.streak), o.streak === 1 ? 'day' : 'days']);
-    items.push(['Total logged', String(o.total_doses), 'doses']);
+    if (o.avg_first_dose_minute != null) items.push(['Normalmente', minuteClock(o.avg_first_dose_minute)]);
+    items.push(['Sequência', String(o.streak), o.streak === 1 ? 'dia' : 'dias']);
+    items.push(['Total registrado', String(o.total_doses), 'doses']);
     items.forEach(([name, value, unit], i) => {
       const li = make('li', 'm-stat');
       li.style.setProperty('--i', i);
@@ -664,6 +698,10 @@
     root.replaceChildren();
     const pad = (n) => String(n).padStart(2, '0');
     const today = new Date();
+    // A Monday-first calendar: weekday headers, blank cells before the first day, so each date sits under its weekday.
+    ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].forEach((l) => root.appendChild(make('span', 'm-tdow', l)));
+    const firstDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29);
+    for (let p = 0; p < (firstDate.getDay() + 6) % 7; p++) root.appendChild(make('div', 'm-tile m-tile-pad'));
     for (let i = 29; i >= 0; i--) {
       const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
       const key = date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
@@ -671,7 +709,8 @@
       const first = doses.length ? Math.min(...doses.map((x) => x.minute)) : null;
       const tile = make('div', 'm-tile' + (doses.length ? ' on' : '') + (i === 0 ? ' now' : ''));
       tile.style.setProperty('--i', 29 - i);
-      tile.title = date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) + (doses.length ? ' · ' + doses.map((x) => minuteClock(x.minute) + ' ' + x.mg + ' mg').join(', ') : ' · no dose');
+      tile.title = date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) + (doses.length ? ' · ' + doses.map((x) => minuteClock(x.minute) + ' ' + x.mg + ' mg').join(', ') : ' · no dose');
+      if (i === 29 || date.getDate() === 1) tile.dataset.m = date.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
       tile.appendChild(make('span', 'm-tile-d', String(date.getDate())));
       if (first != null) tile.appendChild(make('span', 'm-tile-t', minuteClock(first)));
       if (doses.length > 1) tile.appendChild(make('i', 'm-tile-x'));
@@ -721,7 +760,7 @@
     // weekday letters under every seventh day
     for (let i = 7; i < 30; i += 7) {
       const slot = [...keyIndex.values()].find((s) => s.i === i);
-      svgEl('text', { class: 'm-axis', x: x(i), y: h - 4, 'text-anchor': 'middle' }, svg).textContent = slot.d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      svgEl('text', { class: 'm-axis', x: x(i), y: h - 4, 'text-anchor': 'middle' }, svg).textContent = slot.d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
     }
     const tip = make('div', 'ha-tip');
     wrap.appendChild(tip);
@@ -748,44 +787,6 @@
     dotsFresh = false;
   }
 
-  // ---- check-ins ---------------------------------------------------------------------------------------------------------
-  function checkins() {
-    const all = S.doses.flatMap((d) => d.checkins);
-    const card = $('cCheckins');
-    card.hidden = !all.length;
-    if (!all.length) return;
-    const list = $('mMeters');
-    list.replaceChildren();
-    [['task_initiation', 'Task initiation'], ['motivation', 'Motivation'], ['focus', 'Focus'], ['task_switching', 'Task switching']].forEach(([key, label]) => {
-      const values = all.map((c) => c[key]).filter((v) => v != null);
-      if (!values.length) return;
-      const avg = values.reduce((s, v) => s + v, 0) / values.length;
-      const li = make('li', 'bv-tile');
-      li.appendChild(make('span', 'bv-name', label));
-      const val = make('b', 'bv-val', avg.toFixed(1));
-      val.appendChild(make('small', '', '/ 5'));
-      li.appendChild(val);
-      const meter = make('span', 'bv-meter');
-      meter.setAttribute('aria-hidden', 'true');
-      const fill = make('i');
-      fill.style.setProperty('--w', (avg / 5) * 100 + '%');
-      meter.appendChild(fill);
-      li.appendChild(meter);
-      list.appendChild(li);
-    });
-    const counts = new Map();
-    all.forEach((c) => { if (c.was_enough) counts.set(c.was_enough, (counts.get(c.was_enough) || 0) + 1); });
-    const pills = $('mEnough');
-    pills.replaceChildren();
-    [...counts.entries()].sort((a, b) => b[1] - a[1]).forEach(([key, n], i) => {
-      const li = make('li');
-      li.style.setProperty('--i', i);
-      li.append((ENOUGH[key] || key.replace(/_/g, ' ')) + ' ');
-      li.appendChild(make('b', '', '×' + n));
-      pills.appendChild(li);
-    });
-  }
-
   // ---- history ---------------------------------------------------------------------------------------------------------
   function doseRow(d) {
     const taken = new Date(d.taken_at);
@@ -793,30 +794,26 @@
     const when = make('div', 'm-row-when', dayName(taken) + ' · ' + clock(taken));
     when.appendChild(make('span', '', agoText(Date.now() - taken)));
     li.appendChild(when);
-    const del = make('button', 'm-del', 'Delete');
+    const del = make('button', 'm-del', 'Apagar');
     del.type = 'button';
-    let armed = 0;
     del.addEventListener('click', async () => {
-      if (!armed) {
-        armed = setTimeout(() => { armed = 0; del.classList.remove('sure'); del.textContent = 'Delete'; }, 4000);
-        del.classList.add('sure');
-        del.textContent = 'Sure?';
-        return;
-      }
-      clearTimeout(armed);
+      if (!(await IgnisConfirm.ask({ title: 'Apagar dose', text: 'Apagar esta dose do registro? Isso não pode ser desfeito.' }))) return;
       try {
         await api('/v1/meds/doses/' + d.id, { method: 'DELETE' });
-        toast('Dose deleted');
+        toast('Dose apagada');
         await reloadAll();
       } catch (e) { toast(e.message); }
     });
     li.appendChild(del);
     const chips = make('div', 'm-row-chips');
     chips.appendChild(make('span', 'm-chip mg', d.dose_mg + ' mg'));
-    if (d.food_state) chips.appendChild(make('span', 'm-chip src', d.food_state === 'fasted' ? 'fasted' : 'with food'));
+    if (d.food_state) chips.appendChild(make('span', 'm-chip src', d.food_state === 'fasted' ? 'em jejum' : 'com comida'));
     d.events.forEach((e) => {
       const minutes = (new Date(e.occurred_at) - taken) / MIN;
-      chips.appendChild(make('span', 'm-chip ev', EVENTS[e.type] + ' +' + dur(minutes)));
+      const chip = make('button', 'm-chip ev m-evedit', EVENTS[e.type] + ' +' + dur(minutes));
+      chip.type = 'button'; chip.title = 'Mudar o horário';
+      chip.addEventListener('click', () => editTimes(d, [e], chips));
+      chips.appendChild(chip);
     });
     if (d.checkins.length) chips.appendChild(make('span', 'm-chip ev', 'check-in'));
     chips.appendChild(make('span', 'm-chip src', SOURCES[d.source] || d.source));
@@ -824,6 +821,71 @@
     return li;
   }
 
+
+  // tiny correction: tap a mark in the history, type the clock time, Enter saves, Esc cancels
+  // "edit times": one small panel with a stepper per logged moment (hour and minute), saved together
+  function editTimes(d, events, anchor) {
+    if (document.getElementById('mTimeEd')) return;
+    void anchor;
+    const pad = (n) => String(n).padStart(2, '0');
+    const taken = new Date(d.taken_at);
+    const panel = make('dialog', 'm-modal m-timeed'); panel.id = 'mTimeEd'; panel.setAttribute('aria-labelledby', 'mTimeEdTitle');
+    const head = make('header'); const title = make('h2', '', events.length > 1 ? 'Editar horários' : 'Editar horário'); title.id = 'mTimeEdTitle';
+    const x = make('button', 'm-x'); x.type = 'button'; x.setAttribute('aria-label', 'Fechar');
+    x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    head.append(title, x); panel.appendChild(head);
+    const list = make('div', 'm-te-list'); panel.appendChild(list);
+    const rows = events.map((e) => {
+      const at = new Date(e.occurred_at);
+      const st = { h: at.getHours(), m: at.getMinutes(), h0: at.getHours(), m0: at.getMinutes() };
+      const row = make('div', 'm-te-row');
+      row.appendChild(make('span', 'm-te-lbl', EVENTS[e.type]));
+      const seg = (key, max, step, label) => {
+        const box = make('div', 'm-te-seg');
+        const up = make('button', 'm-te-step', '▲'); up.type = 'button'; up.setAttribute('aria-label', 'Mais tarde: ' + label);
+        const val = make('output', 'm-te-val');
+        const dn = make('button', 'm-te-step', '▼'); dn.type = 'button'; dn.setAttribute('aria-label', 'Mais cedo: ' + label);
+        const bump = (dir) => { st[key] = (st[key] + dir * step + max) % max; if (key === 'm' && dir > 0 && st.m === 0) {} paint(); };
+        const paint = () => { val.textContent = pad(st[key]); row.classList.toggle('changed', st.h !== st.h0 || st.m !== st.m0); };
+        up.onclick = () => bump(1); dn.onclick = () => bump(-1);
+        box.tabIndex = 0; box.setAttribute('role', 'spinbutton'); box.setAttribute('aria-label', label);
+        box.addEventListener('keydown', (k) => {
+          if (k.key === 'ArrowUp') { k.preventDefault(); bump(1); }
+          else if (k.key === 'ArrowDown') { k.preventDefault(); bump(-1); }
+          else if (/^\d$/.test(k.key)) { k.preventDefault(); const v = +(String(st[key]).slice(-1) + k.key); if (v < max) { st[key] = v; paint(); } }
+        });
+        box.append(up, val, dn); paint();
+        return box;
+      };
+      row.append(seg('h', 24, 1, 'hora'), make('span', 'm-te-colon', ':'), seg('m', 60, 5, 'minuto'));
+      return { e, st, row };
+    });
+    rows.forEach((r) => list.appendChild(r.row));
+    const actions = make('div', 'm-te-actions');
+    const save = make('button', 'm-save', 'Salvar'); save.type = 'button';
+    actions.append(save); panel.appendChild(actions);
+    const close = () => { if (panel.open) panel.close(); };
+    x.onclick = close;
+    panel.addEventListener('close', () => { panel.remove(); today(); });
+    panel.addEventListener('click', (ev) => { if (ev.target === panel) close(); });
+    panel.addEventListener('keydown', (k) => { if (k.key === 'Enter' && !k.target.closest('button')) save.click(); });
+    save.onclick = async () => {
+      const changes = rows.filter((r) => r.st.h !== r.st.h0 || r.st.m !== r.st.m0);
+      if (!changes.length) return close();
+      save.disabled = true;
+      try {
+        for (const r of changes) {
+          const t = new Date(taken); t.setHours(r.st.h, r.st.m, 0, 0);
+          if (t < taken) t.setDate(t.getDate() + 1); // past midnight
+          await api('/v1/meds/doses/' + d.id + '/events', { method: 'POST', body: { event_type: r.e.type, occurred_at: t.toISOString() } });
+        }
+        close(); toast('Salvo'); await reloadAll();
+      } catch (err) { toast(err.message); save.disabled = false; }
+    };
+    document.body.appendChild(panel);
+    panel.showModal();
+    panel.querySelector('.m-te-seg').focus();
+  }
 
   // ---- the "log a dose" dialog -----------------------------------------------------------------------------------------
   const localInput = (date) => {
@@ -873,7 +935,7 @@
   }
   function renderCal() {
     const m = cal.month, y = m.getFullYear(), mo = m.getMonth();
-    $('calTitle').textContent = m.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    $('calTitle').textContent = m.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     const lead = (new Date(y, mo, 1).getDay() + 6) % 7; // weeks start on Monday
     const total = new Date(y, mo + 1, 0).getDate();
     const logged = loggedDays();
@@ -890,7 +952,7 @@
       b.type = 'button';
       b.disabled = future;
       b.setAttribute('aria-pressed', String(isSel));
-      b.setAttribute('aria-label', date.toLocaleDateString(undefined, { day: 'numeric', month: 'long' }) + (logged.has(key) ? ', dose logged' : ''));
+      b.setAttribute('aria-label', date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' }) + (logged.has(key) ? ', dose registrada' : ''));
       b.addEventListener('click', () => {
         const next = new Date(cal.when);
         next.setFullYear(y, mo, d);
@@ -903,11 +965,31 @@
     $('calNext').disabled = new Date(y, mo + 1, 1) > now;
   }
   function wireCalendar() {
+    // The picker slides open and closed (height + fade). With reduced motion it just switches.
+    const calBox = $('logCal');
+    const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let calAnim = null;
     $('whenBtn').addEventListener('click', () => {
-      const open = $('logCal').hidden;
-      $('logCal').hidden = !open;
+      const open = calBox.hidden || (calAnim && calAnim.closing);
       $('whenBtn').setAttribute('aria-expanded', String(open));
-      if (open) { cal.month = new Date(cal.when.getFullYear(), cal.when.getMonth(), 1); renderCal(); }
+      if (calAnim) { calAnim.cancel(); calAnim = null; }
+      if (open) {
+        cal.month = new Date(cal.when.getFullYear(), cal.when.getMonth(), 1);
+        renderCal();
+        calBox.hidden = false;
+        if (still || !calBox.animate) return;
+        const h = calBox.scrollHeight;
+        calBox.style.overflow = 'hidden';
+        calAnim = calBox.animate([{ height: '0px', opacity: 0, transform: 'translateY(-6px)' }, { height: h + 'px', opacity: 1, transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+        calAnim.onfinish = () => { calBox.style.overflow = ''; calAnim = null; };
+      } else {
+        if (still || !calBox.animate) { calBox.hidden = true; return; }
+        const h = calBox.getBoundingClientRect().height;
+        calBox.style.overflow = 'hidden';
+        calAnim = calBox.animate([{ height: h + 'px', opacity: 1, transform: 'none' }, { height: '0px', opacity: 0, transform: 'translateY(-6px)' }], { duration: 240, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' });
+        calAnim.closing = true;
+        calAnim.onfinish = () => { calBox.hidden = true; calBox.style.overflow = ''; calAnim.cancel(); calAnim = null; };
+      }
     });
     $('calPrev').addEventListener('click', () => { cal.month = new Date(cal.month.getFullYear(), cal.month.getMonth() - 1, 1); renderCal(); });
     $('calNext').addEventListener('click', () => { cal.month = new Date(cal.month.getFullYear(), cal.month.getMonth() + 1, 1); renderCal(); });
@@ -950,21 +1032,35 @@
   }
   function openLog() {
     chosen = { mg: null, food: null };
-    radioChips($('foodChips'), [['fasted', 'Fasted'], ['fed', 'With food']], null, (v) => { chosen.food = v; });
+    radioChips($('foodChips'), [['fasted', 'Em jejum'], ['fed', 'Com comida']], null, (v) => { chosen.food = v; });
     pickLogMed(OTHERS.includes(currentSec) ? currentSec : SLUG);
     $('logCal').hidden = true;
     $('whenBtn').setAttribute('aria-expanded', 'false');
     cal.month = new Date();
     setWhen(new Date());
     $('logDialog').showModal();
+    updateLogSummary();
+  }
+  // A one-line summary above Save so the left column reads as a finished sentence: "30 mg · Venvanse · today, 21:25".
+  function updateLogSummary() {
+    const dlg = $('logDialog');
+    const save = $('logSave');
+    if (!dlg || !save) return;
+    let el = dlg.querySelector('.m-sum');
+    if (!el) { el = document.createElement('p'); el.className = 'm-sum'; save.parentNode.insertBefore(el, save); }
+    const t = new Date($('logTime').value);
+    const tab = document.querySelector('#logTabs button[aria-selected="true"]');
+    const day = Number.isNaN(t.getTime()) ? '' : (t.toDateString() === new Date().toDateString() ? 'hoje' : t.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }));
+    const clock = Number.isNaN(t.getTime()) ? '' : t.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    el.textContent = [chosen.mg != null ? chosen.mg + ' mg' : '', tab ? tab.textContent : '', [day, clock].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
   }
   async function saveLog(event) {
     event.preventDefault();
     const err = $('logErr');
     err.hidden = true;
     const when = new Date($('logTime').value);
-    if (Number.isNaN(when.getTime())) { err.textContent = 'Pick the time you took it.'; err.hidden = false; return; }
-    if (when.getTime() > Date.now() + 5 * MIN) { err.textContent = 'That time is in the future.'; err.hidden = false; return; }
+    if (Number.isNaN(when.getTime())) { err.textContent = 'Escolha o horário em que você tomou.'; err.hidden = false; return; }
+    if (when.getTime() > Date.now() + 5 * MIN) { err.textContent = 'Esse horário está no futuro.'; err.hidden = false; return; }
     const body = { dose_mg: chosen.mg };
     // "Now" is stamped by the server, so the log matches the moment you actually saved.
     if (Math.abs(Date.now() - when.getTime()) > 2 * MIN) body.taken_at = when.toISOString();
@@ -973,7 +1069,7 @@
     try {
       await api('/v1/meds/' + logMed + '/doses', { method: 'POST', body });
       $('logDialog').close();
-      toast('Dose logged');
+      toast('Dose registrada');
       await reloadAll();
     } catch (e) {
       err.textContent = e.message;
@@ -987,7 +1083,7 @@
     if (!last) return;
     try {
       await api('/v1/meds/doses/' + last.id + '/events', { method: 'POST', body: { event_type: type } });
-      toast('Saved');
+      toast('Salvo');
       await load();
     } catch (e) { toast(e.message); }
   }
@@ -1041,7 +1137,6 @@
     drawCurve();
     works();
     month();
-    checkins();
   }
 
   async function init() {
@@ -1054,6 +1149,8 @@
     $('mQuick').addEventListener('click', (e) => { const b = e.target.closest('button[data-event]'); if (b) markEvent(b.dataset.event); });
     $('logDialog').addEventListener('click', (e) => { if (e.target === $('logDialog')) $('logDialog').close(); });
     sparkTrail();
+    $('logDialog').addEventListener('click', () => setTimeout(updateLogSummary, 0));
+    $('logDialog').addEventListener('input', () => setTimeout(updateLogSummary, 0));
     $('logTabs').addEventListener('click', (e) => { const b = e.target.closest('button[data-med]'); if (b) pickLogMed(b.dataset.med); });
     jumpNav();
     if (window.ResizeObserver) {
@@ -1065,7 +1162,7 @@
       await load();
     } catch (e) {
       $('mGrid').hidden = true;
-      $('mEmpty').textContent = 'Could not load your medication data right now.';
+      $('mEmpty').textContent = 'Não foi possível carregar seus dados de medicação agora.';
       $('mEmpty').hidden = false;
       return;
     }

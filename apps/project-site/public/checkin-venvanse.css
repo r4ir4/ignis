@@ -1,0 +1,95 @@
+/* Venvanse check-in: a centred, roomier layout on top of the sand theme (loaded after sand-trial.css, scoped to .cf-page so no other page changes). */
+body.checkin .cf-page { max-width: 680px !important; margin: 0 auto !important; padding: 28px 20px 72px !important; }
+
+/* title: back link on its own line, then the title centred with a short rule under it */
+body.checkin .cf-page .ck-backlink { display: inline-flex; }
+body.checkin .cf-page .ck-hero { justify-content: center !important; align-items: center !important; text-align: center !important; border-bottom: 0 !important; padding: 6px 0 0 !important; margin-bottom: 30px !important; position: relative; }
+body.checkin .cf-page .ck-hero h1 { text-align: center !important; font-size: 40px !important; }
+body.checkin .cf-page .ck-hero::after { content: ''; position: absolute; left: 50%; bottom: -14px; width: 44px; height: 3px; margin-left: -22px; background: #ee5d1b; }
+
+body.checkin .cf-page .cf-form { gap: 22px; }
+body.checkin .cf-page .cf-card, body.checkin .cf-page .cf-card.cf-day, body.checkin .cf-page .cf-card.cf-stage, body.checkin .cf-page .cf-card.cf-done { max-width: none; width: 100%; box-sizing: border-box; }
+
+/* first screen: date, today's dose, start button, all centred */
+body.checkin .cf-page .cf-day { text-align: center; justify-items: center; padding: 0 !important; }
+body.checkin .cf-page .cf-day h2 { justify-content: center; font-size: 22px !important; }
+body.checkin .cf-page .cf-log { width: 100%; }
+body.checkin .cf-page .cf-dose { text-align: center; border: 1px solid rgba(21, 18, 16, .18) !important; border-radius: 14px !important; background: rgba(255, 255, 255, .35) !important; padding: 22px 20px !important; justify-items: center; }
+body.checkin .cf-page .cf-dose-head { justify-content: center; }
+body.checkin .cf-page .cf-dose-head strong { font-size: 34px; }
+body.checkin .cf-page .cf-steps { width: 100%; }
+body.checkin .cf-page .cf-steps li { text-align: center; justify-items: center; }
+body.checkin .cf-page .cf-empty { border-radius: 14px; }
+body.checkin .cf-page .cf-startrow { max-width: none !important; justify-content: center !important; text-align: center !important; }
+body.checkin .cf-page .cf-go, body.checkin .cf-page .cf-startrow .cf-save { padding: 18px 56px; border-radius: 999px !important; font-size: 13px; }
+body.checkin .cf-page .cf-save { border-radius: 999px !important; }
+
+/* the question card */
+body.checkin .cf-page .cf-card.cf-stage { padding: 30px 32px 34px !important; background: rgba(255, 255, 255, .45) !important; border: 1px solid rgba(21, 18, 16, .16) !important; border-radius: 20px !important; box-shadow: 0 18px 40px -26px rgba(21, 18, 16, .35) !important; min-height: 0; }
+body.checkin .cf-page .cf-top { display: grid; grid-template-columns: 40px 1fr 56px; align-items: center; gap: 8px; margin-bottom: 16px; }
+body.checkin .cf-page .cf-back { width: 40px; height: 40px; border-radius: 50% !important; border: 1px solid rgba(21, 18, 16, .25) !important; }
+body.checkin .cf-page .cf-back:hover { background: #151210 !important; color: #f7e9d7 !important; transform: none; }
+body.checkin .cf-page .cf-sec { text-align: center; }
+body.checkin .cf-page .cf-num { margin: 0; text-align: right; }
+body.checkin .cf-page .cf-bar { height: 5px !important; border-radius: 999px !important; overflow: hidden; }
+body.checkin .cf-page .cf-bar i { border-radius: 999px !important; }
+body.checkin .cf-page h2.cf-question { text-align: center; font-size: 28px !important; line-height: 1.25 !important; margin: 40px auto 32px !important; max-width: 480px; font-weight: 700 !important; }
+body.checkin .cf-page .cf-hint { text-align: center; justify-self: center; }
+
+/* answers: big centred tiles; the letter sits at the left edge, the text in the middle */
+body.checkin .cf-page .cf-answers { gap: 12px; max-width: 520px; width: 100%; margin: 0 auto; }
+body.checkin .cf-page .cf-ans, body.checkin .cf-page .cf-stage .cf-ans { position: relative; justify-content: center !important; text-align: center !important; min-height: 62px; padding: 14px 54px !important; border-radius: 14px !important; font: 500 15px/1.35 var(--mono) !important; background: rgba(255, 255, 255, .5) !important; transition: transform .2s, background .2s, border-color .2s, box-shadow .2s; }
+body.checkin .cf-page .cf-ans b, body.checkin .cf-page .cf-stage .cf-ans b { position: absolute; left: 14px; top: 50%; margin-top: -15px; width: 30px !important; height: 30px !important; border-radius: 50% !important; }
+body.checkin .cf-page .cf-ans:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 16px -10px rgba(21, 18, 16, .5) !important; }
+body.checkin .cf-page .cf-ans[aria-pressed="true"] { transform: none !important; box-shadow: none !important; }
+/* two-option questions (Sim / Não) side by side */
+body.checkin .cf-page .cf-answers:has(.cf-ans:nth-child(2):last-child) { grid-template-columns: 1fr 1fr; }
+
+body.checkin .cf-page .cf-skip { justify-self: center; margin: 30px auto 0 !important; border: 0 !important; background: transparent !important; color: rgba(21, 18, 16, .55) !important; text-decoration: underline; text-underline-offset: 4px; }
+body.checkin .cf-page .cf-skip:hover { color: #151210 !important; background: transparent !important; }
+
+/* end and saved screens */
+body.checkin .cf-page .cf-endacts { gap: 12px; }
+body.checkin .cf-page .cf-ghost { border-radius: 999px !important; padding: 14px 22px; }
+body.checkin .cf-page .cf-card.cf-done { padding: 40px 28px 36px !important; text-align: center; border: 1px solid rgba(21, 18, 16, .16) !important; border-radius: 20px !important; background: rgba(255, 255, 255, .45) !important; justify-items: center; }
+body.checkin .cf-page .cf-donemark { border-radius: 50% !important; }
+
+@media (max-width: 560px) {
+  body.checkin .cf-page { padding: 18px 14px 56px !important; }
+  body.checkin .cf-page .ck-hero h1 { font-size: 32px !important; }
+  body.checkin .cf-page .cf-card.cf-stage { padding: 22px 16px 26px !important; border-radius: 16px !important; }
+  body.checkin .cf-page h2.cf-question { font-size: 22px !important; margin: 30px auto 24px !important; }
+  body.checkin .cf-page .cf-ans, body.checkin .cf-page .cf-stage .cf-ans { padding: 13px 46px !important; font-size: 14px !important; }
+}
+
+/* link to the records page, under the start button */
+body.checkin .cf-page .cf-records { margin: 4px 0 0; text-align: center; font: 500 12px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+body.checkin .cf-page .cf-records a { color: #151210; text-decoration: underline; text-underline-offset: 4px; }
+body.checkin .cf-page .cf-records a:hover { color: #c9470f; }
+
+/* ---- first screen: lead line, today's dose as a timeline, last check-in ---- */
+body.checkin .cf-page .cf-day { gap: 8px; }
+body.checkin .cf-page .cf-lead { margin: 0 0 14px; font: 400 12.5px/1.5 var(--mono); color: rgba(21, 18, 16, .65); }
+body.checkin .cf-page .cf-dose2 { width: 100%; box-sizing: border-box; display: grid; gap: 16px; justify-items: center; padding: 22px 24px 26px; border: 1px solid rgba(21, 18, 16, .16); border-radius: 20px; background: rgba(255, 255, 255, .45); box-shadow: 0 18px 40px -28px rgba(21, 18, 16, .35); text-align: center; }
+body.checkin .cf-page .cf-dose2 + .cf-dose2 { margin-top: 12px; }
+.cf-dose2-head { display: flex; align-items: center; justify-content: center; gap: 12px; font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: #c9470f; }
+.cf-dose2-head small { padding: 5px 10px; border-radius: 999px; background: rgba(21, 18, 16, .07); font: 500 9.5px/1 var(--mono); letter-spacing: .1em; color: rgba(21, 18, 16, .6); }
+.cf-dose2-big { display: flex; align-items: baseline; justify-content: center; gap: 12px; }
+.cf-dose2-big strong { font: 700 52px/1 var(--head); letter-spacing: -.02em; color: #151210; }
+body.checkin .cf-page .cf-dose2-big em { padding: 6px 12px; border-radius: 999px; background: #151210 !important; color: #f7e9d7 !important; font: 500 12.5px/1 var(--mono); font-style: normal; letter-spacing: .06em; }
+.cf-tl { width: 100%; max-width: 520px; margin: 6px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cf-tl li { position: relative; display: grid; justify-items: center; gap: 6px; padding-top: 22px; }
+.cf-tl li::before { content: ''; position: absolute; top: 5px; left: -50%; width: 100%; height: 2px; background: #151210; opacity: .85; }
+.cf-tl li:first-child::before { display: none; }
+.cf-tl li i { position: absolute; top: 0; left: 50%; margin-left: -6px; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; background: #ee5d1b; border: 2px solid #151210; z-index: 1; }
+.cf-tl li small { font: 500 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: rgba(21, 18, 16, .6); }
+.cf-tl li b { font: 700 22px/1 var(--head); letter-spacing: -.01em; }
+.cf-tl li span { font: 500 11.5px/1 var(--mono); color: #c9470f; }
+.cf-tl li.off::before { background: none; border-top: 2px dashed rgba(21, 18, 16, .3); height: 0; opacity: 1; }
+.cf-tl li.off i { background: #f7e9d7; border: 2px dashed rgba(21, 18, 16, .4); }
+.cf-tl li.off b { color: rgba(21, 18, 16, .3); }
+.cf-tl li.off span { color: rgba(21, 18, 16, .45); }
+body.checkin .cf-page .cf-records { display: grid; gap: 14px; justify-items: center; margin-top: 8px; }
+body.checkin .cf-page .cf-last { font: 400 11.5px/1.4 var(--mono); letter-spacing: .04em; text-transform: none; color: rgba(21, 18, 16, .6); }
+body.checkin .cf-page .cf-last:empty { display: none; }
+@media (max-width: 560px) { .cf-dose2-big strong { font-size: 42px; } .cf-tl li b { font-size: 18px; } body.checkin .cf-page .cf-dose2 { padding: 18px 14px 22px; } }

@@ -9,7 +9,7 @@
     if (!v && !r) return;
     const W = 260, H = 96, PAD = 6;
     const t0 = now - 18 * 3600e3, t1 = now + 14 * 3600e3;
-    const series = [[v, 'k-v', '#f4e11b'], [r, 'k-r', '#ff4fc3']].filter((s) => s[0] && s[0].points.length);
+    const series = [[v, 'k-v', '#f4e11b'], [r, 'k-r', '#151210']].filter((s) => s[0] && s[0].points.length);
     const top = Math.max(1.15, ...series.flatMap(([d]) => d.points.map((p) => p[2]))) * 1.05;
     const x = (t) => ((t - t0) / (t1 - t0)) * W;
     const y = (rel) => H - PAD - (rel / top) * (H - 2 * PAD);
@@ -56,19 +56,19 @@
     const add = (name, attrs, parent) => { const n = document.createElementNS(ns, name); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); (parent || svg).appendChild(n); return n; };
     const defs = add('defs', {});
     const grad = add('linearGradient', { id: 'mjg', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
-    add('stop', { offset: '0', 'stop-color': '#f4e11b', 'stop-opacity': '.38' }, grad);
-    add('stop', { offset: '1', 'stop-color': '#f4e11b', 'stop-opacity': '0' }, grad);
+    add('stop', { offset: '0', 'stop-color': '#151210', 'stop-opacity': '.28' }, grad);
+    add('stop', { offset: '1', 'stop-color': '#151210', 'stop-opacity': '0' }, grad);
     const pts = curve.points.map((p) => [x(new Date(p[0]).getTime()), y(p[1]), new Date(p[0]).getTime(), p[1]]);
     const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
-    add('line', { x1: 0, x2: W, y1: H - PAD, y2: H - PAD, stroke: '#f4e11b', 'stroke-opacity': '.3', 'stroke-width': '1' });
+    add('line', { x1: 0, x2: W, y1: H - PAD, y2: H - PAD, stroke: '#151210', 'stroke-opacity': '.3', 'stroke-width': '1' });
     add('path', { d: line + 'L' + W + ' ' + (H - PAD) + 'L0 ' + (H - PAD) + 'Z', fill: 'url(#mjg)' });
     add('line', { x1: x(now), x2: x(now), y1: 4, y2: H - PAD, stroke: '#ffffff', 'stroke-opacity': '.55', 'stroke-width': '1.2', 'stroke-dasharray': '3 3' });
-    add('path', { d: line, fill: 'none', stroke: '#f4e11b', 'stroke-width': '2.2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+    add('path', { d: line, fill: 'none', stroke: '#151210', 'stroke-width': '2.2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
     // each injection sits on the line right after its jump
     const levelAt = (t) => { let b = pts[0]; pts.forEach((p) => { if (Math.abs(p[2] - t) < Math.abs(b[2] - t)) b = p; }); return b; };
-    doses.forEach((d) => { const t = new Date(d.taken_at).getTime(); if (t >= t0 && t <= t1) { const p = levelAt(t + 3600e3); add('circle', { cx: p[0], cy: p[1], r: 3.6, fill: '#0035ad', stroke: '#f4e11b', 'stroke-width': '2' }); } });
+    doses.forEach((d) => { const t = new Date(d.taken_at).getTime(); if (t >= t0 && t <= t1) { const p = levelAt(t + 3600e3); add('circle', { cx: p[0], cy: p[1], r: 3.6, fill: '#151210', stroke: '#151210', 'stroke-width': '2' }); } });
     const here = levelAt(now);
-    add('circle', { cx: here[0], cy: here[1], r: 5, fill: '#ff4fc3', stroke: '#ffffff', 'stroke-width': '2' });
+    add('circle', { cx: here[0], cy: here[1], r: 5, fill: '#ee5d1b', stroke: '#0b0b0b', 'stroke-width': '2' });
     let best = curve.points[0];
     curve.points.forEach((p) => { if (Math.abs(new Date(p[0]) - now) < Math.abs(new Date(best[0]) - now)) best = p; });
     document.querySelector('#mjMg').textContent = best[1].toFixed(2);
@@ -96,23 +96,27 @@
     text.textContent = entry.text;
     when.dateTime = at.toISOString();
     const mins = Math.max(0, Math.round((Date.now() - at) / 60000));
-    const ago = mins < 1 ? 'just now' : mins < 60 ? mins + ' min ago' : mins < 1440 ? Math.floor(mins / 60) + ' h ago' : null;
-    when.textContent = ago || at.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ', ' + at.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    const ago = mins < 1 ? 'agora há pouco' : mins < 60 ? 'há ' + mins + ' min' : mins < 1440 ? 'há ' + Math.floor(mins / 60) + ' h' : null;
+    when.textContent = ago || at.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) + ', ' + at.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   } catch (e) {
     /* leave the placeholder */
   }
 })();
 
-// Fills the lime hero panel with the body battery estimate. Keeps "–" if it is not available.
+// Fills the lime hero panel with the body battery: Garmin's own number when the watch was worn in the
+// last couple of days, otherwise the Whoop-based estimate. Keeps "–" if neither is available.
 (async () => {
   try {
     const res = await fetch('api/v1/health/battery?days=3');
     if (!res.ok) return;
     const b = await res.json();
+    const g = b.garmin && b.garmin.latest;
+    const garmin = !!g && Date.now() - new Date(g.day) < 60 * 3600e3;
     const est = b.latest && b.latest.now != null ? b.latest : null;
-    const value = est && est.now;
+    const value = garmin ? g.now : est && est.now;
     if (value == null) return;
-    document.querySelector('#batteryLabel').textContent = 'Body battery · estimate';
+    document.querySelector('#batteryLabel').textContent = 'Bateria do corpo · ' + (garmin ? 'Garmin' : 'estimativa');
+    document.querySelector('.panel.battery')?.style.setProperty('--bat', value >= 67 ? '#151210' : value >= 34 ? '#ee5d1b' : '#c9470f');
     // One petal per 20 points; the lit ones bloom in turn.
     document.querySelectorAll('#batteryFlower .petal').forEach((petal, n) => petal.classList.toggle('on', value > n * 20 + 10));
     countUp(document.querySelector('#batteryValue'), value);
@@ -214,7 +218,7 @@ function countUp(el, to) {
     const now = Math.max(0, ...habits.map((h) => h.streak));
     const best = Math.max(0, ...habits.map((h) => h.best_streak));
     const lit = now > 0;
-    $('hbFire').innerHTML = '<svg viewBox="2 -2 28 36" aria-hidden="true"><path fill="' + (lit ? '#1a0088' : 'rgba(45,10,87,.3)') + '" d="' + FLAME + '">' + (lit ? '<animate attributeName="d" dur="2.4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.2;.4;.6;.8;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="' + FRAMES + '"/>' : '') + '</path><path fill="' + (lit ? '#ffca26' : 'rgba(45,10,87,.3)') + '" d="M16 19C16 22 13 23 13 25C13 27 14 28 16 28C18 28 19 27 19 25C19 23 17 22 16 19Z">' + (lit ? '<animate attributeName="fill" dur="1.2s" repeatCount="indefinite" values="#ffca26;#ff5e32;#ffca26"/>' : '') + '</path>' +
+    $('hbFire').innerHTML = '<svg viewBox="2 -2 28 36" aria-hidden="true"><path fill="' + (lit ? '#151210' : 'rgba(45,10,87,.3)') + '" d="' + FLAME + '">' + (lit ? '<animate attributeName="d" dur="2.4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.2;.4;.6;.8;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="' + FRAMES + '"/>' : '') + '</path><path fill="' + (lit ? '#ffca26' : 'rgba(45,10,87,.3)') + '" d="M16 19C16 22 13 23 13 25C13 27 14 28 16 28C18 28 19 27 19 25C19 23 17 22 16 19Z">' + (lit ? '<animate attributeName="fill" dur="1.2s" repeatCount="indefinite" values="#ffca26;#c9470f;#ffca26"/>' : '') + '</path>' +
       (lit ? '<circle class="hb-ember" cx="10" cy="14" r="1" style="--dx:-4px;--t:2.1s;--d:0s"/><circle class="hb-ember" cx="22" cy="12" r="1.1" style="--dx:5px;--t:2.5s;--d:.7s"/><circle class="hb-ember" cx="16" cy="6" r=".9" style="--dx:2px;--t:1.9s;--d:1.2s"/>' : '') + '</svg>' +
       '<b class="hb-n">' + now + '</b><span class="hb-l">' + (now === 1 ? 'day streak' : 'day streak') + '</span><span class="hb-best">Best ' + best + (best === 1 ? ' day' : ' days') + '</span>';
   }
@@ -268,27 +272,37 @@ function countUp(el, to) {
     dinner: '<svg class="hm-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M30 6a18 18 0 1 0 12 28A15 15 0 0 1 30 6Z" fill="' + F + '"/><path class="hm-star" d="M38 8c.6 3 1.6 4 4.6 4.6-3 .6-4 1.6-4.6 4.6-.6-3-1.6-4-4.6-4.6 3-.6 4-1.6 4.6-4.6Z" fill="' + F + '"/></svg>',
     supper: '<svg class="hm-ico" viewBox="0 0 48 48" aria-hidden="true"><circle class="hm-cookie" cx="24" cy="25" r="17" fill="' + F + '"/><g fill="#12287f" opacity=".0"></g><circle cx="18" cy="19" r="2.6" fill="#efe7d4"/><circle cx="30" cy="22" r="2.6" fill="#efe7d4"/><circle cx="21" cy="31" r="2.6" fill="#efe7d4"/><circle cx="32" cy="32" r="2" fill="#efe7d4"/><path class="hm-star" d="M40 6c.5 2.6 1.4 3.5 4 4-2.6.5-3.5 1.4-4 4-.5-2.6-1.4-3.5-4-4 2.6-.5 3.5-1.4 4-4Z" fill="' + F + '"/></svg>',
   };
-  const SLOTS = [['breakfast', 'Café da manhã', 'b'], ['am_snack', 'Lanche da manhã', 'a'], ['lunch', 'Almoço', 'l'], ['pm_snack', 'Lanche da tarde', 'p'], ['dinner', 'Jantar', 'd'], ['supper', 'Ceia', 's']];
+  // the divisions come from the server (they can be renamed, reordered, added and deleted on the Food page); these are the start-up defaults
+  const DEFAULT_SLOTS = [['breakfast', 'Café da manhã', '07:30'], ['am_snack', 'Lanche da manhã', '10:00'], ['lunch', 'Almoço', '12:30'], ['pm_snack', 'Lanche da tarde', '15:30'], ['dinner', 'Jantar', '19:30'], ['supper', 'Ceia', '22:00']];
+  const CLS = { breakfast: 'b', am_snack: 'a', lunch: 'l', pm_snack: 'p', dinner: 'd', supper: 's' };
+  const CYCLE = ['b', 'a', 'l', 'p', 'd', 's'];
+  const GENERIC = '<svg class="hm-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="25" r="17" fill="' + F + '"/><circle cx="24" cy="25" r="11" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2.4" stroke-dasharray="3 4" stroke-linecap="round"/></svg>';
   try {
     const res = await fetch('api/v1/food/overview?day=' + day + '&window=7');
     if (!res.ok) throw new Error('food');
     const data = await res.json();
     list.replaceChildren();
-    SLOTS.forEach(([slot, label, cls], i) => {
+    let slots = (data.slots && data.slots.length ? data.slots.map((s) => [s.key, s.label, s.time || '']) : DEFAULT_SLOTS).map(([key, label, at], i) => [key, label, CLS[key] || CYCLE[i % CYCLE.length], at]);
+    if (slots.length > 6) {   // the tile has room for six: first the divisions with meals today, then empty ones, kept in their order
+      const has = (key) => data.meals.some((m) => m.slot === key);
+      const keep = new Set([...slots.filter((s) => has(s[0])), ...slots.filter((s) => !has(s[0]))].slice(0, 6).map((s) => s[0]));
+      slots = slots.filter((s) => keep.has(s[0]));
+    }
+    slots.forEach(([slot, label, cls, at], i) => {
       const meals = data.meals.filter((m) => m.slot === slot);
       const li = document.createElement('li');
       li.className = 'hm-tag ' + cls + (meals.length ? '' : ' empty');
       li.style.setProperty('--i', i);
-      li.innerHTML = ICONS[slot];
+      li.innerHTML = ICONS[slot] || GENERIC;
       const text = document.createElement('span');
       text.className = 'hm-t';
       const small = document.createElement('small');
       const kcal = meals.reduce((n, m) => n + m.calories, 0);
-      small.textContent = label;
+      small.textContent = label + (at ? ' · ' + at : '');
       if (kcal) small.title = Math.round(kcal).toLocaleString() + ' kcal';
       const name = document.createElement('span');
       name.className = 'hm-name';
-      name.textContent = meals.length ? meals.map((m) => m.name).join(', ') : 'Nothing yet';
+      name.textContent = meals.length ? meals.map((m) => m.name).join(', ') : 'Nada ainda';
       text.append(small, name);
       li.appendChild(text);
       list.appendChild(li);
@@ -296,13 +310,13 @@ function countUp(el, to) {
     const total = data.meals.reduce((n, m) => n + m.calories, 0);
     const goal = data.goals && data.goals.calories;
     const el = document.getElementById('hmKcal');
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !total) el.textContent = Math.round(total).toLocaleString();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !total) el.textContent = Math.round(total).toLocaleString('pt-BR');
     else {
       const t0 = performance.now();
       const frame = (now) => { const k = Math.min(1, (now - t0) / 900); el.textContent = Math.round(total * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(frame); };
       requestAnimationFrame(frame);
     }
-    document.getElementById('hmGoal').textContent = goal ? 'of ' + Math.round(goal).toLocaleString() + ' kcal goal' : 'set a goal on the food page';
+    document.getElementById('hmGoal').textContent = goal ? 'de ' + Math.round(goal).toLocaleString('pt-BR') + ' kcal de meta' : 'defina uma meta na página Food';
     // protein, carbs, fat and fiber eaten so far against their goals (the yellow panel)
     const mx = document.getElementById('mxList');
     if (mx) {
@@ -333,7 +347,110 @@ function countUp(el, to) {
     }
     requestAnimationFrame(() => requestAnimationFrame(() => { document.getElementById('hmFill').style.width = (goal ? Math.min(100, (total / goal) * 100) : 0) + '%'; }));
   } catch (e) {
-    document.getElementById('hmGoal').textContent = 'could not load';
+    document.getElementById('hmGoal').textContent = 'não foi possível carregar';
+  }
+})();
+
+
+// ---- today's tasks: an open-task list you can tick, a count-up number and a progress ring -------------------------------------------------
+(async function todaysTasks() {
+  const list = document.getElementById('tkList');
+  if (!list) return;
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, '0');
+  // body battery sits with the reading cards, in one compact row
+  // (and that row sits beside Today's tasks, at the top of the page)
+  { const bat = document.querySelector('.panel.battery'), rd = document.getElementById('rdHome'), g = rd && rd.querySelector('.id-grid'), tk = document.getElementById('tasksTile');
+    if (bat && g) g.insertBefore(bat, g.firstChild);
+    if (rd && tk) tk.after(rd); }
+  const now = new Date();
+  const today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+  const fmt = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' }); };
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const RING = 2 * Math.PI * 18, MAX = 5;
+  const CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5.500 12.500 4.200 4.200L18.500 8"/></svg>';
+  let todos = [], shown = 0, raf = 0, first = true;
+
+  function countTo(el, from, to) {
+    cancelAnimationFrame(raf);
+    if (REDUCED || from === to) { el.textContent = String(to); return; }
+    const t0 = performance.now(), dur = 700;
+    const step = (t) => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); el.textContent = String(Math.round(from + (to - from) * e)); if (p < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step);
+  }
+
+  function render() {
+    // only what is planned for today; overdue tasks are not listed here, just counted (they live on the Todo page)
+    const open = todos.filter((x) => !x.done && x.day === today);
+    const done = todos.filter((x) => x.done && x.done_day === today);
+    const late = todos.filter((x) => !x.done && x.day < today).length;
+    const total = open.length + done.length;
+    $('tkUnit').textContent = !total ? 'nada planejado' : !open.length ? 'tudo feito' : open.length === 1 ? 'tarefa restante' : 'tarefas restantes';
+    $('tkGoal').textContent = total ? done.length + ' de ' + total + ' feitas' + (late ? ' · ' + late + (late === 1 ? ' atrasada' : ' atrasadas') : '') : 'adicione uma na página de tarefas';
+    const pct = total ? done.length / total : 0;
+    $('tkRing').style.strokeDasharray = String(RING);
+    $('tkRing').style.strokeDashoffset = String(RING * (1 - pct));
+    $('tkPct').textContent = Math.round(pct * 100) + '%';
+    countTo($('tkNum'), first ? 0 : shown, open.length); shown = open.length;
+
+    const rows = open.length > MAX ? open.slice(0, MAX - 1) : open.slice();
+    const spare = MAX - rows.length - (open.length > MAX ? 1 : 0);
+    done.slice(0, Math.max(0, spare)).forEach((x) => rows.push(x));
+    list.replaceChildren();
+    rows.forEach((task, i) => {
+      const li = document.createElement('li');
+      li.className = 'tk-row' + (task.done ? ' done' : '');
+      li.style.setProperty('--i', first ? i : 0);
+      if (!first) li.style.animation = 'none', li.style.opacity = '1';
+      const check = document.createElement('button');
+      check.type = 'button'; check.className = 'tk-check'; check.innerHTML = CHECK;
+      check.setAttribute('role', 'checkbox'); check.setAttribute('aria-checked', String(task.done));
+      check.setAttribute('aria-label', (task.done ? 'Desmarcar: ' : 'Marcar como feita: ') + task.title);
+      check.onclick = () => toggle(task);
+      const title = document.createElement('span'); title.className = 'tk-title'; title.textContent = task.title; title.title = task.title;
+      li.append(check, title);
+      const isLate = !task.done && task.day < today;
+      if (isLate || (!task.done && task.day > today)) {
+        const due = document.createElement('span'); due.className = 'tk-due' + (isLate ? ' late' : '');
+        due.textContent = (isLate ? 'Atrasada · ' : '') + fmt(task.day); li.appendChild(due);
+      }
+      if (task.category === 'cleaning') { const tag = document.createElement('span'); tag.className = 'tk-tag cleaning'; tag.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 3.5 11 12"/><path d="M8 11.5l5.5 2.5 2.5 6.5H5.5c.5-3 1.2-6 2.500-9Z"/></svg><span>cleaning</span>'; li.appendChild(tag); }
+      else if (task.category) { const tag = document.createElement('span'); tag.className = 'tk-tag'; tag.textContent = '#' + task.category; li.appendChild(tag); }
+      list.appendChild(li);
+    });
+    if (open.length > MAX) {
+      const a = document.createElement('a'); a.className = 'tk-more'; a.href = 'todo'; a.textContent = '+' + (open.length - MAX + 1) + ' mais em tarefas';
+      const li = document.createElement('li'); li.appendChild(a); list.appendChild(li);
+    }
+    if (late) {
+      const a = document.createElement('a'); a.className = 'tk-more'; a.href = 'todo';
+      a.textContent = late + (late === 1 ? ' tarefa atrasada' : ' tarefas atrasadas') + ' em tarefas';
+      const li = document.createElement('li'); li.appendChild(a); list.appendChild(li);
+    }
+    if (!rows.length) {
+      const li = document.createElement('li'); li.className = 'tk-empty';
+      li.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><use href="#flame"/></svg><span>Nada na lista. Aproveite a calma.</span>';
+      list.appendChild(li);
+    }
+    first = false;
+  }
+
+  async function toggle(task) {
+    const prev = { done: task.done, done_day: task.done_day };
+    task.done = !task.done; task.done_day = task.done ? today : null; render();
+    try {
+      const res = await fetch('api/v1/todos/' + task.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(task.done ? { done: true, done_day: today } : { done: false }) });
+      if (!res.ok) throw new Error('save');
+    } catch (e) { Object.assign(task, prev); render(); $('tkGoal').textContent = 'não foi possível salvar, tente de novo'; }
+  }
+
+  try {
+    const res = await fetch('api/v1/todos');
+    if (!res.ok) throw new Error('todos');
+    todos = (await res.json()).todos;
+    render();
+  } catch (e) {
+    $('tkGoal').textContent = 'não foi possível carregar';
   }
 })();
 
@@ -396,6 +513,7 @@ function countUp(el, to) {
 
     // last 7 days
     const wk = $('rhWeek');
+    if (!wk) return;
     const days = Array.from({ length: 7 }, (_, i) => { const x = new Date(); x.setDate(x.getDate() - (6 - i)); return x; });
     const vals = days.map((x) => d.days[dk(x)] || 0);
     const max = Math.max(20, ...vals);
@@ -408,7 +526,7 @@ function countUp(el, to) {
       const bx = i * (bw + gap);
       const bh = Math.max(v ? 6 : 3, (H - padB - top) * (v / max));
       svg += '<rect class="rh-barr' + (v ? '' : ' none') + (dk(x) === today ? ' now' : '') + '" style="--i:' + i + '" x="' + bx + '" y="' + (H - padB - bh) + '" width="' + bw + '" height="' + bh + '" rx="9"/>';
-      svg += '<text class="rh-dow" x="' + (bx + bw / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + x.toLocaleDateString(undefined, { weekday: 'narrow' }) + '</text>';
+      svg += '<text class="rh-dow" x="' + (bx + bw / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + x.toLocaleDateString('pt-BR', { weekday: 'narrow' }) + '</text>';
     });
     wk.innerHTML = svg + '</svg>';
   } catch (e) {
@@ -533,7 +651,7 @@ function countUp(el, to) {
       const y = (v) => T + (1 - (v - lo) / span) * (H - T - B) * (hi === lo ? 0.5 : 1) + (hi === lo ? (H - T - B) / 4 : 0);
       const line = pts.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
       const area = line + ' L' + x(pts.length - 1).toFixed(1) + ' ' + (H - B) + ' L' + x(0).toFixed(1) + ' ' + (H - B) + ' Z';
-      const dayLabel = (s) => { const [yy, mm, dd] = s.split('-').map(Number); return new Date(yy, mm - 1, dd).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); };
+      const dayLabel = (s) => { const [yy, mm, dd] = s.split('-').map(Number); return new Date(yy, mm - 1, dd).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }); };
       const svg = '<svg class="wkh-svg" viewBox="0 0 ' + W + ' ' + H + '" aria-label="' + ex.name + ' weight over time"><defs><linearGradient id="wkhG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4e11b" stop-opacity=".35"/><stop offset="1" stop-color="#c1ff1a" stop-opacity="0"/></linearGradient></defs>'
         + '<line class="gd" x1="' + L + '" x2="' + (W - R) + '" y1="' + (H - B) + '" y2="' + (H - B) + '"/>'
         + (pts.length > 1 ? '<path class="ar" d="' + area + '"/><path class="ln" pathLength="1" d="' + line + '"/>' : '')
@@ -617,7 +735,7 @@ function countUp(el, to) {
     top.appendChild(el('span', 'gh-cat', CATS[g.category]));
     if (g.days_left != null) {
       const late = g.days_left <= 7;
-      const label = g.days_left < 0 ? Math.abs(g.days_left) + (Math.abs(g.days_left) === 1 ? ' day' : ' days') + ' overdue' : g.days_left === 0 ? 'due today' : g.days_left <= 7 ? 'in ' + g.days_left + (g.days_left === 1 ? ' day' : ' days') : 'by ' + new Date(g.due + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      const label = g.days_left < 0 ? Math.abs(g.days_left) + (Math.abs(g.days_left) === 1 ? ' day' : ' days') + ' overdue' : g.days_left === 0 ? 'due today' : g.days_left <= 7 ? 'in ' + g.days_left + (g.days_left === 1 ? ' day' : ' days') : 'by ' + new Date(g.due + 'T00:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
       top.appendChild(el('span', 'gh-due' + (late ? ' late' : ''), label));
     }
     li.appendChild(top);
@@ -644,4 +762,147 @@ function countUp(el, to) {
     grid.appendChild(li);
     show(li);
   });
+})();
+
+// ---- habits this week: one row per habit, a dot per day -------------------------------------------------------------------------------------
+(function habitsWeek() {
+  const list = document.getElementById('hwList');
+  if (!list) return;
+  const pad = (n) => String(n).padStart(2, '0');
+  const dayKey = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const make = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text != null) el.textContent = text; return el; };
+  const now = new Date();
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  const days = Array.from({ length: 7 }, (_, i) => new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i));
+  const today = dayKey(now);
+  const head = document.getElementById('hwDays');
+  days.forEach((d) => {
+    const c = make('span', 'hw-d' + (dayKey(d) === today ? ' today' : ''));
+    c.appendChild(make('small', '', d.toLocaleDateString('en-US', { weekday: 'short' })));
+    c.appendChild(make('b', '', String(d.getDate())));
+    head.appendChild(c);
+  });
+  async function load() {
+    const res = await fetch('api/v1/habits/overview?today=' + today + '&window=14');
+    if (!res.ok) throw new Error('habits');
+    const habits = (await res.json()).habits;
+    list.replaceChildren();
+    if (!habits.length) { list.appendChild(make('li', 'hw-empty', 'Add habits on the Habits page')); return; }
+    habits.forEach((h) => {
+      const li = make('li', 'hw-row');
+      const name = make('span', 'hw-n', h.name);
+      if (h.streak > 1) name.appendChild(make('small', '', h.streak + ' day streak'));
+      li.appendChild(name);
+      days.forEach((d) => {
+        const k = dayKey(d);
+        const count = (h.days && h.days[k]) || 0;
+        const state = count >= h.target_count ? 'done' : count > 0 ? 'part' : '';
+        li.appendChild(make('i', 'hw-c ' + state + (k > today ? ' future' : '') + (k === today ? ' today' : '')));
+      });
+      list.appendChild(li);
+    });
+  }
+  load().catch(() => { list.replaceChildren(make('li', 'hw-empty', 'Could not load habits')); });
+  setInterval(() => { load().catch(() => {}); }, 5 * 60 * 1000);
+})();
+
+// Six facts the rest of the page never showed: sleep, this month's money, bills, the next trip, today's check-in, today's cleaning.
+(() => {
+  const $ = (id) => document.getElementById(id);
+  if (!$('glSleep')) return;
+  const pad = (n) => String(n).padStart(2, '0');
+  const now = new Date();
+  const day = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+  const month = day.slice(0, 7);
+  const parseDay = (value) => { const [y, m, d] = value.split('-').map(Number); return new Date(y, m - 1, d); };
+  const money = (cents) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(cents / 100);
+  const set = (id, value, sub, tone) => {
+    const el = $(id);
+    el.querySelector('b').textContent = value;
+    const note = el.querySelector('small');
+    note.replaceChildren();
+    (Array.isArray(sub) ? sub : [sub]).forEach((part) => {
+      if (part && typeof part === 'object') {
+        const mark = document.createElement('em');
+        mark.dataset.tone = part.tone;
+        mark.textContent = part.text;
+        note.append(mark);
+      } else if (part) note.append(part);
+    });
+    if (tone) el.dataset.tone = tone;
+  };
+  const json = (url) => fetch(url).then((res) => (res.ok ? res.json() : Promise.reject(res.status)));
+
+  const sleep = json('api/v1/health/overview?days=3').then((data) => {
+    const row = data.latest && data.latest.sleep_minutes;
+    if (!row || row.value == null) return;
+    const mins = Math.round(row.value);
+    const when = row.measured_at ? row.measured_at.slice(0, 10) : '';
+    const recent = when && (parseDay(day) - parseDay(when)) / 864e5 <= 2;
+    set('glSleep', Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm', recent ? 'noite passada' : when, mins >= 420 ? 'good' : mins >= 360 ? 'warn' : 'flame');
+  });
+
+  const cash = Promise.all([json('api/v1/money?month=' + month), json('api/v1/money/rules')]).then(async ([data, rules]) => {
+    let rows = data.transactions || [];
+    let label = 'neste mês';
+    if (!rows.length && (data.months || []).length) {
+      const latest = data.months[0];
+      rows = (await json('api/v1/money?month=' + latest)).transactions || [];
+      label = parseDay(latest + '-01').toLocaleDateString('pt-BR', { month: 'long' });
+    }
+    const skip = new Set(['reserve', 'transfer']);
+    const norm = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const cat = (t) => {
+      if (t.category) return t.category;
+      const text = norm(t.description);
+      let best = null;
+      (rules.rules || []).forEach((rule) => {
+        const match = norm(rule.match);
+        if (match && text.includes(match) && (!best || match.length > norm(best.match).length)) best = rule;
+      });
+      if (best) return best.category;
+      if (/reserva|reservado/i.test(t.description || '')) return 'reserve';
+      return t.amount_cents > 0 ? 'income' : 'other';
+    };
+    let inn = 0, out = 0;
+    (rows).forEach((t) => {
+      if (skip.has(cat(t))) return;
+      if (t.amount_cents > 0) inn += t.amount_cents;
+      else out += -t.amount_cents;
+    });
+    const net = inn - out;
+    set('glMoney', money(net), [label, { text: money(inn), tone: 'good' }, { text: money(out), tone: 'flame' }], net >= 0 ? 'good' : 'flame');
+  });
+
+  const bills = json('api/v1/bills/overview?month=' + month).then((data) => {
+    const rows = data.bills || [];
+    const open = rows.filter((bill) => !bill.paid).sort((a, b) => a.due_day - b.due_day);
+    if (!rows.length) { set('glBills', 'Nenhuma', 'sem contas neste mês', 'good'); return; }
+    if (!open.length) { set('glBills', 'Pagas', 'todas as ' + rows.length + ' pagas', 'good'); return; }
+    const late = open.some((bill) => bill.due_day < now.getDate());
+    const next = open[0];
+    set('glBills', String(open.length) + (open.length === 1 ? ' falta' : ' faltam'), next.name + ' · dia ' + next.due_day, late ? 'flame' : 'warn');
+  });
+
+  const trip = json('api/v1/trips').then((data) => {
+    const next = (data.trips || []).filter((item) => item.end_date >= day).sort((a, b) => a.start_date.localeCompare(b.start_date))[0];
+    if (!next) { set('glTrip', 'Nenhuma', 'nada planejado', 'info'); return; }
+    const away = Math.round((parseDay(next.start_date) - parseDay(day)) / 864e5);
+    const label = away > 1 ? away + ' dias' : away === 1 ? 'Amanhã' : 'Agora';
+    set('glTrip', label, next.destination || next.name, 'info');
+  });
+
+  const check = fetch('api/v1/checkin-forms/venvanse/responses/' + day).then((res) => {
+    if (res.ok) set('glCheck', 'Feito', 'preenchido hoje', 'good');
+    else if (res.status === 404) set('glCheck', 'Aberto', 'ainda não preenchido', 'hot');
+  });
+
+  const clean = json('api/v1/cleaning/overview?start=' + day + '&days=1').then((data) => {
+    const items = (data.days && data.days[0] && data.days[0].items) || [];
+    if (!items.length) { set('glClean', 'Livre', 'nada agendado', 'good'); return; }
+    const done = items.filter((item) => item.done).length;
+    set('glClean', done + '/' + items.length, done === items.length ? 'tudo feito' : (items.length - done) + (items.length - done === 1 ? ' em aberto' : ' em aberto'), done === items.length ? 'good' : 'flame');
+  });
+
+  [sleep, cash, bills, trip, check, clean].forEach((job) => job.catch(() => {}));
 })();

@@ -69,12 +69,16 @@
     const bad = c.filter((x) => x.status === 'down').length;
     const warn = c.filter((x) => x.status === 'late' || x.status === 'never').length;
     const sum = make('figure', 'st-fig st-sum ' + (bad ? 'bad' : warn ? 'warn' : ''));
-    sum.appendChild(make('p', 'st-sumt', bad ? bad + (bad === 1 ? ' connection down' : ' connections down') : warn ? warn + (warn === 1 ? ' needs a look' : ' need a look') : 'All synced'));
-    sum.appendChild(make('p', 'st-sums', bad ? 'A wearable has stopped sending data. Check the sync log on the server.' : warn ? 'Something is running late or has not connected yet.' : 'Every connection has sent data on schedule.'));
+    const msg = (bad ? bad + (bad === 1 ? ' connection down' : ' connections down') : warn ? warn + (warn === 1 ? ' needs a look' : ' need a look') : 'All synced')
+      + '. ' + (bad ? 'A wearable has stopped sending data. Check the sync log on the server.' : warn ? 'Something is running late or has not connected yet.' : 'Every connection has sent data on schedule.')
+      + ' Click to check again.';
     const btn = make('button', 'st-btn');
     btn.type = 'button';
     btn.id = 'stRefresh';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5"/></svg>Check again';
+    btn.title = msg;
+    btn.setAttribute('aria-label', msg);
+    const icon = bad ? '<path d="M12 7v6M12 17h.01"/><circle cx="12" cy="12" r="9"/>' : warn ? '<path d="M12 4 3 20h18L12 4zM12 10v4M12 17h.01"/>' : '<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/>';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + icon + '</svg>' + (bad + warn ? '<b>' + (bad + warn) + '</b>' : '');
     btn.addEventListener('click', async () => { btn.classList.add('spin'); await load(true); setTimeout(() => btn.classList.remove('spin'), 400); toast('Updated'); });
     sum.appendChild(btn);
     top.append(word, sum);
@@ -89,23 +93,21 @@
       if (quiet) { li.style.animation = 'none'; li.style.opacity = '1'; li.style.transform = 'none'; }
       const top = make('div', 'st-cn-top');
       top.appendChild(make('h3', '', c.label));
-      const ic = make('span', 'st-ic');
-      ic.innerHTML = SYNC;
-      top.appendChild(ic);
       const pill = make('span', 'st-pill');
-      pill.append(make('i', 'st-dot'), document.createTextNode(STATUS[c.status]));
+      pill.append(make('i', 'st-dot'), make('span', 'st-ptxt', STATUS[c.status]));
+      pill.title = STATUS[c.status];
+      top.appendChild(pill);
       const last = make('div', 'st-last');
       last.appendChild(make('small', '', 'Last sync'));
       const a = make('span', 'st-ago', ago(c.last_sync));
       a.dataset.t = c.last_sync || '';
-      last.append(a, make('span', 'st-exact', exact(c.last_sync)));
+      last.append(a);
+      last.title = c.what + ' · ' + c.cadence + (c.last_sync ? ' · ' + exact(c.last_sync) : '');
       const meta = make('dl', 'st-meta');
       const item = (k, v) => { const d = make('div'); d.append(make('dt', '', k), make('dd', '', v)); meta.appendChild(d); };
       item('Readings', fmt(c.readings));
       item('Workouts', fmt(c.workouts));
-      item('Newest reading', c.newest_reading ? exact(c.newest_reading) : '–');
-      item('Last check-in', c.last_check ? ago(c.last_check) : '–');
-      li.append(top, pill, make('p', 'st-what', c.what + ' · ' + c.cadence), last, meta);
+      li.append(top, last, meta);
       box.appendChild(li);
     });
   }
@@ -115,15 +117,18 @@
     const box = $('stToks');
     box.replaceChildren();
     if (!S.data.tokens.length) { box.appendChild(make('li', 'st-empty', 'No device tokens yet. Generate one for your iPhone, iPad or a script.')); return; }
+    const th = make('li', 'st-th');
+    ['Token', 'Last used', ''].forEach((h) => th.appendChild(make('span', '', h)));
+    box.appendChild(th);
     S.data.tokens.forEach((t) => {
       const li = make('li', 'st-tk');
       const n = make('span', 'st-tn');
       n.appendChild(make('b', '', t.name));
       n.appendChild(make('span', 'st-tag' + (t.origin === 'server' ? ' srv' : ''), t.origin === 'server' ? 'server' : 'web'));
-      const ts = make('span', 'st-ts', (t.last_seen ? 'Used ' + ago(t.last_seen) : 'Never used') + (t.created_at ? ' · made ' + exact(t.created_at) : ''));
-      const rev = make('button', 'st-rev', t.origin === 'server' ? 'Server' : 'Revoke');
+      const ts = make('span', 'st-ts' + (t.last_seen ? '' : ' none'), t.last_seen ? ago(t.last_seen) : 'Never used');
+      const rev = make('button', 'st-rev', t.origin === 'server' ? '' : 'Revoke');
       rev.type = 'button';
-      if (t.origin === 'server') { rev.disabled = true; rev.title = 'Managed on the server with new-token.sh'; }
+      if (t.origin === 'server') { rev.disabled = true; rev.hidden = true; n.title = 'Managed on the server with new-token.sh'; }
       else rev.addEventListener('click', async () => {
         if (armed.name !== t.name) {
           clearTimeout(armed.timer);
@@ -134,6 +139,7 @@
         clearTimeout(armed.timer); armed = { name: null, timer: 0 };
         try { await api('/v1/settings/tokens/' + encodeURIComponent(t.name), { method: 'DELETE' }); toast('Token revoked'); await load(true); } catch (e) { toast(e.message); }
       });
+      ts.title = t.created_at ? 'Made ' + exact(t.created_at) : '';
       li.append(n, ts, rev);
       box.appendChild(li);
     });
@@ -198,7 +204,7 @@
   function init() {
     $('stGrid').innerHTML = '<div class="identity st-board">'
       + '<div class="st-top" id="stTop"></div>'
-      + '<figure class="st-fig st-cardsc"><div class="st-head"><p class="st-k">Connections</p></div><ul class="st-cards" id="stCards"></ul></figure>'
+      + '<figure class="st-fig st-cardsc"><ul class="st-cards" id="stCards"></ul></figure>'
       + '<figure class="st-fig st-tokc"><div class="st-head"><p class="st-k">Access tokens</p><button type="button" class="st-btn" id="stNewTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New token</button></div><ul class="st-toks" id="stToks"></ul></figure>'
       + '</div>';
     $('stNewTok').addEventListener('click', openToken);

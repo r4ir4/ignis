@@ -13,11 +13,11 @@
     nowLabel: $('#nowLabel'),
     calTitle: $('#calTitle'), calGrid: $('#calGrid'), calPrev: $('#calPrev'), calNext: $('#calNext'),
     tagList: $('#tagList'), browse: $('#browse'), browseStats: $('#browseStats'),
-    toast: $('#toast'), dToday: $('#dToday'), dTodayMeta: $('#dTodayMeta'),
+    toast: $('#toast'), dTitle: $('#dTitle'), dBackToday: $('#dBackToday'), dToday: $('#dToday'), dTodayMeta: $('#dTodayMeta'),
   };
 
   const state = {
-    entries: [], q: '', tag: '', day: '', exhausted: false, loading: false,
+    entries: [], meds: [], todos: [], q: '', tag: '', day: dayKey(new Date()), exhausted: false, loading: false,
     stats: null, tags: [], month: firstOfMonth(new Date()), editing: null,
   };
 
@@ -109,7 +109,9 @@
   }
 
   // ---------- feed ----------
-  function hasFilters() { return !!(state.q || state.tag || state.day); }
+  function hasFilters() { return !!(state.q || state.tag); }
+  const todayKey = () => dayKey(new Date());
+  const dayMode = () => !state.q && !state.tag;
 
   let seq = 0;
   async function loadFeed(reset) {
@@ -121,7 +123,7 @@
       const params = new URLSearchParams({ limit: String(PAGE) });
       if (state.q) params.set('q', state.q);
       if (state.tag) params.set('tag', state.tag);
-      if (state.day) {
+      if (state.day && dayMode()) {
         const [y, m, d] = state.day.split('-').map(Number);
         params.set('start', new Date(y, m - 1, d).toISOString());
         params.set('end', new Date(y, m - 1, d + 1).toISOString());
@@ -172,10 +174,18 @@
 
     const frag = document.createDocumentFragment();
     let current = '';
-    for (const entry of state.entries) {
+    // Venvanse moments for the day on screen (taken, kicked in, wore off), shown between the entries in time order.
+    const marks = dayMode() ? medMarks(state.day) : [];
+    if (marks.length) {
+      const items = state.entries.map((entry) => ({ t: new Date(entry.created_at).getTime(), node: entryItem(entry, new Date(entry.created_at)) }))
+        .concat(marks.map((m) => ({ t: m.t, node: medItem(m) })));
+      items.sort((a, b) => b.t - a.t);
+      items.forEach((it) => frag.append(it.node));
+    }
+    for (const entry of (marks.length ? [] : state.entries)) {
       const d = new Date(entry.created_at);
       const key = dayKey(d);
-      if (key !== current) {
+      if (key !== current && !dayMode()) {
         current = key;
         const known = !hasFilters() && state.stats ? state.stats.days[key] : null;
         const n = known != null ? known : loadedCount[key];
@@ -190,14 +200,245 @@
     el.feed.replaceChildren(frag);
 
     el.more.hidden = state.exhausted || !state.entries.length;
-    const showEmpty = !state.entries.length && !state.loading && el.status.hidden;
+    const showEmpty = !state.entries.length && !marks.length && !state.loading && el.status.hidden;
     el.empty.hidden = !showEmpty;
     if (showEmpty) {
       el.empty.textContent = hasFilters()
         ? 'No entries match that.'
-        : 'Nothing here yet. Write your first entry above.';
+        : 'Nada escrito neste dia.';
     }
+    renderMoodRail();
+    renderTopicRail();
+    renderTagsRail();
     renderChips();
+  }
+
+  // ---------- right column: #tags used on the day (click one to see it across all days) ----------
+  const TAG_RE = /(^|\s)#([\p{L}\p{N}_-]+)/gu;
+  function renderTagsRail() {
+    const box = document.getElementById('railTags');
+    if (!box) return;
+    const empty = document.getElementById('railTagsEmpty');
+    const count = document.getElementById('railTagsCount');
+    box.replaceChildren();
+    if (state.tag) {
+      // a tag filter is on: say so, and offer the way back to the day
+      box.append(h('button', { type: 'button', class: 'd-rail-chip on', title: 'Voltar ao dia', onclick: clearFilters }, '#' + state.tag, h('b', { text: '×' })));
+      empty.hidden = false; empty.textContent = 'Mostrando #' + state.tag + ' em todos os dias.'; count.textContent = '';
+      return;
+    }
+    const tags = new Map();
+    for (const e of state.entries) {
+      for (const m of String(e.text || '').matchAll(TAG_RE)) {
+        if (/^\d+$/.test(m[2])) continue;
+        const k = m[2].toLowerCase();
+        tags.set(k, (tags.get(k) || 0) + 1);
+      }
+    }
+    const rows = [...tags.entries()].sort((a, b) => b[1] - a[1]);
+    rows.forEach(([tag, n]) => box.append(h('button', { type: 'button', class: 'd-rail-chip', title: 'Ver #' + tag + ' em todos os dias', onclick: () => setTag(tag) }, '#' + tag, n > 1 ? h('b', { text: String(n) }) : null)));
+    count.textContent = rows.length ? String(rows.length) : '';
+    empty.hidden = rows.length > 0;
+    empty.textContent = 'Nenhuma tag neste dia. Escreva #algo numa entrada.';
+  }
+
+  // ---------- mood + topic labels (words only, no AI; see mood.js) ----------
+  // The engine guesses; you can fix it. Fixes live in this browser only (localStorage) and teach the next guesses:
+  //   rm    labels you removed from one entry         add  labels you added to one entry (also teaches the words)
+  //   ban   "this word does not mean this label"      learn  words that came with a label you added
+  const LBL_KEY = 'ignis-diary-labels-v1';
+  const LBL = (() => { try { return Object.assign({ entries: {}, ban: {}, learn: {} }, JSON.parse(localStorage.getItem(LBL_KEY) || '{}')); } catch (e) { return { entries: {}, ban: {}, learn: {} }; } })();
+  const saveLbl = () => { try { localStorage.setItem(LBL_KEY, JSON.stringify(LBL)); } catch (e) { /* storage blocked: corrections last until reload */ } };
+  const MOOD_KEYS = () => Object.keys(window.IgnisMood.LABELS);
+  const TOPIC_KEYS = () => Object.keys(window.IgnisMood.TOPIC_LABELS);
+  const fold = (t) => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const STOP = new Set(('para como mais muito porque quando onde tinha tenho estou estava fazer coisa coisas ainda depois antes sobre entre isso essa esse aqui pouco minha meu voce vamos hoje agora entao tambem mesmo sempre nunca tudo nada algo vezes muita muitos todas todos nosso dela dele seja pelo pela assim quero queria preciso estao estar ficar fiquei pode posso deve sera tive tava uma uns umas mas nao sim bem bom boa dias tempo vez isso ainda esta foram sido ser tem tinha vou vai foi').split(' '));
+  const wordsOf = (text) => [...new Set(fold(text).split(/[^a-z0-9]+/).filter((w) => w.length >= 4 && !STOP.has(w)))];
+  const kindOf = (key) => (MOOD_KEYS().includes(key) ? 'mood' : 'topic');
+  const labelText = (key) => (window.IgnisMood.LABELS[key] || window.IgnisMood.TOPIC_LABELS[key] || key);
+  const toneOf = (key) => window.IgnisMood.TONE[key] || '?';
+
+  // the engine's guess for one entry, with your fixes applied -> { moods: [...], topics: [...] }
+  function labelsFor(entry) {
+    if (!window.IgnisMood) return { moods: [], topics: [] };
+    const fix = LBL.entries[entry.id] || { rm: [], add: [] };
+    const keep = (item, kind) => {
+      const k = kind + ':' + item.key;
+      if ((fix.rm || []).includes(k)) return false;
+      const banned = LBL.ban[k] || [];
+      return item.hits.some((w) => !banned.includes(w)); // dropped only if every word behind it was marked wrong
+    };
+    const moods = window.IgnisMood.analyze(entry.text).filter((m) => keep(m, 'mood'));
+    const topics = (window.IgnisMood.topics ? window.IgnisMood.topics(entry.text) : []).filter((t) => keep(t, 'topic'));
+    const have = new Set([...moods.map((m) => 'mood:' + m.key), ...topics.map((t) => 'topic:' + t.key)]);
+    const put = (full, why) => {
+      if (have.has(full) || (fix.rm || []).includes(full)) return;
+      have.add(full);
+      const [kind, key] = full.split(':');
+      const item = { key, label: labelText(key), tone: toneOf(key), hits: [why] };
+      (kind === 'mood' ? moods : topics).push(item);
+    };
+    (fix.add || []).forEach((full) => put(full, 'você escolheu'));
+    const mine = new Set(wordsOf(entry.text));
+    for (const [full, words] of Object.entries(LBL.learn)) {
+      // a taught word only counts once it has been confirmed: two different words, or the same word taught twice
+      const seen = Object.keys(words).filter((w) => mine.has(w));
+      if (seen.reduce((n, w) => n + words[w], 0) >= 2) put(full, 'aprendido: ' + seen.slice(0, 3).join(', '));
+    }
+    return { moods, topics };
+  }
+  const afterFix = () => { saveLbl(); renderFeed(); };
+  function removeLabel(entry, full, hits) {
+    const fix = (LBL.entries[entry.id] = LBL.entries[entry.id] || { rm: [], add: [] });
+    fix.add = (fix.add || []).filter((x) => x !== full);
+    if (!fix.rm.includes(full)) fix.rm.push(full);
+    // the words that caused this guess are wrong for this label from now on
+    const ban = (LBL.ban[full] = LBL.ban[full] || []);
+    hits.filter((w) => !/^(você escolheu|aprendido: )/.test(w)).forEach((w) => { if (!ban.includes(w)) ban.push(w); });
+    // and if it came from something you taught, forget that too
+    if (LBL.learn[full]) wordsOf(entry.text).forEach((w) => { delete LBL.learn[full][w]; });
+  }
+  function addLabel(entry, full) {
+    const fix = (LBL.entries[entry.id] = LBL.entries[entry.id] || { rm: [], add: [] });
+    fix.rm = (fix.rm || []).filter((x) => x !== full);
+    if (!fix.add.includes(full)) fix.add.push(full);
+    const learn = (LBL.learn[full] = LBL.learn[full] || {});
+    wordsOf(entry.text).forEach((w) => { learn[w] = (learn[w] || 0) + 1; });
+    if (LBL.ban[full]) LBL.ban[full] = LBL.ban[full].filter((w) => !wordsOf(entry.text).includes(w));
+  }
+
+  // one small floating menu, reused
+  let menuEl = null;
+  function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
+  function openMenu(anchor, title, items) {
+    closeMenu();
+    menuEl = h('div', { class: 'd-lbl-menu', role: 'menu' }, h('p', { class: 'd-lbl-title', text: title }),
+      ...items.map((it) => (it.heading
+        ? h('p', { class: 'd-lbl-head', text: it.heading })
+        : h('button', { type: 'button', role: 'menuitem', class: it.danger ? 'danger' : '', text: it.text, onclick: () => { closeMenu(); it.run(); } }))));
+    document.body.append(menuEl);
+    const r = anchor.getBoundingClientRect();
+    const mw = menuEl.offsetWidth, mh = menuEl.offsetHeight;
+    menuEl.style.left = Math.max(8, Math.min(r.left, innerWidth - mw - 8)) + 'px';
+    menuEl.style.top = (r.bottom + mh + 12 > innerHeight ? Math.max(8, r.top - mh - 6) : r.bottom + 6) + 'px';
+    const first = menuEl.querySelector('button'); if (first) first.focus();
+  }
+  document.addEventListener('pointerdown', (e) => { if (menuEl && !menuEl.contains(e.target) && !e.target.closest('[data-lbl]')) closeMenu(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+  window.addEventListener('scroll', closeMenu, { passive: true });
+
+  // click a chip: remove it, or swap it for another label of the same kind
+  function chipMenu(anchor, entry, item, kind) {
+    const full = kind + ':' + item.key;
+    const others = (kind === 'mood' ? MOOD_KEYS() : TOPIC_KEYS()).filter((k) => k !== item.key);
+    openMenu(anchor, (kind === 'mood' ? 'Humor: ' : 'Tema: ') + item.label, [
+      { text: 'Não é isso (remover)', danger: true, run: () => { removeLabel(entry, full, item.hits); afterFix(); } },
+      { heading: 'Trocar por' },
+      ...others.map((k) => ({ text: labelText(k), run: () => { removeLabel(entry, full, item.hits); addLabel(entry, kind + ':' + k); afterFix(); } })),
+    ]);
+  }
+  // "Rotular": add any mood or topic the engine missed
+  function addMenu(anchor, entry) {
+    const cur = labelsFor(entry);
+    const has = new Set([...cur.moods.map((m) => 'mood:' + m.key), ...cur.topics.map((t) => 'topic:' + t.key)]);
+    const row = (kind, k) => ({ text: labelText(k), run: () => { addLabel(entry, kind + ':' + k); afterFix(); } });
+    openMenu(anchor, 'Adicionar a esta entrada', [
+      { heading: 'Tema' }, ...TOPIC_KEYS().filter((k) => !has.has('topic:' + k)).map((k) => row('topic', k)),
+      { heading: 'Humor' }, ...MOOD_KEYS().filter((k) => !has.has('mood:' + k)).map((k) => row('mood', k)),
+    ]);
+  }
+
+  function moodChips(entry) {
+    const { moods, topics } = labelsFor(entry);
+    if (!moods.length && !topics.length) return null;
+    const chip = (kind, item, cls, inner) => h('button', {
+      type: 'button', class: cls, 'data-lbl': '1',
+      title: (kind === 'mood' ? 'Humor' : 'Tema') + ', pelas palavras: ' + item.hits.join(', ') + '. Clique para corrigir.',
+      onclick: (ev) => chipMenu(ev.currentTarget, entry, item, kind),
+    }, ...inner);
+    return h('p', { class: 'd-moods' },
+      ...topics.map((t) => chip('topic', t, 'd-topic', [t.label])),
+      ...moods.map((m) => chip('mood', m, 'd-mood tone-' + (m.tone === '+' ? 'pos' : m.tone === '-' ? 'neg' : 'q'), [h('i', { 'aria-hidden': 'true' }), m.label])));
+  }
+  function labelButton(entry) {
+    return h('button', { type: 'button', text: 'Rotular', 'data-lbl': '1', onclick: (ev) => addMenu(ev.currentTarget, entry) });
+  }
+
+  function railRows(listId, emptyId, pick, emptyText) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    const empty = document.getElementById(emptyId);
+    if (!dayMode()) { list.replaceChildren(); empty.hidden = true; return; }
+    const count = new Map();
+    for (const e of state.entries) for (const it of pick(labelsFor(e))) { const c = count.get(it.key) || { it, n: 0 }; c.n += 1; count.set(it.key, c); }
+    const rows = [...count.values()].sort((a, b) => b.n - a.n);
+    list.replaceChildren(...rows.map(({ it, n }) => h('li', { class: 'd-rail-item' },
+      it.tone != null
+        ? h('span', { class: 'd-mood tone-' + (it.tone === '+' ? 'pos' : it.tone === '-' ? 'neg' : 'q') }, h('i', { 'aria-hidden': 'true' }), it.label)
+        : h('span', { class: 'd-topic', text: it.label }),
+      h('span', { class: 'd-rail-tag', text: n + (n === 1 ? ' entrada' : ' entradas') }))));
+    empty.hidden = rows.length > 0 || state.loading;
+    empty.textContent = state.entries.length ? emptyText : 'Sem entradas neste dia.';
+  }
+  function renderTopicRail() { railRows('railTopics', 'railTopicsEmpty', (l) => l.topics.map((t) => ({ ...t, tone: null })), 'Nenhum tema claro neste dia.'); }
+  function renderMoodRail() { railRows('railMood', 'railMoodEmpty', (l) => l.moods, 'Nenhum humor claro nas entradas deste dia.'); }
+  async function resetLabels() {
+    if (!(await IgnisConfirm.ask({ title: 'Apagar correções', text: 'Apagar todas as correções de humor e tema e o que o diário aprendeu com elas?' }))) return;
+    LBL.entries = {}; LBL.ban = {}; LBL.learn = {};
+    saveLbl(); renderFeed();
+  }
+
+  // ---------- right column: tasks finished on the day on screen ----------
+  function renderRail() {
+    const list = document.getElementById('railTasks');
+    if (!list) return;
+    const done = state.todos.filter((t) => t.done && t.done_day === state.day);
+    const check = () => {
+      const NS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'd-rail-check'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+      const p = document.createElementNS(NS, 'path'); p.setAttribute('d', 'm5 12.5 4.5 4.5L19 7.5'); svg.appendChild(p);
+      return svg;
+    };
+    list.replaceChildren(...done.map((t) => h('li', { class: 'd-rail-item' },
+      check(),
+      h('span', { class: 'd-rail-title', text: t.title }),
+      t.category ? h('span', { class: 'd-rail-tag', text: '#' + t.category }) : null)));
+    document.getElementById('railTasksCount').textContent = done.length ? String(done.length) : '';
+    const empty = document.getElementById('railTasksEmpty');
+    empty.hidden = done.length > 0;
+    empty.textContent = 'Nenhuma tarefa concluída neste dia.';
+  }
+  async function loadTodos() {
+    try { const d = await api('/v1/todos'); state.todos = d.todos || []; renderRail(); } catch (e) { /* the diary works without it */ }
+  }
+
+  // ---------- Venvanse moments in the diary ----------
+  const MED_LABEL = { taken: 'Tomou Venvanse', onset: 'O efeito bateu', wearing_off: 'O efeito passou' };
+  function medMarks(dayStr) {
+    const out = [];
+    for (const d of state.meds) {
+      const t = new Date(d.taken_at);
+      if (dayKey(t) === dayStr) out.push({ kind: 'taken', t: t.getTime(), text: MED_LABEL.taken + ' · ' + d.dose_mg + ' mg' });
+      for (const e of (d.events || [])) {
+        if (e.type !== 'onset' && e.type !== 'wearing_off') continue;
+        const at = new Date(e.occurred_at);
+        if (dayKey(at) === dayStr) out.push({ kind: e.type, t: at.getTime(), text: MED_LABEL[e.type] });
+      }
+    }
+    return out;
+  }
+  function medItem(m) {
+    const when = new Date(m.t);
+    const meta = h('span', { class: 'd-meta' }, h('time', { datetime: when.toISOString(), text: when.toLocaleTimeString([], timeFmt) }));
+    const text = h('p', { class: 'd-text d-med-text' }, h('i', { class: 'd-med-dot ' + m.kind, 'aria-hidden': 'true' }), m.text);
+    return h('li', { class: 'd-med' }, h('article', { class: 'd-entry d-med-row' }, text, meta));
+  }
+  async function loadMeds() {
+    try {
+      state.meds = await api('/v1/meds/vyvanse/doses?limit=200');
+      renderFeed();
+    } catch (e) { /* the diary works without it */ }
   }
 
   function entryItem(entry, d) {
@@ -236,29 +477,47 @@
         if (ev.key === 'Escape') { state.editing = null; renderFeed(); }
       });
       queueMicrotask(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); });
-      return h('li', {}, h('article', { class: 'd-entry is-editing' }, avatar(color), meta,
+      return h('li', {}, h('article', { class: 'd-entry is-editing' }, meta,
         h('div', { class: 'd-edit' }, ta, h('div', { class: 'row' }, save, cancel))));
     }
 
-    return h('li', {}, h('article', { class: 'd-entry' }, avatar(color), textEl, meta,
-      h('div', { class: 'd-actions' }, editButton(entry), deleteButton(entry))));
+    return h('li', {}, h('article', { class: 'd-entry' }, textEl, meta, moodChips(entry),
+      h('div', { class: 'd-actions' }, editButton(entry), labelButton(entry), deleteButton(entry))));
   }
 
   function editButton(entry) {
     return h('button', { type: 'button', text: 'Edit', onclick: () => { state.editing = entry.id; renderFeed(); } });
   }
 
+  function confirmDelete(entry) {
+    return new Promise((resolve) => {
+      const when = new Date(entry.created_at).toLocaleString([], { dateStyle: 'long', timeStyle: 'short' });
+      const preview = entry.text.length > 160 ? entry.text.slice(0, 160).trimEnd() + '…' : entry.text;
+      const dlg = h('dialog', { class: 'd-confirm', 'aria-labelledby': 'dcTitle' });
+      const cancel = h('button', { type: 'button', class: 'd-mini', text: 'Keep it' });
+      const ok = h('button', { type: 'button', class: 'd-mini danger-go', text: 'Delete entry' });
+      dlg.append(h('form', { method: 'dialog' },
+        h('h2', { id: 'dcTitle', text: 'Delete this entry?' }),
+        h('p', { class: 'dc-when', text: when }),
+        h('blockquote', { class: 'dc-text', text: preview }),
+        h('p', { class: 'dc-note', text: 'This can’t be undone.' }),
+        h('div', { class: 'row' }, cancel, ok)));
+      let done = false;
+      const finish = (v) => { if (done) return; done = true; if (dlg.open) dlg.close(); dlg.remove(); resolve(v); };
+      cancel.addEventListener('click', () => finish(false));
+      ok.addEventListener('click', () => finish(true));
+      dlg.addEventListener('cancel', (ev) => { ev.preventDefault(); finish(false); });
+      dlg.addEventListener('close', () => finish(false));
+      document.body.append(dlg);
+      dlg.showModal();
+      cancel.focus();
+    });
+  }
+
   function deleteButton(entry) {
-    let disarm;
     const btn = h('button', { type: 'button', class: 'danger', text: 'Delete' });
     btn.addEventListener('click', async () => {
-      if (!btn.classList.contains('armed')) {
-        btn.classList.add('armed');
-        btn.textContent = 'Really delete?';
-        disarm = setTimeout(() => { btn.classList.remove('armed'); btn.textContent = 'Delete'; }, 3000);
-        return;
-      }
-      clearTimeout(disarm);
+      if (!(await confirmDelete(entry))) return;
       btn.disabled = true;
       try {
         await api('/v1/entries/' + encodeURIComponent(entry.id), { method: 'DELETE' });
@@ -279,26 +538,47 @@
     renderSide();
   }
 
-  function toggleDay(key) {
-    state.day = state.day === key ? '' : key;
+  function toggleDay(key) { goDay(key); }
+  function goDay(key) {
+    state.day = key;
+    state.editing = null;
     loadFeed(true);
     renderCalendar();
+    renderHeader();
+  }
+  function stepDay(n) {
+    const [y, m, d] = state.day.split('-').map(Number);
+    goDay(dayKey(new Date(y, m - 1, d + n)));
+  }
+  const MONTHS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+  function renderHeader() {
+    const [y, m, d] = state.day.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    const now = new Date();
+    const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diff = Math.round((date - t0) / 86400000);
+    const left = Math.round((new Date(y, 11, 31) - date) / 86400000);
+    const full = d + ' de ' + MONTHS[m - 1] + ' de ' + y;
+    let title;
+    const tail = left === 0 ? 'hoje é o último dia do ano!' : (left === 1 ? 'falta 1 dia' : 'faltam ' + left + ' dias') + ' para o ano acabar!';
+    if (diff === 0) title = 'Hoje é dia ' + full + ', ' + tail;
+    else title = 'Dia ' + full + (diff < 0 ? ' · há ' + plural(-diff, 'dia', 'dias') : ' · daqui a ' + plural(diff, 'dia', 'dias'));
+    if (el.dTitle) el.dTitle.textContent = title;
+    if (el.dBackToday) el.dBackToday.hidden = diff === 0;
+    renderRail();
   }
 
   function clearFilters() {
-    state.q = ''; state.tag = ''; state.day = '';
+    state.q = ''; state.tag = ''; state.day = todayKey();
     loadFeed(true);
     renderSide();
+    renderHeader();
   }
 
   function renderChips() {
     const chips = [];
     if (state.tag) chips.push(h('li', {}, h('button', { type: 'button', 'aria-label': 'Remove tag filter #' + state.tag, text: '#' + state.tag, onclick: () => setTag(state.tag) })));
-    if (state.day) {
-      const [y, m, d] = state.day.split('-').map(Number);
-      const label = new Date(y, m - 1, d).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
-      chips.push(h('li', {}, h('button', { type: 'button', 'aria-label': 'Remove day filter ' + label, text: label, onclick: () => toggleDay(state.day) })));
-    }
     if (chips.length > 1 || (chips.length && state.q)) {
       chips.push(h('li', {}, h('button', { type: 'button', class: 'clear', text: 'Clear all', onclick: clearFilters })));
     }
@@ -399,7 +679,8 @@
       updateComposer();
       closeCompose();
       // show the new entry, even if a filter would have hidden it
-      state.q = ''; state.tag = ''; state.day = '';
+      state.q = ''; state.tag = ''; state.day = todayKey();
+      renderHeader();
       toast('Posted');
       await refreshAll();
     } catch (e) {
@@ -502,17 +783,39 @@
     toolbar.hidden = !toolbar.contains(newBtn) && !el.chips.children.length;
   }
   const syncLayout = () => {
-    if (wide.matches) el.browse.open = true;
     placeNewButton();
   };
-  el.browse.open = wide.matches;
+  el.browse.open = false;
   placeNewButton();
   if (wide.addEventListener) wide.addEventListener('change', syncLayout);
 
+  // ---------- one day per page ----------
+  $('#dPrev').addEventListener('click', () => stepDay(-1));
+  $('#dNext').addEventListener('click', () => stepDay(1));
+  el.dBackToday.addEventListener('click', () => goDay(todayKey()));
+  document.addEventListener('keydown', (ev) => {
+    if (ev.metaKey || ev.ctrlKey || ev.altKey || el.dlg.open) return;
+    const t = ev.target;
+    if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.isContentEditable)) return;
+    if (ev.key === 'ArrowLeft') { ev.preventDefault(); stepDay(-1); }
+    if (ev.key === 'ArrowRight') { ev.preventDefault(); stepDay(1); }
+  });
+  let tx = null;
+  document.addEventListener('touchstart', (ev) => { tx = ev.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', (ev) => {
+    if (tx == null) return;
+    const dx = ev.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 90 && !el.dlg.open) stepDay(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
   // ---------- go ----------
+  renderHeader();
   el.text.value = readDraft();
   updateNow();
   updateComposer();
   refreshPrompt();
   refreshAll();
+  loadMeds();
+  loadTodos();
+  const rb = document.getElementById('lblReset'); if (rb) rb.addEventListener('click', resetLabels);
 })();

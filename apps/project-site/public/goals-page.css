@@ -1,0 +1,121 @@
+/* Goals page: the Food layout (food.css) with a goals list, progress bars and toast notifications; the dialog keeps goals.css under the Food palette. */
+
+/* ---- area tabs ------------------------------------------------------------------------------------------------------------------------------------------ */
+.gp-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.gp-tab { display: inline-flex; align-items: center; gap: 8px; padding: 9px 15px; cursor: pointer; border: 2px solid var(--ink); border-radius: 999px; background: #fffdf6; color: var(--ink); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; transition: background .12s, color .12s, transform .12s; }
+.gp-tab b { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--ink); color: #fffdf6; font: 800 10px/1 var(--sans); letter-spacing: 0; }
+.gp-tab:hover { transform: translateY(-1px); background: var(--f-sun); }
+.gp-tab[aria-pressed="true"] { background: var(--ink); color: #fffdf6; }
+.gp-tab[aria-pressed="true"] b { background: var(--f-sun); color: var(--ink); }
+.gp-tab:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: 2px; }
+
+/* ---- goal rows ------------------------------------------------------------------------------------------------------------------------------------------- */
+.gp-log .fd-group:first-of-type { margin-top: 12px; }
+.gp-row { align-items: flex-start; padding: 16px 0; }
+.gp-row .fd-bullet { margin-top: 7px; }
+.gp-main { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.gp-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.gp-title { font: 800 15px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .08em; color: var(--ink); overflow-wrap: anywhere; }
+.gp-cat, .gp-due, .gp-won { padding: 4px 8px; border: 2px solid var(--ink); border-radius: 999px; font: 800 9px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; color: var(--ink); background: transparent; }
+.gp-cat { background: var(--hc); }
+.gp-due { border-color: rgba(21, 0, 11, .45); color: rgba(21, 0, 11, .7); }
+.gp-due.late { border-color: var(--f-tomato); color: var(--f-tomato); }
+.gp-won { background: var(--f-sun); }
+.gp-note { font: 600 13px/1.35 var(--sans); color: rgba(21, 0, 11, .6); }
+.gp-bar { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.gp-track { flex: 1; display: block; height: 16px; border: 2.5px solid var(--ink); border-radius: 999px; background: #fffdf6; box-shadow: 0 3px 0 var(--ink); overflow: hidden; }
+.gp-track i { display: block; height: 100%; width: var(--p, 0%); border-radius: 0 999px 999px 0; border-right: 2.5px solid var(--ink); box-sizing: border-box; transition: width 1s cubic-bezier(.2, .85, .25, 1.05);
+  background: repeating-linear-gradient(-45deg, var(--f-carrot) 0 8px, #e5805a 8px 16px); background-size: 22.6px 22.6px; animation: gp-stripes 1.6s linear infinite; }
+.gp-track i[style*="--p: 0%"] { border-right: 0; }
+@keyframes gp-stripes { to { background-position: 22.6px 0; } }
+.gp-pct { flex: none; min-width: 46px; padding: 4px 8px; border: 2.5px solid var(--ink); border-radius: 999px; background: var(--f-sun); color: var(--ink); font: 800 11px/1 var(--sans); text-align: center; box-shadow: 0 2px 0 var(--ink); font-variant-numeric: tabular-nums; }
+.gp-sub { font: 700 12px/1.3 var(--sans); color: rgba(21, 0, 11, .65); }
+.gp-acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; flex: none; }
+.gp-log .fd-edit.gp-go { background: var(--f-sun); border-color: var(--ink); color: var(--ink); }
+.gp-log .fd-edit.gp-go:hover { background: var(--ink); color: #fffdf6; }
+.gp-row.done .gp-track i { animation: none; background: var(--f-kiwi); }
+.gp-row.done .gp-title { opacity: .75; }
+@media (prefers-reduced-motion: reduce) { .gp-track i { animation: none; transition: none; } }
+@media (max-width: 640px) { .gp-row { flex-wrap: wrap; } .gp-main { flex-basis: calc(100% - 36px); } .gp-acts { margin-left: 26px; justify-content: flex-start; } }
+
+/* checklist of a steps goal */
+.gp-chk { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
+.gp-chk button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 4px; cursor: pointer; background: none; border: 0; border-radius: 10px; color: var(--ink); font: 700 13px/1.3 var(--sans); text-align: left; transition: background .12s; }
+.gp-chk button:hover:not(:disabled) { background: rgba(21, 0, 11, .06); }
+.gp-chk button:disabled { cursor: default; }
+.gp-box { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border: 2px solid var(--ink); border-radius: 7px; background: #fffdf6; }
+.gp-box svg { width: 13px; height: 13px; fill: none; stroke: var(--ink); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.4); transition: opacity .15s, transform .25s cubic-bezier(.2, .9, .3, 1.6); }
+.gp-chk button.on .gp-box { background: var(--f-sun); }
+.gp-chk button.on .gp-box svg { opacity: 1; transform: none; }
+.gp-chk button.on > span:last-child { text-decoration: line-through; text-decoration-thickness: 2px; opacity: .6; }
+
+/* ---- right column ----------------------------------------------------------------------------------------------------------------------------------------- */
+.gp-duecard .gp-none { margin: 0; font: 600 13px/1.4 var(--sans); color: var(--f-green); opacity: .7; }
+.gp-dlist { list-style: none; margin: 0; padding: 0; display: grid; }
+.gp-drow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 2px dashed rgba(58, 36, 24, .2); font: 700 13px/1.25 var(--sans); color: var(--f-green); }
+.gp-drow:last-child { border-bottom: 0; }
+.gp-drow b { font: 800 11px/1.2 var(--sans); white-space: nowrap; text-transform: uppercase; letter-spacing: .06em; }
+.gp-drow.hot b { color: var(--f-tomato); }
+.fd-addwrap .fd-mini { justify-content: center; width: 100%; padding: 8px 20px 8px 8px; font-size: 13px; }
+.gl-i-target, .gl-i-cup, .gl-i-clock, .gl-i-ring { transform-origin: 42px 42px; }
+.gl-i-target { animation: gp-pulse 2.8s ease-in-out infinite; }
+@keyframes gp-pulse { 50% { transform: scale(1.06); } }
+.gl-i-clock { animation: gp-tick 3s ease-in-out infinite; }
+@keyframes gp-tick { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+.gl-i-cup { animation: gp-sway 3.2s ease-in-out infinite; }
+@keyframes gp-sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg) scale(1.04); } }
+.gl-i-ring { animation: gp-spin 12s linear infinite; }
+@keyframes gp-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .gl-i-target, .gl-i-cup, .gl-i-clock, .gl-i-ring { animation: none; } }
+@media (max-width: 560px) {
+  .gp-tiles .fd-tile { padding: 12px 12px 12px 14px; }
+  .gp-tiles .fd-tl small { font-size: 10px; letter-spacing: .1em; overflow-wrap: anywhere; }
+  .gp-tiles .fd-num { font-size: 30px; white-space: normal; }
+  .gp-tiles .fd-art { width: 40px; }
+  .gp-tiles .fd-goal { font-size: 10px; }
+}
+
+/* =============================================================================================================================================
+   The goal dialog under the Food palette (sand sheet, light cards, espresso and honey)
+   ============================================================================================================================================= */
+dialog.gl-modal { --g-ult: #3a2418; --g-lime: #f2b84b; --g-pink: #efd9b0; --g-egg: #fbeedc; --g-sun: #f2b84b; --g-flame: #d9653b; --g-sky: #b7c98b; --g-violet: #d9653b;
+  padding: 30px 32px 32px; box-shadow: 0 30px 70px rgba(24, 12, 6, .5); }
+dialog.gl-modal::backdrop { background: rgba(30, 16, 10, .55); }
+.gl-modal header { margin-bottom: 22px; }
+.gl-hico { background: #f2b84b; color: #3a2418; box-shadow: 0 3px 0 #3a2418; }
+.gl-x { background: #3a2418; color: #fbeedc; }
+.gl-x:hover { background: #f2b84b; color: #3a2418; }
+.gl-dcard, .gl-dcard2 { background: #fffdf6; color: #3a2418; border-radius: 22px; padding: 24px; margin-bottom: 14px; }
+.gl-label { font: 800 10px/1 var(--sans); letter-spacing: .15em; color: rgba(58, 36, 24, .55); }
+.gl-input { padding: 14px 18px; border: 2px solid transparent; background: rgba(58, 36, 24, .06); color: #3a2418; font: 700 14px/1.3 var(--sans); text-transform: none; letter-spacing: .01em; }
+.gl-dcard2 .gl-input { background: rgba(58, 36, 24, .06); }
+.gl-input::placeholder { color: rgba(58, 36, 24, .35); }
+.gl-input:focus { border-color: #f2b84b; background: #fff; box-shadow: 0 0 0 3px rgba(242, 184, 75, .3); }
+.gl-input.gl-big { font: 400 26px/1 'Anton', sans-serif; letter-spacing: .03em; text-align: center; }
+.gl-input.gl-unit { font: 700 14px/1.3 var(--sans); text-align: center; }
+.gl-seg button { border-radius: 999px; background: rgba(58, 36, 24, .07); color: #3a2418; font: 800 10px/1.1 var(--sans); letter-spacing: .06em; }
+.gl-seg button:hover { background: #f2b84b; }
+.gl-seg button[aria-pressed="true"] { background: #3a2418; color: #f2b84b; box-shadow: none; }
+.gl-cats [data-v="body"] { --cc: #d9653b; } .gl-cats [data-v="mind"] { --cc: #b7c98b; } .gl-cats [data-v="skills"] { --cc: #f2b84b; } .gl-cats [data-v="life"] { --cc: #fbeedc; } .gl-cats [data-v="money"] { --cc: #b83a2a; }
+.gl-cats button::before { box-shadow: 0 0 0 2px rgba(58, 36, 24, .35); }
+.gl-cats button[aria-pressed="true"] { background: var(--cc); color: #3a2418; box-shadow: 0 0 0 2px #3a2418; }
+.gl-cats button[data-v="money"][aria-pressed="true"] { color: #fbeedc; }
+.gl-cats button[data-v="mind"][aria-pressed="true"] { color: #3a2418; }
+.gl-kinds button[aria-pressed="true"] { box-shadow: 0 0 0 2px #3a2418; background: #f2b84b; color: #3a2418; }
+.gl-quick button { background: #3a2418; color: #f2b84b; }
+.gl-whenbtn { background: rgba(58, 36, 24, .06); color: #3a2418; }
+.gl-whenbtn:hover { border-color: #3a2418; }
+.gl-cal { background: rgba(58, 36, 24, .05); border: 2px solid rgba(58, 36, 24, .2); }
+.gl-calnav { border-color: #3a2418; color: #3a2418; }
+.gl-calnav:hover:not(:disabled) { background: #3a2418; color: #f2b84b; }
+.gl-dayb { color: #3a2418; }
+.gl-dayb:hover:not(:disabled), .gl-dayb.today { border-color: #3a2418; }
+.gl-dayb.sel { background: #3a2418; color: #f2b84b; }
+.gl-err { background: #fbeedc; color: #b83a2a; }
+.gl-save { background: #f2b84b; color: #3a2418; box-shadow: 0 5px 0 #d9653b; margin-top: 8px; }
+.gl-save:hover { box-shadow: 0 8px 0 #d9653b; }
+.gl-save:active { box-shadow: 0 2px 0 #d9653b; }
+.gl-del { color: #3a2418; }
+.gl-del.sure { color: #b83a2a; }
+.gl-chip { background: #f2b84b; color: #3a2418; }
+@media (max-width: 520px) { dialog.gl-modal { padding: 22px 18px 26px; } .gl-dcard, .gl-dcard2 { padding: 20px 16px; } }

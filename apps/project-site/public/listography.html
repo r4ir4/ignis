@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="toast.css?v=1">
+  <title>Listography · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="home health listography">
+  <script src="shell.js?v=2"></script>
+
+  <main id="main" class="page ls-page">
+    <header class="ls-head">
+      <div><h1>Listography</h1><p id="lsSub">Carregando…</p></div>
+      <button class="ls-new" id="lsNew" type="button"><span aria-hidden="true">+</span>Nova lista</button>
+    </header>
+    <p class="ls-empty" id="lsEmpty" hidden></p>
+    <div id="lsGrid">
+      <ul class="ls-cards" id="lsCards" aria-label="Suas listas"></ul>
+      <section class="ls-detail" id="lsDetail" aria-live="polite" hidden></section>
+    </div>
+  </main>
+
+  <dialog class="ls-modal" id="lsDialog" aria-labelledby="lsDlgTitle">
+    <form method="dialog" id="lsForm" novalidate>
+      <header><h2 id="lsDlgTitle">Nova lista</h2><button type="button" class="ls-x" id="lsClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div class="ls-f"><label class="ls-label" for="lsTitle">Título</label><input class="ls-input" id="lsTitle" maxlength="120" autocomplete="off" placeholder="Parar de comer açúcar, ideias para a viagem…"></div>
+      <div class="ls-f"><label class="ls-label" for="lsNote">Nota <em>(opcional)</em></label><input class="ls-input" id="lsNote" maxlength="1000" autocomplete="off" placeholder="Por que isso importa, quando quer começar…"></div>
+      <div class="ls-f"><label class="ls-label" for="lsItems">Itens <em>(um por linha, opcional)</em></label><textarea class="ls-input ls-area" id="lsItems" rows="5" placeholder="Sem refrigerante&#10;Ler o rótulo dos produtos&#10;Trocar a sobremesa por fruta"></textarea></div>
+      <p class="ls-err" id="lsErr" role="alert" hidden></p>
+      <button class="ls-save" type="submit">Criar lista</button>
+    </form>
+  </dialog>
+
+  <dialog class="ls-modal ls-bulk" id="lsBulkDialog" aria-labelledby="lsBulkTitle">
+    <form method="dialog" id="lsBulkForm" novalidate>
+      <header><h2 id="lsBulkTitle">Adicionar vários itens</h2><button type="button" class="ls-x" id="lsBulkClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <div class="ls-bgrid">
+        <div class="ls-bleft">
+          <label class="ls-label" for="lsBulkText">Cole a lista, um item por linha</label>
+          <textarea class="ls-input ls-area ls-bulkarea" id="lsBulkText" placeholder="Primeiro item&#10;Segundo item&#10;Terceiro item"></textarea>
+        </div>
+        <aside class="ls-bright">
+          <section>
+            <h4 class="ls-bh">Opções</h4>
+            <label class="ls-opt"><input type="checkbox" id="lsBulkStrip" checked><span>Tirar números e marcadores do começo das linhas <em>(1. 2) - •)</em></span></label>
+            <label class="ls-opt"><input type="checkbox" id="lsBulkDedupe" checked><span>Ignorar itens que já estão na lista, e repetidos no texto</span></label>
+          </section>
+          <section>
+            <h4 class="ls-bh">Resumo</h4>
+            <dl class="ls-bstats">
+              <div class="new"><dt>Novos</dt><dd id="lsBulkNew">0</dd></div>
+              <div><dt>Já estão na lista</dt><dd id="lsBulkInList">0</dd></div>
+              <div><dt>Repetidos no texto</dt><dd id="lsBulkRep">0</dd></div>
+            </dl>
+          </section>
+          <section class="ls-dupes" id="lsBulkDupes" hidden>
+            <h4 class="ls-bh" id="lsBulkDupesSum">Ignorados</h4>
+            <ul id="lsBulkDupesList"></ul>
+          </section>
+        </aside>
+      </div>
+      <p class="ls-err" id="lsBulkErr" role="alert" hidden></p>
+      <button class="ls-save" type="submit" id="lsBulkGo">Adicionar itens</button>
+    </form>
+  </dialog>
+
+  <dialog class="ls-modal ls-confirm" id="lsDelDialog" aria-labelledby="lsDelTitle">
+    <form method="dialog" novalidate>
+      <header><h2 id="lsDelTitle">Apagar lista</h2><button type="button" class="ls-x" id="lsDelClose" aria-label="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header>
+      <p class="ls-deltext" id="lsDelText"></p>
+      <div class="ls-delacts"><button type="button" class="ls-ghost" id="lsDelCancel">Cancelar</button><button type="button" class="ls-danger" id="lsDelGo">Apagar</button></div>
+    </form>
+  </dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="toast.js?v=2"></script>
+  <script src="listography.js?v=14"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+  <script src="sparkle.js?v=4"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+/* Mobile-first layer for every page of project.ignis.farm. Loaded last, after each page's own stylesheets, and only acts on phones and small tablets.
+   Goals: nothing clipped or scrolling sideways, comfortable tap targets (about 40px), readable text, no zoom-on-focus in iOS, notch-safe edges. */
+
+@media (max-width: 900px) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { overscroll-behavior-y: none; }
+  a, button, summary, label, select, input { touch-action: manipulation; -webkit-tap-highlight-color: rgba(238, 93, 27, .18); }
+
+  /* iOS zooms into any field under 16px; keep them at 16px so focusing never jumps the page */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: 16px !important; }
+
+  /* the top bar and the page respect the notch / home indicator */
+  header.top, .top { padding-top: env(safe-area-inset-top); }
+  main.page, main.h-page, .h-page { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
+  .h-toast, .toast { bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 760px) {
+  /* ---- tap targets ------------------------------------------------------------------------------------------------------------------------------- */
+  button, summary { min-height: 40px; }
+  button:not(.hab-sq):not(.hab-cell):not(.fd-sq):not(.rt-cell):not(.rt-day):not(.wp-pc):not(.wp-gcheck):not(.ed-icon):not([class*="check"]):not(.h-info) { min-width: 40px; }
+  /* dense grids keep their cell size, but are never shorter than 36px */
+  .hab-sq, .hab-cell, .fd-sq { min-height: 36px; min-width: 32px; }
+  .wp-pc { min-height: 44px; }
+  /* check boxes: bigger box, same look */
+  input[type="checkbox"], input[type="radio"] { width: 24px; height: 24px; }
+  .cl-check, .bl-check, .td-check, .tk-check, .wp-gcheck, .hab-check { min-width: 32px !important; min-height: 32px !important; width: 32px; height: 32px; }
+  .h-info { min-width: 28px; min-height: 28px; }
+  .h-info::after { content: ''; position: absolute; inset: -8px; }
+  .h-info { position: relative; }
+  /* links that were a line of text high */
+  a.logo { min-height: 44px; display: inline-flex; align-items: center; }
+  a.top-search { width: 44px; height: 44px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .ck-backlink, .ck-sublink, .ck-links a, .cd-links a, .cf-records a, .cf-skip { display: inline-flex; align-items: center; min-height: 44px; }
+  .glance-item { min-height: 44px; }
+  .wp-view { display: inline-flex; align-items: center; min-height: 40px; }
+  .ck-links { gap: 6px 14px; flex-wrap: wrap; }
+  .ck-topicon { width: 44px; height: 44px; }
+  .ed-icon { width: 40px; height: 40px; }
+  .rt-nav { width: 44px; height: 44px; }
+
+  /* ---- text: nothing under 11.5px ----------------------------------------------------------------------------------------------------------------- */
+  body.home :is(small, em, .m-tile-d, .sp-cat, .bp-grp, .st-tag, .st-rev, .hab-cnt, .rd-here, .fd-count, .gp-cat, .gp-due, .tp-badge, .bl-now, .cl-now, .ck-sub, .mt-badge, .ed-field > span, .ed-qhead select, .rt-dtab, .rt-ait, .cd-tile small, .cd-cardsub, .ck-note, .ckd-label, .ck-topbar .ck-backlink) { font-size: 11.5px !important; }
+  body.home :is(.hab-sq, .fd-sq) { font-size: 11px !important; }
+
+  /* ---- numbers never break in the middle ("R$ 35.24 / 9,56") ----------------------------------------------------------------------------------------- */
+  [class*="amt"], [class*="amount"], [class*="total"], [class*="price"], [class*="-num"], [class*="-val"], .bl-amt { white-space: nowrap; }
+
+  /* ---- shared "Food-style" page pieces (Food, Goals, Read, Workout, Metrics...) --------------------------------------------------------------------- */
+  .fd-pagehead { flex-wrap: wrap; row-gap: 12px; }
+  .fd-pnav { flex: 1 1 100%; justify-content: space-between; }
+  /* stat tiles: label on top, number, then the hint, instead of three squeezed columns (labels broke letter by letter) */
+  .fd-tl { grid-template-columns: minmax(0, 1fr) !important; row-gap: 4px; }
+  .fd-tl > * { grid-column: 1 !important; grid-row: auto !important; justify-self: start !important; text-align: left !important; }
+
+  /* big money numbers shrink with the screen instead of breaking in two lines */
+  body.home .bd-tile b { font-size: clamp(16px, 5vw, 24px) !important; white-space: nowrap !important; }
+  body.home .bd-tile b.bl-next { white-space: normal !important; }
+
+  /* ---- Workout plan: the six days always fit; the exercise name sits above its cells ----------------------------------------------------------------- */
+  .wp-pgrid, .wp-wk { width: 100% !important; min-width: 0 !important; }
+  .wp-gridwrap { overflow: visible; }
+  .wp-pr { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; gap: 4px !important; }
+  .wp-pr > .wp-gn { grid-column: 1 / -1; }
+  .wp-pr.wp-ph > span:first-child { display: none; }
+  .wp-pc { font-size: 11.5px; letter-spacing: -.02em; padding: 0; white-space: nowrap; }
+  .wp-pc.blank { min-height: 44px; }
+}
+
+@media (max-width: 560px) {
+  /* a folder's forms sit two per row, like the folders on the Check-in home */
+  #ckGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 22px 12px; }
+  #ckGrid .ck-sub { text-align: center; }
+  /* the check-in dialogs open as a sheet from the bottom, like the Rotina one */
+  dialog.ckd { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: 18px 18px 0 0; border-bottom: 0; }
+  .ckd-form { padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); }
+  .ckd-ghost, .ckd-ok { padding: 15px 22px; }
+}
+
+@media (max-width: 420px) {
+  /* even tighter phones: tabs wrap instead of clipping */
+  [class$="-tabs"], .wp-tabs, .gp-tabs, .tp-tabs, .wl-tabs, .rd-tabs { flex-wrap: wrap; }
+}

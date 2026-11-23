@@ -1,5 +1,12 @@
-/* Palette (--cream, --forest, --sunshine, --tomato, --ink ...) comes from nav.css. */
 :root {
+  --sunshine: #ffca26;
+  --cream: #f3e8cc;
+  --forest: #19532b;
+  --tomato: #d42518;
+  --ink: #1b2a1f;
+  --page: #ffffff;
+  --display: "Poppins", system-ui, sans-serif;
+  --body: "Poppins", system-ui, sans-serif;
   --green: var(--forest);
   --gold: var(--sunshine);
   --red: var(--tomato);

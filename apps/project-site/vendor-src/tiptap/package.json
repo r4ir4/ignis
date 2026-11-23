@@ -1,0 +1,16 @@
+{
+  "name": "ignis-tiptap-bundle",
+  "private": true,
+  "description": "Builds public/vendor/tiptap/tiptap.js (the Notes editor). Not part of the site at runtime; see README.md.",
+  "scripts": { "build": "esbuild entry.js --bundle --minify --format=iife --target=es2020 --outfile=../../public/vendor/tiptap/tiptap.js" },
+  "dependencies": {
+    "@tiptap/core": "3.35.0",
+    "@tiptap/extension-highlight": "3.35.0",
+    "@tiptap/extension-list": "3.35.0",
+    "@tiptap/extensions": "3.35.0",
+    "@tiptap/pm": "3.35.0",
+    "@tiptap/starter-kit": "3.35.0",
+    "@tiptap/suggestion": "3.35.0"
+  },
+  "devDependencies": { "esbuild": "0.25.5" }
+}

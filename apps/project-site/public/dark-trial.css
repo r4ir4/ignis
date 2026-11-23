@@ -1,0 +1,27 @@
+/* Dark trial skin. Loaded last; remove its <link> to go back to light. */
+body.home {
+  --paper: #3b3b40;
+  --wash: #47474d;
+  --line: #505057;
+  --ink: #f4f4f1;
+  --mute: #b0b0b8;
+  --acc: #ffffff;
+  --navy: #ffffff;
+  color-scheme: dark;
+  background: #29292d;
+}
+body.home .top { background: rgba(50, 50, 54, .85); backdrop-filter: blur(12px); }
+body.home .logo .word { color: #fff; }
+body.home .flame-logo .body path:first-child { fill: #fff; }
+body.home :focus-visible { outline-color: #fff; }
+
+/* Cards: lifted off the page with a soft shadow and a faint top highlight. */
+body.home .tile, body.home .panel, body.home .identity, body.home .glance,
+body.home #rdHome .id-grid figure.rh-sticker,
+body.home #rdHome .id-grid a.rh-now, body.home #rdHome .id-grid a.rh-week {
+  border-color: rgba(255, 255, 255, .08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 10px 28px -12px rgba(0, 0, 0, .55);
+}
+body.home a.tile:hover, body.home a.panel:hover { border-color: rgba(255, 255, 255, .28); background: #414147; }
+body.home .glance-item:hover { background: #47474d; }
+body.home .top { border-bottom-color: rgba(255, 255, 255, .08); }

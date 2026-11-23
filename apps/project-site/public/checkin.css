@@ -50,3 +50,33 @@ dialog.ck-modal h2 { margin: 6px 0 8px; font: 800 26px/1.1 var(--sans); text-tra
 .ck-bs { position: absolute; pointer-events: none; margin: -8px 0 0 -8px; fill: currentColor; animation: ck-bs .85s ease-out forwards; }
 @keyframes ck-bs { 0% { opacity: 0; transform: translate(0, 0) scale(0) rotate(0deg); } 25% { opacity: 1; transform: translate(calc(var(--dx) * .3), calc(var(--dy) * .3)) scale(1) rotate(35deg); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.2) rotate(110deg); } }
 @media (prefers-reduced-motion: reduce) { .ck-folder svg.ck-sp { display: none; } }
+
+/* a file page inside a folder: same grid and motion, but the icons are sheets of paper */
+.ck-backlink { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 18px; padding: 8px 14px 8px 10px; border-radius: 999px; background: #fff0f5; color: #ec5b92; font: 800 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; transition: transform .25s cubic-bezier(.2, .9, .3, 1.4), background .2s, color .2s; }
+.ck-backlink svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s; }
+.ck-backlink:hover { background: #ec5b92; color: #fff; transform: translateX(-3px); }
+.ck-backlink:hover svg { transform: translateX(-2px); }
+.ck-file .ck-back { transform-box: view-box; transform-origin: 50% 100%; transition: transform .3s cubic-bezier(.2, .9, .3, 1.3); }
+.ck-file:hover .ck-front, .ck-file:focus-visible .ck-front { transform: translate(8px, -6px) rotate(5deg); }
+.ck-file:hover .ck-back, .ck-file:focus-visible .ck-back { transform: rotate(-9deg) translate(-4px, 0); }
+.ck-open .ck-back { transform-box: view-box; transform-origin: 50% 100%; transform: rotate(-9deg); animation: ck-flap .6s cubic-bezier(.2, .9, .3, 1.3) both; }
+.ck-open svg[data-file] .ck-front { transform: translate(8px, -6px) rotate(5deg); }
+@media (prefers-reduced-motion: reduce) { .ck-file .ck-back { transition: none; } }
+
+/* "today's check-in is not filled in yet": a coral exclamation mark that pulses on the front of the file */
+.ck-alert { position: absolute; z-index: 3; left: 53%; top: 6%; width: 38px; height: 38px; display: grid; place-items: center; pointer-events: none; animation: ck-alert-pop .6s cubic-bezier(.2, .9, .3, 1.5) .9s backwards; }
+.ck-alert i { position: absolute; inset: 0; border-radius: 50%; background: #ff4d5e; animation: ck-alert-ring 1.8s ease-out infinite; }
+.ck-alert b { position: relative; width: 100%; height: 100%; display: grid; place-items: center; border-radius: 50%; background: #ff4d5e; color: #fff; font: 800 22px/1 var(--sans); box-shadow: 0 6px 14px rgba(255, 77, 94, .45), 0 0 0 3px #fff; animation: ck-alert-shake 2.6s ease-in-out infinite; }
+@keyframes ck-alert-ring { 0% { transform: scale(1); opacity: .55; } 70%, 100% { transform: scale(2.1); opacity: 0; } }
+@keyframes ck-alert-shake { 0%, 55%, 100% { transform: none; } 60% { transform: rotate(-14deg) scale(1.12); } 66% { transform: rotate(12deg) scale(1.12); } 72% { transform: rotate(-8deg); } 78% { transform: rotate(5deg); } 84% { transform: none; } }
+@keyframes ck-alert-pop { from { transform: scale(0); } }
+.ck-file:hover .ck-alert { transform: translate(8px, -6px); transition: transform .3s cubic-bezier(.2, .9, .3, 1.3); }
+@media (prefers-reduced-motion: reduce) { .ck-alert, .ck-alert i, .ck-alert b { animation: none; } .ck-alert i { display: none; } }
+.ck-file[data-daily] { padding-bottom: 35px; } /* keeps the name level with files that have a line under it */
+
+/* once today's check-in is saved, the "!" is replaced by a green check */
+.ck-alert.ck-done { animation: ck-alert-pop .6s cubic-bezier(.2, .9, .3, 1.5) .4s backwards; }
+.ck-alert.ck-done b { background: #4fae86; box-shadow: 0 6px 14px rgba(79, 174, 134, .45), 0 0 0 3px #fff; animation: none; }
+.ck-alert.ck-done svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: ck-check-draw .5s ease-out .9s forwards; }
+@keyframes ck-check-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .ck-alert.ck-done svg { animation: none; stroke-dashoffset: 0; } }

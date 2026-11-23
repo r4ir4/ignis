@@ -66,7 +66,9 @@
     if (slp) items.push(['Sleep', hm(slp.value), 'p-lime']);
     if (str) items.push(['Strain', str.value.toFixed(1), 'p-lime']);
     if (hrv) items.push(['HRV', Math.round(hrv.value) + ' ms', 'p-lime']);
-    const level = b && b.latest && b.latest.now != null ? b.latest.now : null;
+    const g = b && b.garmin && b.garmin.latest;
+    const est = b && b.latest && b.latest.now != null ? b.latest.now : null;
+    const level = g && Date.now() - new Date(g.day) < 60 * HOUR ? g.now : est;
     if (level != null) items.push(['Battery', level + '%', 'p-pink']);
     const list = $('hPills');
     list.replaceChildren();
@@ -89,10 +91,25 @@
     set('wRecovery', night(r.measured_at) + ' · ' + (r.value >= 67 ? 'Strong' : r.value >= 34 ? 'Moderate' : 'Low'));
     const bars = $('sRecovery');
     bars.replaceChildren();
-    o.series.recovery_score.slice(-30).forEach(([, score], i) => {
+    const rows = o.series.recovery_score.slice(-30);
+    rows.forEach(([ts, score], i) => {
       const pill = document.createElement('i');
       pill.style.setProperty('--h', Math.max(0, Math.min(100, score)) + '%');
       pill.style.setProperty('--i', i);
+      const d = new Date(ts);
+      const ok = !isNaN(d);
+      const label = ok ? d.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+      pill.title = (label ? label + ' · ' : '') + Math.round(score) + '%';
+      const v = document.createElement('span');
+      v.className = 'rv';
+      v.textContent = Math.round(score);
+      pill.appendChild(v);
+      if (ok && (i % 6 === 0 || i === rows.length - 1)) {
+        const dl = document.createElement('span');
+        dl.className = 'rd';
+        dl.textContent = d.getDate() + '/' + (d.getMonth() + 1);
+        pill.appendChild(dl);
+      }
       bars.appendChild(pill);
     });
   }
@@ -156,16 +173,31 @@
     if (!s) return;
     const v = s.value;
     set('vStrain', v.toFixed(1));
-    set('wStrain', today(s.measured_at));
+    const ZN = v < 10 ? 'Light' : v < 14 ? 'Moderate' : v < 18 ? 'High' : 'All out';
+    set('wStrain', today(s.measured_at) + ' · ' + ZN + ' zone');
     const gauge = $('strainGauge');
     gauge.replaceChildren();
-    for (let i = 0; i < 21; i++) {
-      const cap = document.createElement('i');
-      cap.style.setProperty('--p', Math.max(0, Math.min(1, v - i)).toFixed(2));
-      cap.style.setProperty('--i', i);
-      if (v > i && v < i + 1) cap.classList.add('now');
-      gauge.appendChild(cap);
-    }
+    gauge.classList.add('hst-scale');
+    const ZONES = [['Light', '0–9', 0, 10], ['Moderate', '10–13', 10, 14], ['High', '14–17', 14, 18], ['All out', '18–21', 18, 22]];
+    const track = document.createElement('div');
+    track.className = 'hst-track';
+    ZONES.forEach(([name, range, lo, hi], k) => {
+      const z = document.createElement('div');
+      z.className = 'hst-z z' + k + (v >= lo && v < hi ? ' on' : '');
+      z.style.setProperty('--w', hi - lo);
+      const n = document.createElement('b'); n.textContent = name;
+      const r = document.createElement('small'); r.textContent = range;
+      z.append(n, r);
+      track.appendChild(z);
+    });
+    const fill = document.createElement('i');
+    fill.className = 'hst-fill';
+    fill.style.setProperty('--f', (Math.min(v, 22) / 22 * 100).toFixed(2) + '%');
+    const mk = document.createElement('em');
+    mk.className = 'hst-mk';
+    mk.style.setProperty('--f', (Math.min(v, 22) / 22 * 100).toFixed(2) + '%');
+    mk.textContent = v.toFixed(1);
+    gauge.append(track, fill, mk);
     const zones = [['Light', '0–9', 0, 10], ['Moderate', '10–13', 10, 14], ['High', '14–17', 14, 18], ['All out', '18–21', 18, 22]];
     const list = $('strainZones');
     list.replaceChildren();
@@ -277,20 +309,23 @@
   }
 
   function battery(b, days) {
-    // Whoop-based estimate (the calculation will later also draw on Apple Health).
+    // Garmin's own number when the watch was worn in the last couple of days, else the Whoop estimate.
+    const g = b.garmin && b.garmin.latest;
+    const useGarmin = !!g && Date.now() - new Date(g.day) < 60 * HOUR;
     const est = b.latest && b.latest.now != null ? b.latest : null;
-    if (!est) return;
+    if (!useGarmin && !est) return;
 
     $('cBattery').hidden = false;
-    const value = est.now;
+    const value = useGarmin ? g.now : est.now;
     countUp($('vBattery'), value);
     document.querySelectorAll('#bFlower .petal').forEach((petal, n) => petal.classList.toggle('on', value > n * 20 + 10));
 
-    const charged = est.charged;
-    const drained = est.drained;
-    const items = [['Whoop estimate', '', 'p-egg']];
+    const charged = useGarmin ? g.charged : est.charged;
+    const drained = useGarmin ? g.drained : est.drained;
+    const items = [[useGarmin ? 'Garmin · ' + (sameDay(g.day) ? 'today' : dayLabel(g.day)) : 'Whoop estimate', '', 'p-egg']];
     if (charged != null) items.push(['Charged', '+' + charged, 'p-lime']);
     if (drained != null) items.push(['Drained', '−' + drained, 'p-ultra']);
+    if (useGarmin && est) items.push(['Whoop estimate', est.now + '%', 'p-ink']);
     const pillsEl = $('bPills');
     pillsEl.replaceChildren();
     items.forEach(([name, amount, cls], i) => {
@@ -310,7 +345,11 @@
     // high, with the two numbers printed at the ends of the bar. Days without a reading get a short grey dash.
     const key = (d) => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
     const ranges = new Map();
-    b.days.forEach((d) => { if (d.now != null) ranges.set(key(new Date(new Date(d.night).getTime() + 12 * HOUR)), [d.now, d.charged]); });
+    if (useGarmin) {
+      b.garmin.days.forEach((d) => { if (d.high != null && d.low != null) ranges.set(key(new Date(d.day)), [d.low, d.high]); });
+    } else {
+      b.days.forEach((d) => { if (d.now != null) ranges.set(key(new Date(new Date(d.night).getTime() + 12 * HOUR)), [d.now, d.charged]); });
+    }
     const make = (tag, cls, text) => {
       const el = document.createElement(tag);
       if (cls) el.className = cls;

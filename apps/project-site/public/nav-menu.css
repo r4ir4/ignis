@@ -1,0 +1,135 @@
+/* Phone menu. The icon bar is hidden below 700px.
+   This sheet replaces it with labeled links in four groups. */
+
+.pm-open {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line, #e4e4df);
+  background: var(--paper, #fff);
+  color: var(--ink, #0b0b0b);
+  box-shadow: none;
+  cursor: pointer;
+  font: 600 13px/1 var(--sans, "Poppins", system-ui, sans-serif);
+  letter-spacing: .02em;
+}
+.pm-open svg {
+  width: 18px; height: 18px; display: block;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
+}
+.pm-open:focus-visible { outline: 2px solid var(--acc, #1a0088); outline-offset: 3px; }
+
+@media (max-width: 699px) {
+  body.home .pm-open { display: inline-flex; }
+}
+
+.pm-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.pm-dialog::backdrop { background: rgba(11, 11, 11, .4); }
+.pm-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100%);
+  background: var(--paper, #fff);
+  color: var(--ink, #0b0b0b);
+  border-left: 1px solid var(--line, #e4e4df);
+}
+@media (max-width: 699px) {
+  .pm-sheet {
+    top: var(--pm-top, 64px);
+    left: 0;
+    width: auto;
+    border: 1px solid var(--line, #e4e4df);
+    border-bottom: 0;
+    border-radius: 22px 22px 0 0;
+  }
+}
+
+.pm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line, #e4e4df);
+}
+.pm-title {
+  margin: 0;
+  font: 600 13px/1 var(--sans, "Poppins", system-ui, sans-serif);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.pm-close {
+  min-height: 40px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line, #e4e4df);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: 600 13px/1 var(--sans, "Poppins", system-ui, sans-serif);
+}
+.pm-close:focus-visible,
+.pm-item:focus-visible { outline: 2px solid var(--acc, #1a0088); outline-offset: 3px; }
+
+.pm-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 6px 16px calc(20px + env(safe-area-inset-bottom));
+}
+.pm-group { margin: 0; padding: 16px 0 4px; }
+.pm-group h2 {
+  margin: 0 0 8px;
+  font: 600 12px/1 var(--sans, "Poppins", system-ui, sans-serif);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #4a4a46;
+}
+.pm-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pm-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line, #e4e4df);
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  font: 600 15px/1.2 var(--sans, "Poppins", system-ui, sans-serif);
+}
+.pm-item svg { width: 22px; height: 22px; flex: none; }
+.pm-item span { min-width: 0; }
+.pm-item[aria-current="page"] {
+  border-color: var(--ink, #0b0b0b);
+  background: var(--wash, #f5f5f2);
+}
+.pm-home { grid-column: 1 / -1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-open:active { transform: none; }
+}

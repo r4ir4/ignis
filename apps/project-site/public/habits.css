@@ -1,14 +1,6 @@
-/* Habits page: the identity board (periwinkle board, lime word card, tag pills, navy and eggshell cards). Shared board bits live in home.css. */
+/* Habits page: laid out like the Todo page (heading + dashed rule, a main column and a right column) with the identity-board blocks: navy and eggshell cards and the colored tiles. Shared bits live in home.css. */
 :root { --h-ult: #12287f; --h-egg: #efe7d4; --h-flame: #e05a32; --h-lime: #dde22b; --h-peri: #6b7fc4; --h-pink: #f2b3da; --h-orange: #e05a32; --h-peach: #efe7d4; --h-plum: #12287f; --h-hot: #f2b3da; }
-.hab-board { margin-top: 28px; padding: 24px; }
-.hab-board .id-title { font-size: clamp(30px, 4vw, 44px); margin-bottom: 16px; }
-.hab-idgrid { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 1001px) { .hab-word { aspect-ratio: auto !important; } .hab-idgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hab-tags { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-auto-rows: 1fr; } }
 .hab-fig { margin: 0; border-radius: 18px; position: relative; overflow: hidden; }
-.hab-word { background: #dde22b; aspect-ratio: 3 / 1; min-height: 150px; }
-.hab-word svg:not(.h-tw) { position: absolute; inset: 0; width: 100%; height: 100%; }
-.hab-word .goo-word { font-size: 150px; }
-.hab-word .h-tw { z-index: 2; }
 .hab-tw { color: var(--h-ult); }
 .hab-tw-p { color: #fffdf6; }
 .hab-trail { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; }
@@ -165,7 +157,7 @@ dialog.hab-modal[open]::backdrop { animation: hab-fade .3s ease-out; }
 .hab-tdots { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; min-height: 12px; max-width: 170px; }
 .hab-tdots i { width: 10px; height: 10px; border-radius: 50%; background: var(--h-pink); animation: hab-dotin .3s cubic-bezier(.2, .9, .3, 1.6) both; animation-delay: calc(var(--i) * 30ms); }
 @keyframes hab-dotin { from { transform: scale(0); } to { transform: none; } }
-.hab-types { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+.hab-types { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
 .hab-types button { padding: 10px 4px; cursor: pointer; border: 0; border-radius: 12px; background: rgba(239, 231, 212, .14); color: var(--h-egg); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .12em; transition: background .2s, color .2s, transform .15s; }
 .hab-types button:hover { transform: translateY(-2px); }
 .hab-types button[aria-pressed="true"] { background: var(--h-lime); color: var(--h-ult); }
@@ -202,3 +194,91 @@ dialog.hab-modal[open]::backdrop { animation: hab-fade .3s ease-out; }
 .hab-timer.on .hab-tico { background: var(--h-ult); color: #ff7a4d; animation: hab-rec 1.2s ease-in-out infinite; }
 @keyframes hab-rec { 50% { transform: scale(.82); } }
 @media (prefers-reduced-motion: reduce) { .hab-timer.on .hab-tico { animation: none; } }
+
+
+/* ---------- layout: the Todo page's structure around the same blocks ---------- */
+.hab-wrap { display: flex; flex-direction: column; gap: 16px; margin-top: 22px; padding-bottom: 60px; }
+.hab-main, .hab-sidecol { display: contents; }   /* phone and tablet: one column, in this order */
+.hab-pagehead { order: 1; } .hab-addwrap { order: 2; } .hab-tags { order: 3; } .hab-list-card { order: 4; } .hab-week-card { order: 5; } .hab-month-card { order: 6; }
+.hab-pagehead { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 0 16px; border-bottom: 3px dashed rgba(21, 0, 11, .2); }
+.hab-pagehead h1 { margin: 0; font: 400 clamp(46px, 9vw, 64px)/.9 var(--display); text-transform: uppercase; letter-spacing: -.005em; color: var(--ink); }
+.hab-pagesub { margin: 8px 0 0; font: 500 14px/1.3 var(--sans); color: rgba(21, 0, 11, .55); }
+.hab-pagehead .hab-tw { color: var(--h-flame); }
+.hab-pagehead .hab-tw-p { color: var(--ink); opacity: .5; }
+.hab-addwrap { display: grid; }
+.hab-addwrap .hab-mini { justify-content: center; width: 100%; padding: 8px 20px 8px 8px; font-size: 13px; }
+@media (min-width: 1001px) {
+  .hab-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 0 36px; align-items: start; max-width: 1180px; margin: 22px auto 0; }
+  .hab-main { display: grid; gap: 16px; min-width: 0; align-content: start; }
+  .hab-sidecol { display: grid; gap: 16px; min-width: 0; align-content: start; padding-left: 28px; border-left: 3px dashed rgba(21, 0, 11, .2); }
+  .hab-sidecol .hab-tags { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; }
+}
+
+/* on the paper background the blocks get the site's ink outline and hard shadow (the eggshell ones would otherwise melt into the page) */
+.hab-fig, .hab-tags li { border: 2px solid var(--ink); box-shadow: 0 4px 0 var(--ink); }
+.hab-fig { border-radius: 22px; }
+
+
+/* ---------- per-day list: day arrows, tick circles ---------- */
+.hab-nav { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex: none; }
+.hab-arrow, .hab-today { cursor: pointer; border: 2px solid var(--ink); background: #fffdf6; color: var(--ink); transition: background .12s, color .12s, transform .12s, opacity .12s; }
+.hab-arrow { width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border-radius: 50%; }
+.hab-arrow svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.hab-today { padding: 9px 14px; border-radius: 999px; font: 700 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; }
+.hab-arrow:hover:not(:disabled), .hab-today:hover { background: var(--ink); color: #fffdf6; transform: translateY(-1px); }
+.hab-arrow:disabled { opacity: .3; cursor: default; }
+.hab-arrow:focus-visible, .hab-today:focus-visible, .hab-check:focus-visible, .hab-sq:focus-visible { outline: 3px solid var(--h-flame); outline-offset: 2px; }
+
+.hab-check { flex: none; width: 26px; height: 26px; padding: 0; display: grid; place-items: center; border: 2px solid var(--h-egg); border-radius: 50%; background: transparent; color: transparent; cursor: pointer; transition: background .15s, border-color .15s, color .15s, transform .15s; }
+.hab-check svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+.hab-check:hover:not(:disabled) { border-color: var(--hc); color: var(--hc); transform: scale(1.1); }
+.hab-row.done .hab-check { background: var(--hc); border-color: var(--hc); color: var(--h-ult); animation: hab-checkin .4s cubic-bezier(.2, .9, .3, 1.5); }
+.hab-row.part .hab-check { border-color: var(--hc); background: color-mix(in srgb, var(--hc) 30%, transparent); }
+.hab-check:disabled { cursor: default; opacity: .75; }
+@keyframes hab-checkin { from { transform: scale(.55); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hab-row.done .hab-check { animation: none; } }
+
+/* month squares are now buttons that jump to that day */
+.hab-sq { padding: 0; background: transparent; cursor: pointer; transition: transform .12s; }
+.hab-sq:hover { transform: translateY(-2px); }
+.hab-sq.sel { outline: 3px solid var(--ink); outline-offset: 1px; }
+
+/* the week card lives in the narrower right column */
+.hab-sidecol .hab-week-card { padding: 18px 16px; }
+.hab-sidecol .hab-wrow { grid-template-columns: minmax(70px, 1.2fr) repeat(7, minmax(0, 1fr)); gap: 3px; }
+.hab-sidecol .hab-wname { font-size: 10px; font-weight: 500; letter-spacing: .08em; }
+.hab-sidecol .hab-cell { height: 30px; }
+.hab-sidecol .hab-cell svg { width: 24px; height: 24px; }
+
+
+/* the day's list sits directly on the page (no card): ink text and outlines, the habit color fills the tick circle */
+.hab-main .hab-list-card { background: transparent; color: var(--ink); border: 0; box-shadow: none; border-radius: 0; padding: 0; overflow: visible; }
+.hab-list-card .hab-list { margin: 0; }
+.hab-list-card .hab-row { padding: 12px 0; border-bottom: 2px dashed rgba(21, 0, 11, .2); }
+.hab-list-card .hab-name { color: var(--ink); font-size: 14px; }
+.hab-list-card .hab-name small { opacity: .65; }
+.hab-list-card .hab-row.done .hab-name { text-decoration-color: var(--ink); opacity: .55; }
+.hab-list-card .hab-edit { border-color: rgba(21, 0, 11, .45); color: var(--ink); }
+.hab-list-card .hab-edit:hover { background: var(--ink); border-color: var(--ink); color: #fffdf6; }
+.hab-list-card .hab-group { margin: 18px 0 2px; }
+.hab-list-card .hab-group:first-child { margin-top: 4px; }
+.hab-list-card .hab-empty { margin: 0; }
+
+/* tick circles on the page: ink outline; a goal above one shows a progress ring and "1/3"; a finished habit fills with its color */
+.hab-list-card .hab-check { position: relative; width: 32px; height: 32px; border-color: var(--ink); background: transparent; color: transparent; transition: background .2s, box-shadow .2s, transform .15s; }
+.hab-list-card .hab-check svg { position: relative; z-index: 1; width: 16px; height: 16px; }
+.hab-list-card .hab-check:hover:not(:disabled) { transform: scale(1.08); border-color: var(--ink); color: transparent; box-shadow: 0 2px 0 var(--ink); }
+.hab-list-card .hab-check.multi { background: conic-gradient(var(--hp) calc(var(--p) * 1%), rgba(21, 0, 11, .16) 0); }
+.hab-list-card .hab-check.multi::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--eggshell); box-shadow: 0 0 0 1.5px rgba(21, 0, 11, .55); }
+.hab-list-card .hab-check.multi svg { display: none; }
+.hab-cnt { position: relative; z-index: 1; font: 800 10px/1 var(--sans); letter-spacing: -.02em; color: var(--ink); }
+.hab-list-card .hab-row .hab-check.multi:not(.on) .hab-cnt { opacity: .85; }
+.hab-list-card .hab-row.done .hab-check { background: var(--hp); border-color: var(--ink); color: var(--hpi); box-shadow: 0 2px 0 var(--ink); }
+.hab-list-card .hab-row.done .hab-check.multi { background: var(--hp); }
+.hab-list-card .hab-row.done .hab-check::before, .hab-list-card .hab-row.done .hab-cnt { display: none; }
+.hab-list-card .hab-row.done .hab-check.multi svg { display: block; }
+.hab-list-card .hab-row.done .hab-check:hover:not(:disabled) { color: var(--hpi); }
+
+/* the fixed steps habit: no Edit button, a quiet label that says where its numbers come from */
+.hab-auto { flex: none; padding: 6px 11px; border: 2px dashed rgba(21, 0, 11, .35); border-radius: 999px; font: 700 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .06em; color: rgba(21, 0, 11, .65); white-space: nowrap; }
+@media (max-width: 520px) { .hab-auto { display: none; } }

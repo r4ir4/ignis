@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <title>Rotina · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="rotina.css?v=1">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="home health rotina">
+  <script src="shell.js?v=2"></script>
+
+  <main id="main" class="page rt-page">
+    <header class="rt-head">
+      <div>
+        <h1>Rotina</h1>
+        <p class="rt-sub" id="rtSub">Carregando...</p>
+      </div>
+      <div class="rt-tools">
+        <button type="button" class="rt-nav" id="rtPrev" aria-label="Semana anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button type="button" class="rt-nav" id="rtNext" aria-label="Próxima semana"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button type="button" class="rt-today" id="rtToday" hidden>Esta semana</button>
+        <button type="button" class="rt-edit" id="rtEdit" aria-pressed="false">Editar rotina</button>
+      </div>
+    </header>
+
+    <div class="rt-scroll"><div class="rt-grid" id="rtGrid" role="table" aria-label="Rotina da semana"></div></div>
+    <div class="rt-progress" id="rtProgress"></div>
+    <p class="rt-empty" id="rtEmpty" hidden>Sua rotina está vazia. Toque em <b>Editar rotina</b> e depois em um bloco para começar.</p>
+  </main>
+
+  <dialog class="rt-dialog" id="rtDialog" aria-labelledby="rtTitle">
+    <form id="rtForm" novalidate>
+      <h2 id="rtTitle">Bloco</h2>
+      <label class="rt-field"><span>Atividade</span><input id="rtText" type="text" maxlength="80" autocomplete="off" placeholder="Ex.: Acordar, Treino, Almoço"></label>
+      <div class="rt-field"><span>Dias</span><div class="rt-days" id="rtDays" role="group" aria-label="Dias da semana"></div></div>
+      <label class="rt-field"><span>Até</span><select id="rtTo"></select></label>
+      <div class="rt-field"><span>Vale para</span>
+        <div class="rt-seg" role="radiogroup" aria-label="Vale para">
+          <label><input type="radio" name="rtScope" value="every" checked><span>Todas as semanas</span></label>
+          <label><input type="radio" name="rtScope" value="week"><span>Só esta semana</span></label>
+        </div>
+      </div>
+      <p class="rt-err" id="rtErr" role="alert" hidden></p>
+      <div class="rt-acts">
+        <button type="button" class="rt-clear" id="rtClear">Limpar bloco</button>
+        <button type="button" class="rt-cancel" id="rtCancel">Cancelar</button>
+        <button type="submit" class="rt-save" id="rtSave">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+  <script src="rotina.js?v=1"></script>
+</body>
+</html>

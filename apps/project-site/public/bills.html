@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="subscriptions.css?v=10">
+  <link rel="stylesheet" href="bills.css?v=15">
+  <title>Bills · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="sb-theme bl-theme home health bills">
+  <script src="shell.js?v=2"></script>
+
+
+  <main id="main" class="page h-page">
+    <div class="bd-board">
+      <div class="bd-top">
+        <div class="bd-word"><h1>Bills</h1><svg class="bd-tw" style="left:8%;top:14%" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 0C17 10 22 15 32 16C22 17 17 22 16 32C15 22 10 17 0 16C10 15 15 10 16 0Z"/></svg></div>
+        <ul class="bd-tiles">
+          <li class="bd-tile orange"><small>Falta pagar</small><b id="blLeft">0</b><em id="blLeftN"></em><i></i></li>
+          <li class="bd-tile lime"><small>Pagas</small><b id="blPaid">0</b><em id="blPaidN"></em><i></i></li>
+          <li class="bd-tile egg"><small>Neste mês</small><b id="blTotal">0</b><em id="blTotalN"></em><i></i></li>
+          <li class="bd-tile pink"><small>Próxima a vencer</small><b class="bl-next" id="blNext">–</b><em id="blNextD"></em><i></i></li>
+        </ul>
+      </div>
+      <div class="bl-bar">
+        <div class="bl-month" role="group" aria-label="Mês">
+          <button type="button" id="blPrev" aria-label="Mês anterior">‹</button>
+          <h2 id="blMonth">Novembro de 2026</h2>
+          <button type="button" id="blNextM" aria-label="Próximo mês">›</button>
+          <button type="button" class="bl-today" id="blToday">Este mês</button>
+        </div>
+        <div class="bl-prog" aria-hidden="true"><span id="blProgLabel"></span><i><b id="blProgFill"></b></i></div>
+        <button class="bd-new" id="blAdd" type="button"><span aria-hidden="true">+</span>Adicionar conta</button>
+      </div>
+      <p class="bd-empty bl-empty" id="blEmpty" hidden>Nenhuma conta ainda. Adicione o que você paga todo mês e marque aqui.</p>
+      <div class="bl-weeks" id="blWeeks"></div>
+    </div>
+  </main>
+
+  <dialog class="bd-modal bl-modal" id="blDialog" aria-labelledby="blDlgTitle">
+    <form method="dialog" id="blForm" novalidate>
+      <header><h2 id="blDlgTitle">Adicionar conta</h2><button type="button" class="bd-x" id="blClose" aria-label="Fechar"></button></header>
+      <div class="bd-f"><label class="bd-label" for="blName">Nome</label><input class="bd-input" id="blName" maxlength="120" autocomplete="off" placeholder="Conta de luz"></div>
+      <div class="bl-two">
+        <div class="bd-f"><label class="bd-label" for="blDay">Dia de vencimento no mês</label><input class="bd-input" id="blDay" type="number" min="1" max="31" inputmode="numeric" placeholder="10"></div>
+        <div class="bd-f"><label class="bd-label" for="blAmount">Valor habitual (opcional)</label><input class="bd-input" id="blAmount" inputmode="decimal" autocomplete="off" placeholder="0,00"></div>
+      </div>
+      <p class="bd-err" id="blErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit" id="blSave">Salvar conta</button>
+      <button class="bd-del" type="button" id="blDelete" hidden>Apagar esta conta</button>
+    </form>
+  </dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="confirm.js?v=1"></script>
+  <script src="bills.js?v=6"></script>
+  <script src="sparkle.js?v=4"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+</body>
+</html>

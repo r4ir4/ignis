@@ -65,3 +65,17 @@
   .flame-logo *, .flame-logo { animation: none !important; transition: none !important; }
   .flame-logo .ring, .flame-logo .burst .sp { display: none; }
 }
+
+/* Minimal header mark: just the flame and a quiet lowercase wordmark.
+   No halo, ping ring, sparks or (c) sign; one slow sway keeps it alive. */
+.logo { gap: 8px; }
+.mark, .flame-logo { width: 18px; height: 27px; }
+.flame-logo .halo, .flame-logo .ring, .flame-logo .sparks, .flame-logo .burst { display: none; }
+.flame-logo .body { animation: ignite .8s cubic-bezier(.2, 1.2, .4, 1) both, sway 5s ease-in-out .8s infinite; }
+.flame-logo .body path:first-child { fill: #000; }
+.flame-logo .core { display: none; }
+.logo:hover .flame-logo { transform: none; }
+.logo:hover .flame-logo .body { animation: sway 5s ease-in-out infinite; }
+.logo .word, body.home .logo .word { font: 600 20px/1 var(--sans, system-ui, sans-serif); font-style: normal; letter-spacing: -.02em; text-transform: lowercase; color: #000; }
+.logo .word sup { display: none; }
+@media (max-width: 520px) { .logo .word { font-size: 18px; } }

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="subscriptions.css?v=3">
+  <link rel="stylesheet" href="trips.css?v=12">
+  <title>Trips · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="home health trips">
+  <script src="shell.js?v=2"></script>
+
+
+  <main id="main" class="page tp-page">
+    <header class="tp-head">
+      <div><h1>Trips</h1><p id="tpSub">Carregando…</p></div>
+      <button class="tp-hbtn primary" id="trAdd" type="button" aria-label="Planejar viagem" title="Planejar viagem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    </header>
+
+    <section id="trList" class="tr-pane">
+      <p class="tp-empty" id="trEmpty" hidden></p>
+      <div class="tp-next" id="trNextBox" hidden>
+        <div class="tp-nn"><b id="trNext">0</b><span id="trNextL"></span></div>
+        <div class="tp-nmid">
+          <small>Próxima viagem</small>
+          <h2 id="trNextName"></h2>
+          <p id="trNextMeta"></p>
+          <div class="tp-nlive"><span id="trLive"></span><i class="tp-prog" id="trProg" hidden><b></b></i></div>
+        </div>
+        <button class="tp-btn primary" id="trNextOpen" type="button">Abrir</button>
+      </div>
+      <div class="tp-tabs" id="trTabs" role="group" aria-label="Mostrar"></div>
+      <ul class="tp-cards" id="trCards" aria-label="Suas viagens"></ul>
+    </section>
+
+    <section id="trDetail" class="tr-pane" hidden>
+      <div class="tp-banner" id="trdBanner" hidden></div>
+      <div class="tp-dtop">
+        <div class="tp-dtxt">
+          <h2 id="trdName"></h2>
+          <div class="tp-dmeta" id="trdMeta"></div>
+        </div>
+        <button class="tp-btn" id="trdEdit" type="button">Editar viagem</button>
+      </div>
+      <ul class="tp-notes" id="trdNotes" aria-label="Notas da viagem" hidden></ul>
+      <div class="tp-strip" id="trdCd">
+        <div class="tp-s hot"><b id="trdN">0</b><span id="trdL"></span><div class="tp-nlive"><span id="trdLive"></span><i class="tp-prog" id="trdProg" hidden><b></b></i></div></div>
+        <div class="tp-s"><b id="trdDays">0</b><span id="trdDaysL">dias de viagem</span></div>
+        <div class="tp-s"><b id="trdSeen">0</b><span>lugares vistos</span></div>
+        <div class="tp-s"><b id="trdPhotoN">0</b><span>fotos</span></div>
+      </div>
+
+      <div class="tp-undated" id="trdUndated" hidden><p>Sem datas ainda. Quando você definir, aparece aqui o plano dia a dia.</p><button class="tp-btn" id="trdSetDates" type="button">Definir datas</button></div>
+      <div class="tp-cols" id="trdCols">
+        <section class="tp-sec tp-plan" id="trdPlanSec">
+          <header class="tp-sh"><h3>Plano dos dias</h3><button class="tp-ib" id="trdDayAdd" type="button" aria-label="Adicionar a este dia" title="Adicionar a este dia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></header>
+          <div class="tp-days" id="trdTabs" role="group" aria-label="Dias"></div>
+          <p class="tp-daydate" id="trdDayDate"></p>
+          <p class="tp-none" id="trdNoItems" hidden>Nada planejado para este dia ainda.</p>
+          <ul class="tp-items" id="trdItems"></ul>
+        </section>
+        <aside class="tp-side" id="trdSide">
+          <section class="tp-sec tp-todos" id="trdTodosSec">
+            <header class="tp-sh"><h3>Pendências <small id="trdTodoCount"></small></h3></header>
+            <p class="tp-none" id="trdNoTodos" hidden>Nada pendente ainda. Anote o que precisa resolver, como comprar passagens ou um casaco.</p>
+            <ul class="tp-todol" id="trdTodos"></ul>
+            <div class="tp-todoadd"><input class="tp-tinput" id="trdTodoNew" maxlength="300" autocomplete="off" placeholder="Comprar passagens, comprar um casaco…" aria-label="Nova pendência"><button class="tp-ib" id="trdTodoBtn" type="button" aria-label="Adicionar pendência" title="Adicionar pendência"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          </section>
+          <section class="tp-sec">
+            <header class="tp-sh"><h3>Lugares para ver <small id="trdPlaceCount"></small></h3><button class="tp-ib" id="trdPlaceAdd" type="button" aria-label="Adicionar lugar" title="Adicionar lugar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></header>
+            <p class="tp-none" id="trdNoPlaces" hidden>Nenhum lugar ainda. Adicione pontos turísticos, restaurantes e locais que quer conhecer.</p>
+            <ul class="tp-places" id="trdPlaces"></ul>
+          </section>
+          <section class="tp-sec tp-map" id="trdMapWrap" hidden>
+            <header class="tp-sh"><h3 id="trdMapLabel"></h3><a class="tp-link" id="trdMapLink" target="_blank" rel="noopener">Abrir no Google Maps &nearr;</a></header>
+            <iframe id="trdMap" title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </section>
+        </aside>
+      </div>
+
+      <section class="tp-sec tp-photosec">
+        <header class="tp-sh"><h3>Fotos</h3>
+          <div class="tp-phact"><a class="tp-link" id="trdDriveLink" href="#" target="_blank" rel="noopener" hidden>Abrir no Drive &#8599;</a>
+            <label class="tp-btn tp-up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Enviar fotos<input type="file" id="trdUpload" accept="image/*" multiple></label></div></header>
+        <div class="tp-pf" id="trdPhotoFilter" hidden></div>
+        <p class="tp-none" id="trdNoPhotos" hidden>Nenhuma foto ainda. Envie algumas e marque uma com estrela para usar de capa.</p>
+        <div class="tr-photos" id="trdPhotos"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog class="bd-modal tp-modal" id="trDialog" aria-labelledby="trDlgTitle">
+    <form method="dialog" id="trForm" novalidate>
+      <header><h2 id="trDlgTitle">Nova viagem</h2><button type="button" class="bd-x" id="trClose" aria-label="Fechar"></button></header>
+      <div class="tp-dform">
+        <div class="tp-dleft">
+          <span class="bd-label">Capa da viagem</span>
+          <figure class="tp-cvbox" id="trCvBox"><img id="trCvImg" alt="" hidden><span id="trCvNone">Sem capa</span></figure>
+          <div class="tp-cvbtns">
+            <label class="tp-mini" for="trCvFile">Escolher imagem</label>
+            <input type="file" id="trCvFile" accept="image/*" hidden>
+            <button type="button" class="tp-mini ghost" id="trCvClear" hidden>Remover</button>
+          </div>
+        </div>
+        <div class="tp-dright">
+          <div class="bd-f"><label class="bd-label" for="trName">Nome da viagem</label><input class="bd-input" id="trName" maxlength="120" autocomplete="off" placeholder="Lisboa com amigos"></div>
+          <div class="bd-f"><label class="bd-label" for="trDest">Destino <em>(para o mapa)</em></label><input class="bd-input" id="trDest" maxlength="200" autocomplete="off" placeholder="Lisboa, Portugal"></div>
+          <div class="bd-f"><span class="bd-label" id="trWhenLabel">Datas</span>
+            <label class="tp-opt"><input type="checkbox" id="trPlanning"><span>Ainda só planejando, sem datas</span></label>
+            <input type="hidden" id="trStart"><input type="hidden" id="trEnd">
+            <button type="button" class="tr-whenbtn" id="trWhenBtn" aria-expanded="false" aria-controls="trCal" aria-labelledby="trWhenLabel trWhenBtn"><span id="trWhenText">Escolha as datas</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            <p class="tr-calhint" id="trCalHint" hidden></p>
+            <div class="tr-cal" id="trCal" hidden>
+              <header><button type="button" class="tr-calnav" id="trCalPrev" aria-label="Mês anterior">&#8249;</button><h3 id="trCalTitle"></h3><button type="button" class="tr-calnav" id="trCalNext" aria-label="Próximo mês">&#8250;</button></header>
+              <div class="tr-dow" aria-hidden="true"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
+              <div class="tr-days" id="trCalGrid"></div>
+            </div></div>
+          <div class="bd-f tp-nf">
+            <label class="bd-label" for="trNoteAdd">Notas <em>(opcional)</em></label>
+            <ul class="tp-nlist" id="trNList"></ul>
+            <div class="tp-nadd"><input class="bd-input" id="trNoteAdd" maxlength="300" autocomplete="off" placeholder="Voos, hotel, quem vai… e Enter para adicionar"><button type="button" class="tp-mini" id="trNoteBtn">Adicionar</button></div>
+          </div>
+        </div>
+      </div>
+      <p class="bd-err" id="trErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit">Salvar viagem</button>
+      <button class="bd-del" type="button" id="trDelete" hidden>Apagar esta viagem</button>
+    </form>
+  </dialog>
+
+  <dialog class="bd-modal" id="trdDayDialog" aria-labelledby="trdDayDlgTitle">
+    <form method="dialog" id="trdDayForm" novalidate>
+      <header><h2 id="trdDayDlgTitle">Adicionar a este dia</h2><button type="button" class="bd-x" id="trdDayClose" aria-label="Fechar"></button></header>
+      <p class="bd-label" id="trdDayDlgSub"></p>
+      <div class="bd-row2">
+        <div class="bd-f"><label class="bd-label" for="trdDayTime">Horário <em>(opcional)</em></label><input class="bd-input" id="trdDayTime" type="time"></div>
+        <div class="bd-f" style="grid-column:span 1"></div>
+      </div>
+      <div class="bd-f"><label class="bd-label" for="trdDayText">O que você vai fazer?</label><input class="bd-input" id="trdDayText" maxlength="200" autocomplete="off" placeholder="Café da manhã, museu, voo…"></div>
+      <div class="bd-f"><label class="bd-label" for="trdDayAddr">Endereço <em>(opcional, abre no Google Maps)</em></label><input class="bd-input" id="trdDayAddr" maxlength="200" autocomplete="off" placeholder="Rua, lugar ou cidade"></div>
+      <p class="bd-err" id="trdDayErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit">Adicionar ao dia</button>
+    </form>
+  </dialog>
+  <dialog class="bd-modal" id="trdPlaceDialog" aria-labelledby="trdPlaceDlgTitle">
+    <form method="dialog" id="trdPlaceForm" novalidate>
+      <header><h2 id="trdPlaceDlgTitle">Adicionar um lugar</h2><button type="button" class="bd-x" id="trdPlaceClose" aria-label="Fechar"></button></header>
+      <div class="bd-f"><label class="bd-label" for="trdPlaceName">Nome do lugar</label><input class="bd-input" id="trdPlaceName" maxlength="120" autocomplete="off" placeholder="Torre de Belém"></div>
+      <div class="bd-f"><label class="bd-label" for="trdPlaceAddr">Endereço <em>(opcional)</em></label><input class="bd-input" id="trdPlaceAddr" maxlength="200" autocomplete="off" placeholder="Rua, lugar ou cidade"></div>
+      <p class="bd-err" id="trdPlaceErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit">Adicionar lugar</button>
+    </form>
+  </dialog>
+  <dialog class="tr-lb" id="trLb" aria-label="Foto"><img id="trLbImg" alt=""><p class="tr-lbinfo" id="trLbInfo" hidden></p><a class="bd-edit tr-lbdrive" id="trLbDrive" href="#" target="_blank" rel="noopener" hidden>Abrir no Drive &#8599;</a><button class="bd-new" id="trLbClose" type="button">Fechar</button></dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="confirm.js?v=1"></script>
+  <script src="trips.js?v=17"></script>
+  <script src="sparkle.js?v=4"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+</body>
+</html>

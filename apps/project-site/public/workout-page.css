@@ -1,0 +1,495 @@
+/* Workout page: the Food layout (food.css) with a tabbed list; the dialogs still use workout.css. */
+
+/* tabs inside the list card */
+.wp-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 6px; }
+.wp-tab { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; cursor: pointer; border: 2px solid var(--ink); border-radius: 999px; background: #fffdf6; color: var(--ink); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; transition: background .12s, color .12s, transform .12s; }
+.wp-tab b { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--ink); color: #fffdf6; font: 800 10px/1 var(--sans); letter-spacing: 0; }
+.wp-tab:hover { transform: translateY(-1px); background: var(--f-sun); }
+.wp-tab[aria-pressed="true"] { background: var(--ink); color: #fffdf6; }
+.wp-tab[aria-pressed="true"] b { background: var(--f-sun); color: var(--ink); }
+.wp-tab:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: 2px; }
+
+/* rows */
+.wp-log .fd-name { font-size: 13px; }
+.wp-acts { display: flex; align-items: center; gap: 8px; flex: none; }
+.wp-log .fd-edit.wp-go { background: var(--f-sun); border-color: var(--ink); color: var(--ink); }
+.wp-log .fd-edit.wp-go:hover { background: var(--ink); color: #fffdf6; }
+.wp-log .fd-edit.wp-tog.on { background: var(--ink); color: #fffdf6; border-color: var(--ink); }
+.wp-row.live .fd-bullet { animation: wp-pulse 1.4s ease-in-out infinite; }
+@keyframes wp-pulse { 50% { transform: scale(1.5); } }
+.wp-row .fd-name small { overflow-wrap: anywhere; }
+@media (max-width: 640px) { .wp-row { flex-wrap: wrap; } .wp-row .fd-name { flex-basis: calc(100% - 40px); } .wp-acts { margin-left: 26px; } }
+
+/* expanded workout: its exercises with the sets as chips */
+.wp-detail { list-style: none; margin: 0 0 6px 14px; padding: 12px 16px; border-left: 3px solid var(--ink); background: rgba(21, 0, 11, .04); border-radius: 0 14px 14px 0; display: grid; gap: 10px; }
+.wp-ex { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.wp-ex b { min-width: 150px; font: 800 12px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .1em; color: var(--ink); }
+.wp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wp-chip { padding: 5px 9px; border-radius: 999px; border: 2px dashed rgba(21, 0, 11, .4); font: 700 11px/1 var(--sans); font-style: normal; color: rgba(21, 0, 11, .6); font-variant-numeric: tabular-nums; }
+.wp-chip.done { border: 2px solid var(--ink); background: var(--f-sun); color: var(--ink); }
+.wp-none { margin: 0; font: 600 13px/1.4 var(--sans); color: rgba(21, 0, 11, .6); }
+
+/* the "workout in progress" bar */
+.wp-live { list-style: none; display: flex; align-items: center; gap: 12px; margin: 4px 0 8px; padding: 12px 16px; border: 2px solid var(--ink); border-radius: 14px; background: var(--f-green); color: var(--f-cream); font: 800 13px/1.2 var(--sans); box-shadow: 0 3px 0 var(--ink); }
+.wp-live > span:nth-child(2) { flex: 1; min-width: 0; }
+.wp-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--f-sun); animation: wp-pulse 1.4s ease-in-out infinite; }
+.wp-livego { padding: 8px 14px; cursor: pointer; border: 2px solid var(--ink); border-radius: 10px; background: var(--f-sun); color: var(--ink); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; }
+.wp-livego:hover { background: #fffdf6; }
+
+/* exercises tab header */
+.wp-exhead { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 0; }
+.wp-exhint { font: 700 12px/1 var(--sans); text-transform: uppercase; letter-spacing: .12em; color: rgba(21, 0, 11, .6); }
+.wp-log .fd-mini { padding: 6px 16px 6px 6px; font-size: 12px; }
+.wp-log .fd-group:first-child, .wp-log .wp-exhead + .fd-group { margin-top: 14px; }
+
+/* actions column */
+.wp-actions { display: grid; gap: 10px; }
+.wp-actions .fd-mini { justify-content: center; width: 100%; padding: 8px 20px 8px 8px; font-size: 13px; }
+
+/* tile icons */
+.wp-i-db { transform-origin: 42px 42px; animation: wp-lift 2.6s ease-in-out infinite; }
+@keyframes wp-lift { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+.wp-i-bars { transform-origin: 42px 70px; animation: wp-grow 3s ease-in-out infinite; }
+@keyframes wp-grow { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.9); } }
+.wp-i-cup { transform-origin: 42px 70px; animation: wp-cup 3.2s ease-in-out infinite; }
+@keyframes wp-cup { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg) scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .wp-i-db, .wp-i-bars, .wp-i-cup, .wp-row.live .fd-bullet, .wp-dot { animation: none; } }
+
+/* personal bests card */
+.wp-bests .wp-none { color: var(--f-green); opacity: .7; }
+.wp-blist { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.wp-best { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 2px dashed rgba(58, 36, 24, .2); font: 700 13px/1.25 var(--sans); color: var(--f-green); }
+.wp-best:last-child { border-bottom: 0; }
+.wp-best b { font: 800 12px/1.2 var(--sans); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* phone: the number tiles are tighter so large values (20,075 kg) fit two to a row */
+.wp-tiles .fd-tl { min-width: 0; }
+@media (max-width: 560px) {
+  .wp-tiles .fd-tile { padding: 12px 12px 12px 14px; }
+  .wp-tiles .fd-tl small { font-size: 10px; letter-spacing: .1em; overflow-wrap: anywhere; }
+  .wp-tiles .fd-num { font-size: 32px; white-space: normal; }
+  .wp-tiles .fd-num em { display: block; margin: 3px 0 0; font-size: 12px; }
+  .wp-tiles .fd-art { width: 44px; }
+  .wp-tiles .fd-goal { font-size: 10px; }
+}
+@media (max-width: 560px) { .wp-tiles .fd-num { font-size: 27px; } .wp-tiles .fd-art { width: 38px; } }
+
+/* =============================================================================================================================================
+   Dialogs: the Food palette (sand sheet, espresso blocks, honey accents), the light card and field style of Add meal
+   ============================================================================================================================================= */
+dialog.wk-modal { --w-ult: var(--f-green); --w-lime: var(--f-sun); --w-pink: var(--w-sheet); --w-egg: var(--f-cream); --w-sun: var(--f-sun); --w-flame: var(--f-carrot); --esp: var(--f-green);
+  padding: 30px 32px 32px; box-shadow: 0 30px 70px rgba(24, 12, 6, .5); }
+dialog.wk-modal::backdrop { background: rgba(30, 16, 10, .55); }
+dialog.wk-wide { width: min(780px, calc(100vw - 32px)); }
+.wk-modal header { margin-bottom: 22px; }
+.wk-modal h2 { color: var(--esp); }
+.wk-x { background: var(--esp); color: var(--f-cream); }
+.wk-x:hover { background: var(--f-sun); color: var(--esp); }
+
+/* light card + calm fields (routine and exercise dialogs) */
+.wk-dcard { display: block; padding: 28px; background: #fffdf6; color: var(--esp); border-radius: 22px; }
+.wk-dcard > * + * { margin-top: 0; }
+.wk-label { margin: 0 0 10px; font: 800 10px/1 var(--sans); letter-spacing: .15em; color: rgba(var(--w-rgb), .55); }
+.wk-label em { opacity: .8; }
+.wk-dcard > .wk-label:not(:first-child) { margin-top: 22px; }
+.wk-input { padding: 14px 18px; border: 2px solid transparent; background: rgba(var(--w-rgb), .06); color: var(--esp); font: 700 14px/1.3 var(--sans); text-transform: none; letter-spacing: .01em; }
+.wk-input::placeholder { color: rgba(var(--w-rgb), .35); }
+.wk-input:focus { border-color: var(--f-sun); background: #fff; box-shadow: 0 0 0 3px rgba(var(--w-sun-rgb), .3); }
+.wk-seg { gap: 6px; }
+.wk-seg button { padding: 11px 6px; border-radius: 999px; background: rgba(var(--w-rgb), .07); color: var(--esp); font: 800 10px/1.1 var(--sans); letter-spacing: .06em; }
+.wk-seg button:hover { background: var(--f-sun); }
+.wk-seg button[aria-pressed="true"] { background: var(--esp); color: var(--f-sun); }
+.wk-dcard .wk-ghost { background: rgba(var(--w-rgb), .08); color: var(--esp); }
+.wk-ritem { background: rgba(var(--w-rgb), .06); }
+.wk-sadd-in { border-top: 2px dashed rgba(var(--w-rgb), .15); }
+.wk-err { background: var(--f-cream); color: var(--f-tomato); }
+
+/* buttons */
+.wk-save { margin-top: 24px; background: var(--f-sun); color: var(--esp); box-shadow: 0 5px 0 var(--f-carrot); }
+.wk-save:hover { box-shadow: 0 8px 0 var(--f-carrot); }
+.wk-save:active { box-shadow: 0 2px 0 var(--f-carrot); }
+.wk-del { color: var(--esp); }
+.wk-del.sure { color: var(--f-tomato); }
+.wk-chipbtn { background: var(--f-sun); color: var(--esp); }
+.wk-ghost { background: rgba(var(--w-rgb), .12); }
+
+/* exercise picker */
+.wk-ddbtn { background: rgba(var(--w-rgb), .07); color: var(--esp); font: 800 12px/1.2 var(--sans); }
+.wk-ddbtn:focus-visible, .wk-dd.open .wk-ddbtn { border-color: var(--f-sun); box-shadow: 0 0 0 3px rgba(var(--w-sun-rgb), .3); background: #fff; }
+.wk-ddpanel { background: #fffdf6; color: var(--esp); box-shadow: 0 0 0 2.5px var(--esp), 5px 7px 0 2.5px var(--esp); }
+.wk-ddsearch { border: 2px solid rgba(var(--w-rgb), .2); background: #fff; color: var(--esp); }
+.wk-ddsearch::placeholder { color: rgba(var(--w-rgb), .4); }
+.wk-ddsearch:focus { border-color: var(--esp); }
+.wk-ddlist { scrollbar-color: rgba(var(--w-rgb), .35) transparent; }
+.wk-ddgroup { background: var(--f-sun); color: var(--esp); }
+.wk-ddgroup.g1 { background: var(--f-kiwi); }
+.wk-ddgroup.g2 { background: var(--f-carrot); }
+.wk-ddopt.act { background: rgba(var(--w-rgb), .08); }
+.wk-ddopt.on { background: var(--esp); color: var(--f-sun); }
+.wk-dddot { box-shadow: 0 0 0 2px var(--esp); }
+.wk-ddopt.on .wk-dddot { box-shadow: 0 0 0 2px var(--f-sun); }
+.wk-ddempty { border: 2px dashed rgba(var(--w-rgb), .3); }
+
+/* the workout screen: name, timer, espresso exercise blocks with honey highlights */
+.wk-nameinput { border-bottom: 3px dashed rgba(var(--w-rgb), .3); color: var(--esp); font: 400 clamp(26px, 4.4vw, 36px)/1.05 var(--display, 'Anton', sans-serif); text-transform: uppercase; letter-spacing: .02em; }
+.wk-nameinput:focus { border-bottom-color: var(--esp); }
+.wk-timer { background: var(--esp); color: var(--f-sun); }
+.wk-ex { background: var(--esp); color: var(--f-cream); border-radius: 20px; padding: 18px; box-shadow: 4px 4px 0 var(--f-sun); margin-bottom: 4px; }
+.wk-exn { font-size: 13px; }
+.wk-setrow.done { background: rgba(var(--w-sun-rgb), .2); }
+.wk-num-in { background: var(--f-cream); color: var(--esp); }
+.wk-num-in:focus { border-color: var(--f-sun); }
+.wk-check { background: rgba(var(--w-cream-rgb), .14); }
+.wk-check[aria-pressed="true"] { background: var(--f-sun); }
+.wk-check[aria-pressed="true"] svg { fill: var(--esp); }
+.wk-ex .wk-chipbtn { background: var(--f-sun); color: var(--esp); }
+.wk-notes { margin-top: 16px; }
+.wk-sadd { margin-top: 18px; }
+
+/* how it is done */
+.wk-howart { background: #f6e6c8; border: 2px solid var(--esp); border-radius: 18px; }
+.wk-thumb { background: #f6e6c8; }
+.wk-tips li { background: var(--esp); color: var(--f-cream); }
+.wk-tips li::before { background: var(--f-sun); color: var(--esp); }
+
+@media (max-width: 520px) { dialog.wk-modal { padding: 22px 18px 26px; } .wk-dcard { padding: 22px 18px; } }
+
+/* =============================================================================================================================================
+   The Workout palette: plum, peach, rose, lavender and berry (the page overrides the shared Food variables; the paper stays as it is)
+   ============================================================================================================================================= */
+body.workout {
+  --f-green: #2d1b3d;   /* plum: the dark blocks and the ink of the dialogs */
+  --f-kiwi: #cdb4f6;    /* lavender */
+  --f-sun: #ffb38a;     /* peach: accents, buttons, selected */
+  --f-carrot: #ff7a90;  /* rose */
+  --f-tomato: #a23a6b;  /* berry */
+  --f-cream: #fff1e8;   /* blush */
+  --ink: #1f1230;
+  --w-sheet: #f1e1ee;   /* the dialog sheet */
+  --w-rgb: 45, 27, 61; --w-sun-rgb: 255, 179, 138; --w-cream-rgb: 255, 241, 232;
+}
+body.workout .fd-pagesub { color: rgba(31, 18, 48, .6); }
+body.workout .fd-fig, body.workout .fd-tile { border-color: var(--ink); box-shadow: 0 4px 0 var(--ink); }
+/* paper-colored pieces that were warm white in the Food version */
+body.workout .wp-tab:hover { background: var(--f-sun); }
+body.workout .fd-month-card, body.workout .fd-week-card { box-shadow: 0 4px 0 var(--ink); }
+body.workout .wp-detail { background: rgba(31, 18, 48, .05); }
+body.workout .wp-chip { border-color: rgba(31, 18, 48, .4); color: rgba(31, 18, 48, .6); }
+body.workout .wp-best { border-bottom-color: rgba(45, 27, 61, .2); }
+body.workout .wp-tab[aria-pressed="true"] { background: var(--ink); color: #fffdf6; }
+body.workout .wp-tab[aria-pressed="true"] b { background: var(--f-sun); color: var(--ink); }
+/* the movement drawings keep their own pink: turn them toward the page's lavender and rose */
+.wk-howart svg, .wk-thumb svg { filter: hue-rotate(-75deg) saturate(.9); }
+.wk-howart, .wk-thumb { background: #f1e6fb; }
+
+/* ---- the week: a heading per day, then its workouts, what is planned, or a rest day ----------------------------------------------------------------------- */
+.wp-dayhead { margin-top: 22px; }
+.wp-log .wp-dayhead:first-child, .wp-log .wp-live + .wp-dayhead { margin-top: 12px; }
+.wp-dayhead.today { box-shadow: inset 0 0 0 2px var(--ink); }
+.wp-dayhead.sel:not(.today) { box-shadow: 0 0 0 2px var(--f-carrot); }
+.wp-rest { list-style: none; margin: 2px 0 0 4px; padding: 6px 0 8px 22px; border-bottom: 2px dashed rgba(21, 0, 11, .15); font: 600 13px/1.3 var(--sans); font-style: italic; color: rgba(21, 0, 11, .45); }
+.wp-row.missed { opacity: .72; }
+.wp-row.missed .fd-name small:last-child { color: var(--f-tomato); font-weight: 700; }
+
+/* the routines card on the right */
+.wp-rlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.wp-rrow { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 2px dashed rgba(45, 27, 61, .2); }
+.wp-rrow:last-child { border-bottom: 0; }
+.wp-rt { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.wp-rt b { font: 800 13px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .08em; color: var(--f-green); overflow-wrap: anywhere; }
+.wp-rt small { font: 600 11px/1.3 var(--sans); color: var(--f-green); opacity: .65; }
+.wp-routines .fd-edit { border-color: rgba(45, 27, 61, .5); color: var(--f-green); padding: 6px 11px; font-size: 11px; }
+.wp-routines .fd-edit:hover { background: var(--f-green); color: var(--f-cream); }
+.wp-routines .fd-edit.wp-go { background: var(--f-sun); border-color: var(--f-green); }
+.wp-routines .fd-edit.wp-go:hover { background: var(--f-green); color: var(--f-sun); }
+
+/* ---- the day: each workout's exercises sit right under it ------------------------------------------------------------------------------------------------- */
+.wp-row.wp-head { border-bottom: 0; padding-bottom: 4px; }
+.wp-detail { margin: 0 0 8px 14px; padding: 10px 16px 12px; border-bottom: 0; }
+.wp-detail.planned { background: transparent; border-left-style: dashed; }
+.wp-log .fd-list > .wp-detail + .fd-row, .wp-log .fd-list > .wp-detail + .fd-group { margin-top: 12px; }
+.wp-ex { padding: 2px 0; }
+.wp-ex b { min-width: 170px; }
+
+/* one list: a small status tag after each workout's name */
+.wp-tag { display: inline-block; margin-left: 10px; padding: 4px 8px; vertical-align: 2px; border: 2px solid var(--ink); border-radius: 999px; font: 800 9px/1 var(--sans); font-style: normal; letter-spacing: .1em; text-transform: uppercase; }
+.wp-tag.done { background: var(--f-sun); color: var(--ink); }
+.wp-tag.live { background: var(--ink); color: var(--f-sun); }
+.wp-tag.plan { background: var(--f-kiwi); color: var(--ink); }
+.wp-tag.late { background: transparent; color: var(--f-tomato); border-color: var(--f-tomato); }
+.wp-log .fd-list > .fd-row:first-child, .wp-log .fd-list > .wp-live + .fd-row { margin-top: 10px; }
+
+/* ---- exercises as a grid ------------------------------------------------------------------------------------------------------------------------------------------ */
+.wp-detail { margin: 0 0 10px 14px; padding: 6px 16px 10px; border-left: 3px solid var(--ink); border-radius: 0 16px 16px 0; background: rgba(31, 18, 48, .05); }
+.wp-gridwrap { overflow-x: auto; scrollbar-width: thin; }
+.wp-grid { min-width: calc(150px + var(--n) * 62px); }
+.wp-gr { display: grid; grid-template-columns: minmax(150px, 1.6fr) repeat(var(--n), minmax(56px, 1fr)); gap: 8px; align-items: center; padding: 9px 0; border-top: 2px dashed rgba(21, 0, 11, .16); }
+.wp-gr:first-child { border-top: 0; }
+.wp-gh { padding: 4px 0 6px; font: 800 9px/1 var(--sans); text-transform: uppercase; letter-spacing: .14em; color: rgba(21, 0, 11, .55); }
+.wp-gh .wp-gc { background: none; border: 0; padding: 0; }
+.wp-gn { font: 800 12px/1.25 var(--sans); text-transform: uppercase; letter-spacing: .08em; color: var(--ink); overflow-wrap: anywhere; }
+.wp-gc { text-align: center; }
+.wp-cell { padding: 7px 4px; border: 2px dashed rgba(21, 0, 11, .35); border-radius: 10px; font: 700 12px/1 var(--sans); color: rgba(21, 0, 11, .6); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wp-cell.done { border: 2px solid var(--ink); background: var(--f-sun); color: var(--ink); }
+.wp-none-cell { display: block; height: 2px; margin: 0 14px; border-radius: 2px; background: rgba(21, 0, 11, .1); }
+.wp-detail.planned { background: transparent; border-left-style: dashed; }
+
+/* ---- tickable grid and its edit mode ---------------------------------------------------------------------------------------------------------------------------- */
+button.wp-cell { cursor: pointer; background: transparent; width: 100%; transition: background .12s, transform .12s, border-color .12s; }
+button.wp-cell:hover { transform: translateY(-1px); border-color: var(--ink); background: rgba(255, 253, 246, .6); }
+button.wp-cell.done:hover { background: var(--f-sun); }
+button.wp-cell:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: 2px; }
+button.wp-cell:active { transform: translateY(1px); }
+.wp-cellin { display: flex; align-items: center; justify-content: center; gap: 3px; }
+.wp-cellin i { font: 700 11px/1 var(--sans); font-style: normal; opacity: .55; }
+.wp-in { width: 100%; min-width: 0; padding: 7px 3px; border: 2px solid rgba(21, 0, 11, .3); border-radius: 9px; background: #fffdf6; color: var(--ink); font: 700 12px/1 var(--sans); text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.wp-in::-webkit-outer-spin-button, .wp-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.wp-in:focus { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(var(--w-sun-rgb), .5); }
+.wp-grid.editing { }
+
+/* training plan: variant labels, the week grid and the 2027 goals */
+.wp-gn small { display: block; margin-top: 3px; font: 500 11px/1.25 var(--sans); text-transform: none; letter-spacing: 0; opacity: .65; }
+.wp-plan { padding-top: 4px; }
+.wp-pnav { display: flex; align-items: center; gap: 10px; margin: 6px 0 10px; }
+.wp-ptitle { display: grid; gap: 2px; min-width: 120px; }
+.wp-ptitle b { font: 800 14px/1.1 var(--sans); }
+.wp-ptitle small { font: 500 12px/1.2 var(--sans); opacity: .65; }
+.wp-pgrid { min-width: 520px; }
+.wp-pr { display: grid; grid-template-columns: minmax(130px, 1.7fr) repeat(7, minmax(44px, 1fr)); gap: 6px; align-items: center; padding: 9px 0; border-top: 2px dashed rgba(21, 0, 11, .16); }
+.wp-ph { border-top: 0; padding-top: 0; }
+.wp-pd { cursor: pointer; border: 0; background: none; padding: 5px 0; border-radius: 999px; color: var(--ink); font: 800 10px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; opacity: .6; }
+.wp-pd:hover { opacity: 1; }
+.wp-pd.now { background: var(--ink); color: #fffdf6; opacity: 1; }
+.wp-pd.did::after { content: ' ✓'; }
+.wp-pc { cursor: pointer; border: 0; background: none; color: inherit; padding: 6px 0; border-radius: 8px; text-align: center; font: 700 13px/1.2 var(--sans); font-variant-numeric: tabular-nums; }
+.wp-pc.off { opacity: .3; font-weight: 500; }
+.wp-glist { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 2px; }
+.wp-goal { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 7px 0; font: 500 13px/1.3 var(--sans); }
+.wp-goal small { font: 600 11px/1.3 var(--sans); opacity: .6; white-space: nowrap; }
+.wp-goal.done span { text-decoration: line-through; opacity: .55; }
+.wp-gcheck { cursor: pointer; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; border: 2px solid var(--ink); background: transparent; position: relative; padding: 0; }
+.wp-gcheck[aria-pressed="true"] { background: var(--ink); }
+.wp-gcheck[aria-pressed="true"]::after { content: ''; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid var(--f-sun); border-width: 0 2.5px 2.5px 0; transform: rotate(40deg); }
+.wp-gcheck:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: 2px; }
+
+.wp-pc:hover { background: rgba(21, 0, 11, .08); opacity: 1; }
+.wp-pc.off { opacity: 0; }
+.wp-pr:hover .wp-pc.off, .wp-pc.off:focus-visible { opacity: .35; }
+.wp-pc:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: 1px; }
+.wp-padd { margin-top: 12px; }
+.wk-plname { margin: 0 0 8px; font: 800 16px/1.2 var(--sans); }
+.wk-seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.wk-dcard.wk-pcard { display: grid; gap: 22px; padding: 26px; }
+.wk-pcard .wk-plname { margin: 0; font-size: 18px; }
+.wk-pf { display: grid; gap: 10px; }
+.wk-prow { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; }
+.wk-phint { margin: -10px 0 0; font: 500 12px/1.45 var(--sans); opacity: .6; }
+.wk-pf .wk-phint { margin: 0; }
+.wk-pcard .wk-input { text-transform: none; letter-spacing: .02em; font-weight: 700; }
+.wk-pcard .wk-seg button { min-height: 44px; }
+.wk-pcard .wk-seg2 button { letter-spacing: .04em; }
+@media (max-width: 440px) { .wk-dcard.wk-pcard { padding: 20px; gap: 18px; } }
+
+/* calmer side column: one stats card, goals live in the Plan tab */
+.wp-statlist { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 14px; }
+.wp-statlist li { display: grid; gap: 4px; }
+.wp-statlist b { font: 800 24px/1 var(--sans); font-variant-numeric: tabular-nums; }
+.wp-statlist span { font: 600 12px/1.25 var(--sans); opacity: .65; }
+.wp-goals { margin-top: 26px; padding-top: 18px; border-top: 2px dashed rgba(21, 0, 11, .16); }
+.wp-goals .fd-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+@media (min-width: 700px) { .wp-glist { grid-template-columns: 1fr 1fr; column-gap: 24px; } }
+
+/* the week as the page: one column, a grid you tick, goals tucked away */
+.wp-page { max-width: 980px; margin: 0 auto; padding: 8px 0 60px; }
+.wp-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 0 18px; }
+.wp-top h1 { margin: 0; font: 400 clamp(46px, 9vw, 64px)/.9 var(--display); text-transform: uppercase; color: var(--ink); }
+.wp-top .fd-pnav { display: flex; align-items: center; gap: 8px; }
+.wp-editbtn { cursor: pointer; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; margin-left: 6px; }
+.wp-editbtn[aria-pressed="true"] { background: var(--ink); color: #fffdf6; }
+.wp-week { background: #fffdf6; border: 2px solid var(--ink); border-radius: 22px; padding: 22px 24px 20px; box-shadow: 0 5px 0 var(--ink); }
+.wp-wk { min-width: 0; }
+.wp-wk .wp-pr { grid-template-columns: minmax(120px, 1.6fr) repeat(var(--cols), minmax(46px, 1fr)); gap: 8px; padding: 12px 0; }
+.wp-wk .wp-ph { padding: 0 0 10px; border-bottom: 2px solid var(--ink); border-top: 0; }
+.wp-wk .wp-pd { display: grid; gap: 3px; justify-items: center; padding: 6px 0; border-radius: 12px; opacity: .6; }
+.wp-wk .wp-pd b { font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; }
+.wp-wk .wp-pd small { font: 700 12px/1 var(--sans); }
+.wp-wk .wp-pd.now { background: var(--ink); color: #fffdf6; opacity: 1; }
+.wp-wk .wp-pc { padding: 10px 0; border-radius: 10px; background: rgba(21, 0, 11, .06); font: 700 13px/1.1 var(--sans); }
+.wp-wk .wp-pc.blank { background: none; }
+.wp-wk button.wp-tick { cursor: pointer; border: 2px solid transparent; }
+.wp-wk button.wp-tick:hover { border-color: var(--ink); }
+.wp-wk button.wp-tick.done { background: var(--f-sun); border-color: var(--ink); }
+.wp-wk button.wp-tick.done::before { content: '✓ '; }
+.wp-wk button.wp-tick.future { opacity: .45; cursor: default; }
+.wp-wk button.wp-tick.future:hover { border-color: transparent; }
+.wp-wk .wp-add { cursor: pointer; border: 2px dashed rgba(21, 0, 11, .3); background: none; opacity: .6; }
+.wp-wk .wp-add:hover { opacity: 1; border-color: var(--ink); }
+.wp-foot { display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+.wp-bar { flex: 1 1 140px; max-width: 320px; height: 8px; border-radius: 999px; background: rgba(21, 0, 11, .1); overflow: hidden; }
+.wp-bar i { display: block; height: 100%; background: var(--ink); border-radius: 999px; transition: width .3s; }
+.wp-phint2 { margin: 0; font: 600 12px/1.3 var(--sans); opacity: .6; }
+.wp-foot .wp-padd { margin-top: 0; }
+.wp-goals { margin-top: 22px; background: #fffdf6; border: 2px solid var(--ink); border-radius: 18px; padding: 4px 22px; }
+.wp-ghead { cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 14px 0; list-style: none; font: 800 12px/1 var(--sans); text-transform: uppercase; letter-spacing: .12em; }
+.wp-ghead::-webkit-details-marker { display: none; }
+.wp-ghead b { font: 800 12px/1 var(--sans); padding: 5px 9px; border-radius: 999px; background: var(--ink); color: #fffdf6; letter-spacing: 0; }
+.wp-goals[open] .wp-glist { padding-bottom: 14px; }
+.wp-goals { border-top: 2px solid var(--ink); padding-top: 4px; }
+@media (max-width: 560px) { .wp-week { padding: 16px 14px; } .wp-wk .wp-pr { grid-template-columns: minmax(96px, 1.4fr) repeat(var(--cols), minmax(40px, 1fr)); gap: 5px; } }
+
+@media (max-width: 560px) {
+  .wp-wk { min-width: calc(88px + var(--cols) * 52px); }
+  .wp-wk .wp-pr { grid-template-columns: 88px repeat(var(--cols), minmax(46px, 1fr)); gap: 4px; }
+  .wp-wk .wp-gn { font-size: 9.5px; letter-spacing: .02em; overflow-wrap: normal; position: sticky; left: 0; z-index: 1; background: #fffdf6; padding-right: 4px; }
+  .wp-wk .wp-gn small { font-size: 10px; }
+  .wp-wk .wp-pc { font-size: 12px; padding: 10px 0; }
+  .wp-wk button.wp-tick.done::before { content: ''; }
+}
+
+.wp-wk .wp-gn { font-weight: 400; }
+
+/* views (Plan / Exercises) and the exercise library */
+.wp-views { display: flex; gap: 8px; margin-top: 14px; }
+.wp-view { padding: 8px 14px; border-radius: 999px; border: 2px solid var(--ink); color: var(--ink); text-decoration: none; font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; }
+.wp-view[aria-current="true"] { background: var(--ink); color: #fffdf6; }
+.wp-exbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.wp-exgroup { margin: 22px 0 4px; font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .14em; opacity: .55; }
+.wp-exlist { list-style: none; margin: 0; padding: 0; }
+.wp-exrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 2px dashed rgba(21, 0, 11, .16); }
+.wp-exrow:first-child { border-top: 0; }
+.wp-exrow > div { display: grid; gap: 3px; min-width: 0; }
+.wp-exname { font: 400 15px/1.25 var(--sans); overflow-wrap: anywhere; }
+.wp-exrow small { font: 500 12px/1.3 var(--sans); opacity: .6; }
+.wp-exedit { flex: none; cursor: pointer; padding: 7px 14px; border-radius: 999px; border: 2px solid var(--ink); background: transparent; color: var(--ink); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .08em; }
+.wp-exedit:hover { background: var(--ink); color: #fffdf6; }
+
+/* exercise detail */
+.wp-exrow > .wp-exopen { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 3px; min-width: 0; flex: 1; padding: 2px 0; }
+.wp-exopen:hover .wp-exname { text-decoration: underline; text-underline-offset: 3px; }
+.wp-exopen:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: 3px; border-radius: 6px; }
+.wk-icard { display: grid; gap: 18px; }
+.wk-iabout { margin: 0; font: 500 14px/1.5 var(--sans); }
+.wk-icard .wk-howart { border-radius: 14px; overflow: hidden; }
+.wk-ichips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.wk-ichip { padding: 6px 10px; border-radius: 999px; background: rgba(45, 27, 61, .08); font: 600 12px/1.2 var(--sans); }
+.wk-itop { margin-top: 4px; }
+.wk-ibars { display: flex; align-items: flex-end; gap: 3px; height: 70px; margin-top: 10px; }
+.wk-ibars i { flex: 1; min-width: 3px; border-radius: 3px 3px 0 0; background: rgba(45, 27, 61, .25); }
+.wk-ibars i.past { background: rgba(45, 27, 61, .55); }
+.wk-ibars i.now { background: var(--f-carrot, #f5b390); outline: 2px solid var(--esp, #2d1b3d); }
+.wk-itable { display: grid; margin-top: 8px; max-height: 240px; overflow-y: auto; border-top: 2px dashed rgba(45, 27, 61, .16); }
+.wk-irow { display: grid; grid-template-columns: 64px 92px 1fr; gap: 10px; align-items: baseline; padding: 8px 4px; border-bottom: 2px dashed rgba(45, 27, 61, .12); font: 500 13px/1.3 var(--sans); }
+.wk-irow b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.wk-irow small { font: 500 12px/1.3 var(--sans); opacity: .65; }
+.wk-irow.now { background: rgba(245, 179, 144, .35); border-radius: 8px; }
+.wk-isecond { margin-top: 12px; }
+
+/* exercise detail: wider, two columns on desktop so the dialog fits without scrolling */
+@media (min-width: 900px) {
+  dialog.wk-wide#wkInfoDialog { width: min(1040px, calc(100vw - 48px)); }
+  #wkInfoDialog .wk-icard { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); column-gap: 28px; align-items: start; }
+  #wkInfoDialog .wk-howart { grid-column: 1; }
+  #wkInfoDialog .wk-iabout, #wkInfoDialog #wkInfoTipsBox { grid-column: 1; }
+  #wkInfoDialog #wkInfoProg { grid-column: 2; grid-row: 1 / span 3; }
+  #wkInfoDialog .wk-itable { max-height: 300px; }
+}
+
+/* =====================================================================================================================
+   Polish: exercise detail and dialogs (spacing, colour, motion)
+   ===================================================================================================================== */
+dialog.wk-modal { padding: 34px 38px 38px; }
+.wk-modal header { margin-bottom: 26px; }
+dialog.wk-modal[open] { animation: wk-pop .38s cubic-bezier(.2, .9, .3, 1.15) both; }
+dialog.wk-modal[open]::backdrop { animation: wk-fade .3s ease both; }
+@keyframes wk-pop { from { opacity: 0; transform: translateY(22px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes wk-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wk-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes wk-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes wk-chip { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes wk-slide { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+@keyframes wk-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 122, 144, .55); } 60% { box-shadow: 0 0 0 6px rgba(255, 122, 144, 0); } }
+
+#wkInfoDialog .wk-icard { padding: 34px; gap: 0; }
+#wkInfoDialog .wk-howart { border: 0; border-radius: 20px; box-shadow: 6px 6px 0 var(--f-sun); margin-bottom: 26px; animation: wk-rise .5s .08s ease both; }
+#wkInfoDialog .wk-iabout { font: 500 14.5px/1.6 var(--sans); margin-bottom: 26px; animation: wk-rise .5s .16s ease both; }
+#wkInfoDialog #wkInfoTipsBox { animation: wk-rise .5s .22s ease both; }
+#wkInfoDialog .wk-label { margin-bottom: 12px; }
+#wkInfoDialog .wk-tips { gap: 10px; padding: 0; }
+#wkInfoDialog .wk-tips li { padding: 13px 16px; border-radius: 16px; animation: wk-slide .45s calc(.3s + var(--i, 0) * .09s) cubic-bezier(.2, .9, .3, 1.1) both; transition: transform .2s; }
+#wkInfoDialog .wk-tips li:hover { transform: translateX(4px); }
+
+/* the progression panel */
+#wkInfoProg { background: linear-gradient(160deg, rgba(205, 180, 246, .3), rgba(255, 179, 138, .16)); border-radius: 22px; padding: 24px 24px 18px; animation: wk-rise .5s .12s ease both; }
+#wkInfoProg .wk-label { margin-top: 0; }
+#wkInfoProg .wk-itop { margin-top: 26px; }
+.wk-ichips { gap: 8px; margin-top: 0; }
+.wk-ichip { padding: 7px 12px; background: color-mix(in srgb, var(--f-kiwi) calc(100% - var(--i, 0) / var(--n, 1) * 100%), var(--f-carrot) calc(var(--i, 0) / var(--n, 1) * 100%)); color: var(--esp);
+  animation: wk-chip .4s calc(.25s + var(--i, 0) * .06s) cubic-bezier(.2, .9, .3, 1.3) both; transition: transform .2s; }
+.wk-ichip:hover { transform: translateY(-2px) rotate(-1.5deg); }
+.wk-ibars { height: 84px; gap: 4px; margin-top: 0; padding-bottom: 2px; border-bottom: 2px solid rgba(45, 27, 61, .2); }
+.wk-ibars i { border-radius: 4px 4px 0 0; background: linear-gradient(180deg, rgba(45, 27, 61, .35), rgba(45, 27, 61, .18)); transform-origin: bottom; animation: wk-grow .6s calc(.3s + var(--i, 0) * .025s) cubic-bezier(.2, .9, .3, 1.1) both; transition: filter .15s; }
+.wk-ibars i.past { background: linear-gradient(180deg, #6b4a8c, var(--esp)); }
+.wk-ibars i.now { background: linear-gradient(180deg, var(--f-sun), var(--f-carrot)); outline: 0; animation: wk-grow .6s calc(.3s + var(--i, 0) * .025s) cubic-bezier(.2, .9, .3, 1.1) both, wk-glow 2s 1.2s ease-out infinite; }
+.wk-ibars i:hover { filter: brightness(1.25); }
+.wk-itable { margin-top: 0; max-height: 280px; border-top: 0; padding-right: 6px; scrollbar-width: thin; scrollbar-color: rgba(45, 27, 61, .35) transparent; }
+.wk-irow { grid-template-columns: 78px 104px 1fr; gap: 12px; padding: 10px 10px; border-bottom: 2px dashed rgba(45, 27, 61, .1); transition: background .15s;
+  animation: wk-rise .4s calc(.4s + var(--i, 0) * .03s) ease both; }
+.wk-irow > span:first-child { white-space: nowrap; }
+.wk-irow:hover { background: rgba(255, 255, 255, .6); border-radius: 10px; }
+.wk-irow.now { background: linear-gradient(90deg, rgba(255, 179, 138, .6), rgba(255, 122, 144, .22)); border-radius: 10px; border-bottom-color: transparent; }
+#wkInfoDialog .wk-isecond { margin-top: 22px; }
+.wk-x { transition: transform .25s cubic-bezier(.2, .9, .3, 1.3), background .15s, color .15s; }
+.wk-x:hover { transform: rotate(90deg); }
+@media (max-width: 899px) { #wkInfoProg { margin-top: 26px; } #wkInfoDialog .wk-icard { padding: 24px 20px; } }
+@media (min-width: 900px) { #wkInfoDialog .wk-icard { column-gap: 36px; } }
+@media (max-width: 520px) { dialog.wk-modal { padding: 24px 18px 28px; } #wkInfoProg { padding: 18px 16px 12px; } }
+@media (prefers-reduced-motion: reduce) { dialog.wk-modal[open], dialog.wk-modal[open]::backdrop, #wkInfoDialog *, .wk-ibars i, .wk-ichip, .wk-irow { animation: none !important; transition: none !important; } }
+
+#wkInfoDialog { overflow-x: hidden; }
+#wkInfoDialog .wk-icard { grid-template-columns: minmax(0, 1fr); }
+#wkInfoDialog .wk-icard > *, #wkInfoProg > * { min-width: 0; }
+@media (min-width: 900px) { #wkInfoDialog .wk-icard { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); } }
+@media (max-width: 520px) {
+  #wkInfoDialog .wk-icard { padding: 20px 16px; }
+  .wk-irow { grid-template-columns: 66px 70px minmax(0, 1fr); gap: 8px; padding: 9px 6px; }
+  .wk-itable { padding-right: 2px; }
+  #wkInfoDialog .wk-howart { box-shadow: 4px 4px 0 var(--f-sun); }
+}
+
+/* week rows: schemes as pills, flexible columns */
+.wk-irow { grid-template-columns: 74px minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
+.wk-isch { display: flex; flex-wrap: wrap; gap: 5px; }
+.wk-isch span { padding: 3px 9px; border-radius: 999px; background: rgba(45, 27, 61, .09); font: 700 12.5px/1.35 var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wk-irow.now .wk-isch span { background: rgba(255, 255, 255, .55); }
+.wk-irow > small { padding-top: 3px; }
+.wk-irow > span:first-child { padding-top: 3px; }
+@media (max-width: 520px) { .wk-irow { grid-template-columns: 62px minmax(0, 1fr); } .wk-irow > small { grid-column: 2; padding-top: 0; } }
+
+/* Exercises page as cards */
+.wp-exs { --gc0: #cdb4f6; --gc1: #ffb38a; --gc2: #ff7a90; --gc3: #e9a8d0; --gc4: #b9a3ec; padding: 26px 28px 30px; }
+.wp-exbar { margin-bottom: 8px; }
+.wp-exs .wp-phint2 { font: 600 13px/1.4 var(--sans); }
+.wp-exgroup { display: flex; align-items: center; gap: 10px; margin: 30px 0 14px; font: 800 12px/1 var(--sans); letter-spacing: .16em; opacity: 1; color: var(--ink); }
+.wp-exdot { width: 12px; height: 12px; border-radius: 50%; background: var(--gc); box-shadow: 0 0 0 3px rgba(21, 0, 11, .08); }
+.wp-exgroup em { font: 700 11px/1 var(--sans); font-style: normal; letter-spacing: .04em; padding: 4px 8px; border-radius: 999px; background: rgba(31, 18, 48, .08); }
+.wp-exgrid { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.wp-excard { position: relative; border-radius: 22px; background: #fff; border: 2px solid var(--ink); box-shadow: 5px 5px 0 var(--gc); overflow: hidden;
+  transition: transform .22s cubic-bezier(.2, .9, .3, 1.3), box-shadow .22s; animation: wk-rise .5s calc(var(--i, 0) * .06s) ease both; }
+.wp-excard:hover, .wp-excard:focus-within { transform: translate(-2px, -3px); box-shadow: 8px 9px 0 var(--gc); }
+.wp-excard > .wp-exopen { all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%; }
+.wp-excard > .wp-exopen:focus-visible { outline: 3px solid var(--f-carrot); outline-offset: -3px; border-radius: 20px; }
+.wp-exart { display: grid; place-items: center; aspect-ratio: 4 / 3; background: #f1e6fb; border-bottom: 2px solid var(--ink); overflow: hidden; }
+.wp-exart svg { display: block; width: 100%; height: 100%; filter: hue-rotate(-75deg) saturate(.9); transition: transform .4s cubic-bezier(.2, .9, .3, 1.2); }
+.wp-excard:hover .wp-exart svg { transform: scale(1.06); }
+.wp-exart b { font: 400 54px/1 var(--display, 'Anton', sans-serif); color: var(--ink); opacity: .55; text-transform: uppercase; }
+.wp-exbody { display: grid; gap: 10px; padding: 16px 18px 18px; }
+.wp-exbody .wp-exname { font: 700 16px/1.2 var(--sans); }
+.wp-exchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wp-exchips small { padding: 4px 9px; border-radius: 999px; background: rgba(31, 18, 48, .07); font: 600 11px/1.2 var(--sans); opacity: 1; }
+.wp-exchips small.on { background: color-mix(in srgb, var(--gc) 55%, #fff); }
+.wp-excard > .wp-exedit { position: absolute; top: 10px; right: 10px; background: rgba(255, 253, 246, .92); opacity: 0; transform: translateY(-4px); transition: opacity .2s, transform .2s, background .15s, color .15s; }
+.wp-excard:hover > .wp-exedit, .wp-excard:focus-within > .wp-exedit { opacity: 1; transform: none; }
+@media (hover: none) { .wp-excard > .wp-exedit { opacity: 1; transform: none; } }
+@media (max-width: 520px) { .wp-exs { padding: 20px 16px 24px; } .wp-exgrid { grid-template-columns: 1fr 1fr; gap: 12px; } .wp-exbody { padding: 12px 12px 14px; } .wp-exbody .wp-exname { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) { .wp-excard { animation: none; transition: none; } }

@@ -1,0 +1,105 @@
+/* Bills: ocean teal (deep teal, mint and coral) on top of the shared board and Subscriptions modal styles. */
+.bl-theme { --b-navy: #0d3b3f; --b-egg: #eaf6ef; --b-lime: #9cf0c3; --b-peri: #62b8b0; --b-pink: #c8e8f5; --b-orange: #ff7a59; --b-sky: #8fd0ff; }
+.bd-tile em { display: block; margin-top: 4px; font: 600 12px/1.2 var(--sans); font-style: normal; opacity: .7; }
+.bd-tile b.bl-next { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.05; }
+
+/* month bar */
+.bl-bar { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin: 4px 0 16px; color: var(--b-egg); }
+.bl-month { display: flex; align-items: center; gap: 8px; }
+.bl-month h2 { margin: 0 6px; min-width: 9.5ch; font: 700 20px/1.1 var(--sans); text-transform: capitalize; text-align: center; }
+.bl-month button { cursor: pointer; border: 1.5px solid rgba(239, 231, 212, .4); background: transparent; color: inherit; border-radius: 999px; min-width: 36px; height: 36px; font: 700 18px/1 var(--sans); }
+.bl-month button:hover { background: rgba(239, 231, 212, .14); }
+.bl-month .bl-today { padding: 0 14px; font-size: 12px; margin-left: 6px; }
+.bl-prog { flex: 1; min-width: 160px; display: grid; gap: 6px; }
+.bl-prog span { font: 700 12px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+.bl-prog i { display: block; height: 8px; border-radius: 999px; background: rgba(239, 231, 212, .2); overflow: hidden; }
+.bl-prog i b { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--b-lime); transition: width .6s cubic-bezier(.2, .9, .3, 1); }
+.bl-empty { color: var(--b-egg); }
+
+/* weeks */
+.bl-weeks { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .bl-weeks { grid-template-columns: 1fr 1fr; } }
+.bl-week { background: var(--b-navy); color: #efe7d4; border-radius: 22px; padding: 22px 22px 14px; display: flex; flex-direction: column; }
+.bl-week.egg { background: var(--b-egg); color: var(--b-navy); }
+.bl-wh { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.bl-wh h3 { margin: 0; font: 800 12px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; opacity: .9; }
+.bl-wh h3 small { margin-left: 8px; font-weight: 600; letter-spacing: .04em; opacity: .6; text-transform: none; }
+.bl-wh span { font: 700 12px/1 var(--sans); opacity: .7; font-variant-numeric: tabular-nums; }
+.bl-list { list-style: none; margin: 0; padding: 0; }
+.bl-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 11px 0; border-top: 1.5px dashed rgba(239, 231, 212, .22); }
+.bl-week.egg .bl-row { border-top-color: rgba(21, 0, 11, .16); }
+.bl-row:first-child { border-top: 0; }
+.bl-check { appearance: none; -webkit-appearance: none; cursor: pointer; width: 26px; height: 26px; border-radius: 50%; border: 2px solid currentColor; opacity: .55; background: transparent; position: relative; transition: background .15s, opacity .15s, transform .15s; }
+.bl-check:hover { opacity: 1; transform: scale(1.06); }
+.bl-check:focus-visible { outline: 2px solid var(--b-lime); outline-offset: 3px; }
+.bl-check:checked { background: var(--b-lime); border-color: var(--b-lime); opacity: 1; }
+.bl-check:checked::after { content: ''; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid var(--b-navy); border-width: 0 2.5px 2.5px 0; transform: rotate(40deg); }
+.bl-name { display: grid; gap: 3px; min-width: 0; text-align: left; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; font: inherit; }
+.bl-name b { font: 600 15px/1.25 var(--sans); overflow-wrap: anywhere; }
+.bl-name span { font: 600 12px/1.2 var(--sans); opacity: .65; }
+.bl-name span.late { color: var(--b-orange); opacity: 1; font-weight: 800; }
+.bl-name span.today { color: var(--b-lime); opacity: 1; font-weight: 800; }
+.bl-week.egg .bl-name span.today { color: #0a7a56; }
+.bl-row.paid .bl-name b { text-decoration: line-through; text-decoration-thickness: 2px; opacity: .55; }
+.bl-amt { min-width: 92px; text-align: right; font: 600 14px/1 var(--sans); font-variant-numeric: tabular-nums; background: none; border: 1.5px solid transparent; border-radius: 999px; color: inherit; padding: 7px 10px; cursor: text; }
+.bl-amt:hover { border-color: rgba(239, 231, 212, .35); }
+.bl-week.egg .bl-amt:hover { border-color: rgba(21, 0, 11, .3); }
+.bl-amt.empty { opacity: .45; font-weight: 500; }
+.bl-amt-input { width: 110px; text-align: right; font: 600 14px/1 var(--sans); padding: 7px 10px; border-radius: 999px; border: 1.5px solid var(--b-lime); background: rgba(255, 255, 255, .12); color: inherit; outline: none; }
+.bl-week.egg .bl-amt-input { background: #fff; }
+.bl-none { margin: 0; padding: 14px 0 10px; font: 500 13px/1.3 var(--sans); opacity: .6; }
+.bl-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .bl-two { grid-template-columns: 1fr; } .bl-row { gap: 10px; } .bl-amt { min-width: 74px; } }
+.bl-theme .bd-tile b { font-size: clamp(26px, 2.7vw, 36px); white-space: nowrap; }
+.bl-theme .bd-tile b.bl-next { font-size: clamp(20px, 2.2vw, 28px); white-space: normal; }
+@media (max-width: 560px) { .bl-theme .bd-tile b { font-size: 17px; } .bl-theme .bd-tile b.bl-next { font-size: 20px; } .bl-theme .bd-tile em { font-size: 11px; } }
+/* the band is teal now, so the month bar uses deep teal text */
+.bl-bar, .bl-empty { color: var(--b-navy); }
+.bl-month button { border-color: rgba(13, 59, 63, .4); }
+.bl-month button:hover { background: rgba(13, 59, 63, .1); }
+.bl-prog i { background: rgba(13, 59, 63, .18); }
+.bl-prog i b { background: var(--b-navy); }
+
+/* summary tiles in the body font */
+.bl-theme .bd-tile b { font: 700 clamp(22px, 2.3vw, 30px)/1.1 var(--sans); letter-spacing: -.01em; font-style: normal; font-variant-numeric: tabular-nums; }
+.bl-theme .bd-tile b.bl-next { font: 700 clamp(17px, 1.7vw, 22px)/1.2 var(--sans); }
+@media (max-width: 560px) { .bl-theme .bd-tile b { font-size: 19px; } .bl-theme .bd-tile b.bl-next { font-size: 16px; } }
+
+/* the current week follows the calendar: lifted on a hard shadow, a pulsing badge, a twinkle, and today's bills glow */
+.bl-week { position: relative; }
+.bl-week.now { transform: translateY(-4px) rotate(-.4deg); box-shadow: 8px 8px 0 var(--b-lime); animation: bl-pop .7s cubic-bezier(.2, .9, .3, 1.3) both; }
+.bl-week.egg.now { box-shadow: 8px 8px 0 var(--b-navy); }
+@keyframes bl-pop { 0% { transform: translateY(14px) rotate(-2deg) scale(.97); box-shadow: 0 0 0 var(--b-lime); } 100% { transform: translateY(-4px) rotate(-.4deg); } }
+.bl-week.now::after { content: ''; position: absolute; right: 64px; top: -16px; width: 26px; height: 26px; background: var(--b-lime); -webkit-mask: var(--bl-spark) center / contain no-repeat; mask: var(--bl-spark) center / contain no-repeat; animation: bl-twinkle 2.6s ease-in-out infinite; pointer-events: none; }
+.bl-week.egg.now::after { background: var(--b-navy); }
+.bl-week.now { --bl-spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 0C17 10 22 15 32 16C22 17 17 22 16 32C15 22 10 17 0 16C10 15 15 10 16 0Z'/%3E%3C/svg%3E"); }
+@keyframes bl-twinkle { 0%, 100% { transform: scale(.6) rotate(0); opacity: .6; } 50% { transform: scale(1.15) rotate(45deg); opacity: 1; } }
+.bl-now { display: inline-flex; align-items: center; gap: 7px; margin-left: 10px; padding: 5px 11px 5px 9px; border-radius: 999px; background: var(--b-lime); color: var(--b-navy); font: 800 10px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; }
+.bl-now::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--b-orange); animation: bl-ping 1.6s ease-out infinite; }
+.bl-week.egg .bl-now { background: var(--b-navy); color: var(--b-lime); }
+@keyframes bl-ping { 0% { box-shadow: 0 0 0 0 rgba(255, 122, 89, .8); } 80%, 100% { box-shadow: 0 0 0 7px rgba(255, 122, 89, 0); } }
+.bl-row.is-today { position: relative; overflow: hidden; margin: 0 -10px; padding-left: 10px; padding-right: 10px; border-radius: 14px; background: rgba(156, 240, 195, .16); border-top-color: transparent; }
+.bl-week.egg .bl-row.is-today { background: rgba(13, 59, 63, .08); }
+.bl-row.is-today + .bl-row { border-top-color: transparent; }
+.bl-row.is-today::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .35) 50%, transparent 70%); transform: translateX(-120%); animation: bl-shine 3.4s ease-in-out infinite; pointer-events: none; }
+@keyframes bl-shine { 0%, 55% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+.bl-row.is-today:not(.paid) .bl-check { opacity: 1; animation: bl-ring 1.8s ease-out infinite; }
+@keyframes bl-ring { 0% { box-shadow: 0 0 0 0 rgba(255, 122, 89, .75); } 75%, 100% { box-shadow: 0 0 0 8px rgba(255, 122, 89, 0); } }
+@media (prefers-reduced-motion: reduce) { .bl-week.now, .bl-week.now::after, .bl-now::before, .bl-row.is-today::after, .bl-row.is-today .bl-check { animation: none; } }
+
+/* sparkles on the title tile and a glittering cursor trail (sparkle.js) */
+.bd-sp { position: absolute; z-index: 0; left: var(--x); top: var(--y); fill: currentColor; opacity: 0; transform: scale(0); pointer-events: none; animation: bd-twinkle var(--t) ease-in-out var(--d) infinite; }
+@keyframes bd-twinkle { 0%, 58%, 100% { opacity: 0; transform: scale(0) rotate(0deg); } 28% { opacity: 1; transform: scale(1) rotate(var(--r)); } 42% { opacity: .9; transform: scale(.8) rotate(calc(var(--r) * 1.4)); } }
+.bd-trail { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; }
+.bd-bs { position: absolute; pointer-events: none; translate: -50% -50%; fill: currentColor; filter: drop-shadow(0 0 4px currentColor); animation: bd-bs .95s ease-out forwards; }
+@keyframes bd-bs { 0% { opacity: 0; transform: translate(0, 0) scale(0) rotate(0deg); } 20% { opacity: 1; transform: translate(calc(var(--dx) * .25), calc(var(--dy) * .25)) scale(1.1) rotate(calc(var(--rot) * .3)); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.15) rotate(var(--rot)); } }
+@media (prefers-reduced-motion: reduce) { .bd-sp, .bd-bs { display: none; } }
+
+/* weeks that are already over (this month) fade back: softly blurred and washed out, clear again on hover or focus */
+.bl-week.past { filter: blur(1px) saturate(.6); opacity: .7; transition: filter .35s ease, opacity .35s ease; }
+.bl-week.past:hover, .bl-week.past:focus-within { filter: none; opacity: 1; }
+@media (hover: none) { .bl-week.past { filter: blur(.7px) saturate(.65); } }
+
+/* week total: only shown once at least one bill in the week has an amount */
+.bl-wside { display: flex; align-items: baseline; gap: 12px; }
+.bl-wtotal { font: 700 14px/1 var(--sans); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }

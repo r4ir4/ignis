@@ -1,11 +1,11 @@
-// Read page: the books shelf (reading now, to read, finished, dropped), a pages-per-day log and a week chart, backed by the shared ignis API.
+// Read page, laid out like the Food page: a heading, the reading list in the main column (reading now, then to read / finished / dropped),
+// and on the right the add button, four number tiles and a chart of the pages read each day of a month. Backed by the shared ignis API.
 (() => {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const pad = (n) => String(n).padStart(2, '0');
   const dayKey = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   const parseDay = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
-  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
   const make = (tag, cls, text) => {
     const el = document.createElement(tag);
     if (cls) el.className = cls;
@@ -35,51 +35,68 @@
   }
 
   const todayKey = () => dayKey(new Date());
-  const S = { data: null, shelf: 'to_read', sel: null };
-  const SPINES = ['#b6f35a', '#c4b5ff', '#ff8fd0', '#ff7a4d'];
-  const STATUS = { reading: 'Reading', to_read: 'To read', finished: 'Finished', dropped: 'Dropped' };
+  const now0 = new Date();
+  const S = { data: null, shelf: 'to_read', month: { y: now0.getFullYear(), m: now0.getMonth() }, mcache: {} };
+  const SPINES = ['#f2b84b', '#b7c98b', '#d9653b', '#fbeedc'];
   const STAR = 'M16 3L19.7 11.6L29 12.4L21.9 18.5L24.1 27.6L16 22.7L7.9 27.6L10.1 18.5L3 12.4L12.3 11.6Z';
   const starSvg = '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="' + STAR + '"/></svg>';
 
   async function load() {
-    S.data = await api('/v1/books/overview?day=' + todayKey() + '&window=30');
+    S.data = await api('/v1/books/overview?day=' + todayKey() + '&window=31');
+    S.mcache = {};
     render();
   }
 
   const byStatus = (s) => S.data.books.filter((b) => b.status === s);
   const pct = (b) => (b.pages ? Math.min(100, Math.round((b.current_page / b.pages) * 100)) : 0);
-  const spine = (b) => SPINES[S.data.books.indexOf(b) % SPINES.length];
+  const spine = (b) => SPINES[Math.max(0, S.data.books.indexOf(b)) % SPINES.length];
+  const figure = (cls) => make('figure', 'fd-fig ' + cls);
 
-  function figure(cls) { return make('figure', 'rd-fig ' + cls); }
-  function emptyIn(c, text) { c.appendChild(make('p', 'rd-empty', text)); return c; }
-
-  // ---- top row -----------------------------------------------------------------------------------------------------------------------------
-  function wordCard() {
-    const f = figure('rd-word grain');
-    f.innerHTML = '<svg viewBox="0 0 600 200" aria-hidden="true"><g filter="url(#goo)"><text x="300" y="135" text-anchor="middle" transform="rotate(-4 300 100)" class="goo-word">read</text></g></svg>' +
-      '<svg class="rd-tw" style="--x:5%;--y:14%;--s:20px;--d:0s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="rd-tw rd-tw-p" style="--x:90%;--y:70%;--s:22px;--d:.9s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="rd-tw" style="--x:89%;--y:12%;--s:12px;--d:1.7s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg><svg class="rd-tw rd-tw-p" style="--x:6%;--y:72%;--s:14px;--d:2.3s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>';
-    return f;
+  // ---- heading, like Food and Todo ----------------------------------------------------------------------------------------------------------------
+  function pageHead() {
+    const d = S.data;
+    const head = make('header', 'fd-pagehead');
+    head.innerHTML = '<svg class="h-tw fd-tw" style="--x:34%;--y:18%;--s:20px;--d:0s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>' +
+      '<svg class="h-tw fd-tw fd-tw-p" style="--x:46%;--y:58%;--s:13px;--d:1.1s" viewBox="0 0 32 32" aria-hidden="true"><use href="#spark"/></svg>';
+    const text = make('div');
+    text.appendChild(make('h1', '', 'Read'));
+    const date = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+    const reading = byStatus('reading').length;
+    text.appendChild(make('p', 'fd-pagesub', date + ' · ' + (d.today_pages ? fmt(d.today_pages) + (d.today_pages === 1 ? ' page' : ' pages') + ' today' : 'nothing read yet today') + (reading ? ' · ' + reading + ' reading' : '')));
+    head.appendChild(text);
+    return head;
   }
 
-  const ICON = {
-    book: '<g class="rd-i-book"><path d="M10 22C10 22 24 18 42 24V68C24 62 10 66 10 66Z" fill="currentColor"/><path class="rd-i-page" d="M74 22C74 22 60 18 42 24V68C60 62 74 66 74 66Z" fill="currentColor" opacity=".7"/><path d="M42 24V68" stroke="#fff" stroke-width="2.5" opacity=".6"/></g>',
-    flame: '<g class="rd-i-flame"><path fill="currentColor" d="M42 18C45 32 31 35 33 48C37 46 39 42 42 38C42 47 54 50 54 59C54 67 48 70 42 70C35 70 29 65 29 57C29 41 40 35 42 18Z"/><path class="rd-i-core" d="M42 52C42 58 36 59 36 63C36 66 38 68 42 68C46 68 48 66 48 63C48 59 43 58 42 52Z"/></g>',
-    stack: '<g class="rd-i-stack" fill="currentColor"><rect x="14" y="52" width="56" height="12" rx="3"/><rect x="20" y="38" width="50" height="12" rx="3" transform="rotate(-3 45 44)"/><rect x="16" y="24" width="52" height="12" rx="3" transform="rotate(2 42 30)"/></g>',
-    mark: '<g class="rd-i-mark"><path d="M24 14H60V70L42 56L24 70Z" fill="currentColor"/><path d="M42 24l3 6.5 7 .8-5.2 4.8 1.4 7-6.2-3.6-6.2 3.6 1.4-7-5.2-4.8 7-.8Z" fill="#fff" opacity=".85"/></g>',
-  };
+  // Add book: the text button with a plus, like Add task on the Todo page
+  function addButton() {
+    const wrap = make('div', 'fd-addwrap');
+    const b = make('button', 'fd-mini');
+    b.type = 'button'; b.id = 'rdAddOpen';
+    b.innerHTML = '<span class="fd-plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Add book</span>';
+    b.addEventListener('click', () => openBook(null));
+    wrap.appendChild(b);
+    return wrap;
+  }
 
+  // ---- number tiles ---------------------------------------------------------------------------------------------------------------------------------
+  const ICON = {
+    book: '<g class="rd-i-book"><path d="M10 22C10 22 24 18 42 24V68C24 62 10 66 10 66Z" fill="currentColor"/><path d="M74 22C74 22 60 18 42 24V68C60 62 74 66 74 66Z" fill="currentColor" opacity=".65"/></g>',
+    flame: '<g class="fd-i-flame"><path fill="currentColor" d="M42 18C45 32 31 35 33 48C37 46 39 42 42 38C42 47 54 50 54 59C54 67 48 70 42 70C35 70 29 65 29 57C29 41 40 35 42 18Z"/><path class="fd-i-core" d="M42 52C42 58 36 59 36 63C36 66 38 68 42 68C46 68 48 66 48 62C48 58 44 56 42 52Z"/></g>',
+    stack: '<g class="rd-i-stack" fill="currentColor"><rect x="14" y="52" width="56" height="12" rx="3"/><rect x="20" y="38" width="50" height="12" rx="3" transform="rotate(-3 45 44)"/><rect x="16" y="24" width="52" height="12" rx="3" transform="rotate(2 42 30)"/></g>',
+    mark: '<g class="rd-i-mark"><path d="M24 14H60V70L42 56L24 70Z" fill="currentColor"/><path d="M42 24l3 6.5 7 .8-5.2 4.8 1.4 7-6.2-3.6-6.2 3.6 1.4-7-5.2-4.8 7-.8Z" fill="#fffdf6" opacity=".85"/></g>',
+  };
   function tile(cls, label, value, unit, icon, sub) {
-    const li = make('li', 'rd-tile ' + cls);
-    const left = make('span', 'rd-tl');
+    const li = make('li', 'fd-tile ' + cls);
+    const left = make('span', 'fd-tl');
     left.appendChild(make('small', '', label));
-    const b = make('b', 'rd-num');
+    const b = make('b', 'fd-num');
     const n = make('span', '', '0');
     b.appendChild(n);
     if (unit) b.appendChild(make('em', '', unit));
     left.appendChild(b);
-    if (sub) left.appendChild(make('span', 'rd-sub', sub));
+    left.appendChild(make('span', 'fd-goal', sub));
     li.appendChild(left);
-    const art = make('span', 'rd-art');
+    const art = make('span', 'fd-art');
     art.setAttribute('aria-hidden', 'true');
     art.innerHTML = '<svg viewBox="0 0 84 84">' + ICON[icon] + '</svg>';
     li.appendChild(art);
@@ -93,195 +110,250 @@
     }
     return li;
   }
-
   function tiles() {
     const d = S.data;
-    const ul = make('ul', 'rd-tiles');
+    const ul = make('ul', 'fd-tiles');
     ul.setAttribute('aria-label', 'Reading numbers');
     ul.append(
-      tile('t-today', 'Pages today', d.today_pages, '', 'book', d.week_pages ? fmt(d.week_pages) + ' this week' : 'none this week'),
-      tile('t-streak', 'Reading streak', d.streak, d.streak === 1 ? 'day' : 'days', 'flame', d.streak ? 'keep it going' : 'read today to start'),
-      tile('t-month', 'Pages this month', d.month_pages, '', 'stack', ''),
-      tile('t-year', 'Finished this year', d.finished_year, d.finished_year === 1 ? 'book' : 'books', 'mark', ''),
+      tile('t-cal', 'Pages today', d.today_pages, '', 'book', d.week_pages ? fmt(d.week_pages) + ' this week' : 'none this week'),
+      tile('t-pro', 'Reading streak', d.streak, d.streak === 1 ? 'day' : 'days', 'flame', d.streak ? 'keep it going' : 'read today to start'),
+      tile('t-carb', 'Pages this month', d.month_pages, '', 'stack', new Date().toLocaleDateString(undefined, { month: 'long' })),
+      tile('t-fat', 'Finished this year', d.finished_year, d.finished_year === 1 ? 'book' : 'books', 'mark', String(new Date().getFullYear())),
     );
     return ul;
   }
 
-  // ---- reading now ---------------------------------------------------------------------------------------------------------------------------
-  function readingCard() {
-    const c = figure('rd-now');
-    const head = make('div', 'rd-head');
-    head.appendChild(make('p', 'rd-k', 'Reading now'));
-    const add = make('button', 'rd-mini');
-    add.type = 'button';
-    add.innerHTML = '<span class="rd-plus" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Add book</span>';
-    add.addEventListener('click', () => openBook(null));
-    head.appendChild(add);
-    c.appendChild(head);
-    const books = byStatus('reading');
-    if (!books.length) return emptyIn(c, S.data.books.length ? 'Nothing in progress. Start one from your to-read shelf.' : 'No books yet. Add the one you are reading.');
-    const list = make('ul', 'rd-list');
-    books.forEach((b) => list.appendChild(readingRow(b)));
+  // ---- the list: reading now, then to read / finished / dropped -------------------------------------------------------------------------------
+  // covers live on the server: GET api/v1/books/<id>/cover (?v= changes with every update, so the browser may keep it)
+  const coverUrl = (b) => 'api/v1/books/' + b.id + '/cover?v=' + encodeURIComponent(b.updated_at || '');
+  function fillCover(box, b, src) {
+    box.replaceChildren();
+    if (src || (b && b.has_cover)) {
+      const img = make('img');
+      img.alt = ''; img.decoding = 'async';
+      img.src = src || coverUrl(b);
+      box.appendChild(img);
+      box.classList.add('has-img');
+    } else {
+      box.classList.remove('has-img');
+      box.appendChild(make('b', '', (((b && b.title) || '').trim()[0] || '+').toUpperCase()));
+    }
+  }
+
+  // checkpoints along the bar: page 10 first, then a step that grows with the book (25 / 50 / 100 / 250 pages), never crowding each other or the end
+  function checkpoints(pages) {
+    if (!pages || pages < 30) return [];
+    const step = pages <= 150 ? 25 : pages <= 400 ? 50 : pages <= 1200 ? 100 : 250;
+    const marks = [];
+    let last = 0;
+    const take = (m, first) => { if (m < pages && (first || (m - last) / pages >= 0.07) && (pages - m) / pages >= 0.06) { marks.push(m); last = m; } };
+    take(10, true);   // the first stop is always page 10
+    for (let m = step; m < pages; m += step) take(m);
+    return marks;
+  }
+
+  // a book being read: a card with a cover, the progress and the actions
+  function readingRow(b) {
+    const li = make('li', 'rd-now');
+    li.style.setProperty('--hc', spine(b));
+    const cover = make('span', 'rd-cover');
+    cover.setAttribute('aria-hidden', 'true');
+    fillCover(cover, b);
+    li.appendChild(cover);
+    const body = make('div', 'rd-nbody');
+    body.appendChild(make('p', 'rd-ntitle', b.title));
+    if (b.author) body.appendChild(make('small', 'rd-nauthor', b.author));
+    let barRow = null;
+    if (b.pages) {
+      const row = make('div', 'rd-nbar');
+      barRow = row;
+      const track = make('div', 'rd-track');
+      const bar = make('span', 'rd-bar');
+      const fill = make('i');
+      bar.appendChild(fill);
+      requestAnimationFrame(() => requestAnimationFrame(() => track.style.setProperty('--p', pct(b) + '%')));   // the fill, the flame and the bubble all slide to it together
+      track.appendChild(bar);
+      const marks = checkpoints(b.pages);
+      marks.forEach((m) => {
+        const ck = make('span', 'rd-ck' + (b.current_page >= m ? ' hit' : '') + (Math.abs(m - b.current_page) / b.pages < 0.04 ? ' under' : ''));   // the flame sits on a checkpoint it has just reached
+        ck.style.left = (m / b.pages * 100) + '%';
+        ck.title = 'Page ' + fmt(m) + (b.current_page >= m ? ' · reached' : '');
+        const sp = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        sp.setAttribute('viewBox', '-2 -2 36 36');
+        sp.innerHTML = '<path d="M16 0C17 10 22 15 32 16C22 17 17 22 16 32C15 22 10 17 0 16C10 15 15 10 16 0Z"/>';
+        ck.appendChild(sp);
+        ck.appendChild(make('em', '', String(m)));
+        track.appendChild(ck);
+      });
+      const flame = make('span', 'rd-flame');
+      flame.setAttribute('aria-hidden', 'true');
+      flame.innerHTML = '<svg viewBox="24 14 34 60" preserveAspectRatio="xMidYMax meet">' + ICON.flame + '</svg>';
+      track.appendChild(flame);
+      track.appendChild(make('span', 'rd-here', 'p. ' + fmt(b.current_page)));
+      const end = make('span', 'rd-ckend');
+      end.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V3"/><path d="M6 4h12l-3 4.5 3 4.5H6Z"/></svg><em>' + fmt(b.pages) + '</em>';
+      track.appendChild(end);
+      row.append(track, make('b', 'rd-npct', pct(b) + '%'));
+      const next = marks.find((m) => m > b.current_page);
+      const left = Math.max(0, b.pages - b.current_page);
+      body.appendChild(make('small', 'rd-nmeta', 'Page ' + fmt(b.current_page) + ' of ' + fmt(b.pages) + ' · ' + (next ? 'next stop ' + fmt(next) + ' (' + fmt(next - b.current_page) + ' to go)' : fmt(left) + (left === 1 ? ' page' : ' pages') + ' to the end')));
+    } else {
+      body.appendChild(make('small', 'rd-nmeta', fmt(b.current_page) + (b.current_page === 1 ? ' page' : ' pages') + ' read · add the total in Edit to see progress'));
+    }
+    li.appendChild(body);
+    const acts = make('div', 'rd-nacts');
+    acts.append(actBtn('Log pages', () => openLog(b), 'rd-go'), actBtn('Edit', () => openBook(b)));
+    li.appendChild(acts);
+    if (barRow) li.appendChild(barRow);   // the bar runs the full width of the card, under the cover and the title
+    return li;
+  }
+  function bookRow(b, kind) {
+    const li = make('li', 'fd-row rd-row');
+    li.style.setProperty('--hc', spine(b));
+    li.appendChild(make('i', 'fd-bullet'));
+    const name = make('div', 'fd-name', b.title);
+    const bits = [];
+    if (b.author) bits.push(b.author);
+    if (kind !== 'reading' && b.pages) bits.push(fmt(b.pages) + ' pages');
+    if (kind === 'finished' && b.finished_on) bits.push('finished ' + parseDay(b.finished_on).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }));
+    if (bits.length) name.appendChild(make('small', '', bits.join(' · ')));
+    if (kind === 'reading') {
+      if (b.pages) {
+        const bar = make('span', 'rd-bar');
+        const fill = make('i');
+        bar.appendChild(fill);
+        requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = pct(b) + '%'; }));
+        name.appendChild(bar);
+        name.appendChild(make('small', '', 'Page ' + fmt(b.current_page) + ' of ' + fmt(b.pages) + ' · ' + pct(b) + '%'));
+      } else name.appendChild(make('small', '', fmt(b.current_page) + (b.current_page === 1 ? ' page' : ' pages') + ' read · add the total in Edit to see progress'));
+    }
+    if (kind === 'finished' && b.rating) { const r = make('span', 'rd-rate'); r.innerHTML = starSvg.repeat(b.rating); r.setAttribute('aria-label', b.rating + ' of 5'); name.appendChild(r); }
+    li.appendChild(name);
+    const acts = make('div', 'rd-acts');
+    if (kind === 'reading') acts.appendChild(actBtn('Log pages', () => openLog(b), 'rd-go'));
+    if (kind === 'to_read') acts.appendChild(actBtn('Start', () => startBook(b), 'rd-go'));
+    acts.appendChild(actBtn('Edit', () => openBook(b)));
+    li.appendChild(acts);
+    return li;
+  }
+  function actBtn(label, fn, cls) {
+    const b = make('button', 'fd-edit' + (cls ? ' ' + cls : ''), label);
+    b.type = 'button';
+    b.addEventListener('click', fn);
+    return b;
+  }
+  function listCard() {
+    const c = figure('fd-log rd-log');
+    const list = make('ul', 'fd-list');
+    const reading = byStatus('reading');
+    if (reading.length) {
+      list.appendChild(make('li', 'fd-group g5', 'Reading now'));
+      reading.forEach((b) => list.appendChild(readingRow(b)));
+    }
+    const li = make('li', 'rd-tabsrow');
+    const tabs = make('div', 'rd-tabs');
+    tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Shelf');
+    [['to_read', 'To read'], ['finished', 'Finished'], ['dropped', 'Dropped']].forEach(([k, label]) => {
+      const b = make('button', 'rd-tab');
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(S.shelf === k));
+      b.innerHTML = '<span>' + label + '</span><b>' + byStatus(k).length + '</b>';
+      b.addEventListener('click', () => { S.shelf = k; render(); });
+      tabs.appendChild(b);
+    });
+    li.appendChild(tabs);
+    list.appendChild(li);
+    const books = byStatus(S.shelf);
+    if (!books.length) list.appendChild(make('li', 'fd-empty', S.shelf === 'to_read' ? 'Your to-read list is empty. Add a book you want to read.' : S.shelf === 'finished' ? 'Books you finish show up here.' : 'Nothing dropped.'));
+    else books.forEach((b) => list.appendChild(bookRow(b, S.shelf)));
     c.appendChild(list);
     return c;
   }
 
-  function readingRow(b) {
-    const li = make('li', 'rd-row');
-    li.style.setProperty('--sp', spine(b));
-    const cover = make('span', 'rd-cover');
-    cover.setAttribute('aria-hidden', 'true');
-    cover.appendChild(make('b', '', (b.title.trim()[0] || '?').toUpperCase()));
-    li.appendChild(cover);
-    const body = make('div', 'rd-body');
-    body.appendChild(make('p', 'rd-title', b.title));
-    if (b.author) body.appendChild(make('small', 'rd-author', b.author));
-    if (b.pages) {
-      const bar = make('span', 'rd-bar');
-      const fill = make('i');
-      bar.appendChild(fill);
-      requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.width = pct(b) + '%'; }));
-      body.appendChild(bar);
-      body.appendChild(make('small', 'rd-meta', 'Page ' + fmt(b.current_page) + ' of ' + fmt(b.pages) + ' · ' + pct(b) + '%'));
-    } else {
-      // no total yet: show the pages read so far instead of an empty bar
-      const read = make('p', 'rd-read');
-      read.appendChild(make('b', '', fmt(b.current_page)));
-      read.appendChild(make('span', '', b.current_page === 1 ? 'page read' : 'pages read'));
-      body.appendChild(read);
-      body.appendChild(make('small', 'rd-meta', 'Add the total pages in Edit to see progress'));
+  // ---- the month chart: pages read each day, with arrows to other months ------------------------------------------------------------------------
+  const monthKey = (m) => m.y + '-' + pad(m.m + 1);
+  const isCurrentMonth = (m) => m.y === now0.getFullYear() && m.m === now0.getMonth();
+  async function monthDays(m) {
+    if (isCurrentMonth(m)) return S.data.days;
+    const key = monthKey(m);
+    if (!S.mcache[key]) {
+      const end = new Date(m.y, m.m + 1, 0);
+      const res = await api('/v1/books/overview?day=' + dayKey(end) + '&window=31');
+      S.mcache[key] = res.days;
     }
-    li.appendChild(body);
-    const acts = make('div', 'rd-acts');
-    const log = make('button', 'rd-log', 'Log pages');
-    log.type = 'button';
-    log.addEventListener('click', () => openLog(b));
-    const edit = make('button', 'rd-edit', 'Edit');
-    edit.type = 'button';
-    edit.addEventListener('click', () => openBook(b));
-    acts.append(log, edit);
-    li.appendChild(acts);
-    return li;
+    return S.mcache[key];
   }
-
-  // ---- shelf: three tabs, a row of standing book spines on a plank, and the selected book's details --------------------------------------------
-  const TAB_ICON = {
-    to_read: '<svg viewBox="0 0 48 48" aria-hidden="true"><g class="rd-t-stack" fill="currentColor"><rect x="7" y="30" width="34" height="8" rx="2"/><rect x="10" y="20" width="30" height="8" rx="2" transform="rotate(-3 25 24)"/><rect x="8" y="10" width="31" height="8" rx="2" transform="rotate(2 24 14)"/></g></svg>',
-    finished: '<svg viewBox="0 0 48 48" aria-hidden="true"><g class="rd-t-mark"><path d="M14 6H34V42L24 34L14 42Z" fill="currentColor"/><path d="M24 14l2 4.2 4.6.5-3.4 3.1.9 4.6L24 24l-4.1 2.4.9-4.6-3.4-3.1 4.6-.5Z" fill="#fff" opacity=".85"/></g></svg>',
-    dropped: '<svg viewBox="0 0 48 48" aria-hidden="true"><g class="rd-t-drop"><path d="M12 12H36V40H12Z" fill="currentColor"/><path d="M12 12L24 22L36 12" fill="none" stroke="#fff" stroke-width="2.6" opacity=".6"/></g></svg>',
-  };
-  const hash = (s) => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; };
-
-  function shelfCard() {
-    const c = figure('rd-shelf');
-    const head = make('div', 'rd-head');
-    head.appendChild(make('p', 'rd-k', 'Shelf'));
+  const ARROW = (d) => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + (d < 0 ? 'm14.5 6-6 6 6 6' : 'm9.5 6 6 6-6 6') + '"/></svg>';
+  function monthCard() {
+    const c = figure('fd-week-card rd-month');
+    const m = S.month;
+    const head = make('div', 'fd-head');
+    head.appendChild(make('p', 'fd-k', new Date(m.y, m.m, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })));
+    const nav = make('div', 'fd-pnav rd-mnav');
+    const prev = make('button', 'fd-parrow'); prev.type = 'button'; prev.innerHTML = ARROW(-1); prev.setAttribute('aria-label', 'Previous month');
+    const next = make('button', 'fd-parrow'); next.type = 'button'; next.innerHTML = ARROW(1); next.setAttribute('aria-label', 'Next month');
+    next.disabled = isCurrentMonth(m);
+    prev.addEventListener('click', () => { S.month = { y: m.m === 0 ? m.y - 1 : m.y, m: m.m === 0 ? 11 : m.m - 1 }; render(); });
+    next.addEventListener('click', () => { S.month = { y: m.m === 11 ? m.y + 1 : m.y, m: m.m === 11 ? 0 : m.m + 1 }; render(); });
+    nav.append(prev, next);
+    head.appendChild(nav);
     c.appendChild(head);
-
-    const tabs = make('div', 'rd-tabs3');
-    tabs.setAttribute('role', 'group');
-    tabs.setAttribute('aria-label', 'Shelf');
-    [['to_read', 'To read', 'a'], ['finished', 'Finished', 'b'], ['dropped', 'Dropped', 'c']].forEach(([k, label, cls]) => {
-      const b = make('button', 'rd-tab ' + cls);
-      b.type = 'button';
-      b.setAttribute('aria-pressed', String(S.shelf === k));
-      b.innerHTML = TAB_ICON[k] + '<span class="rd-tn">' + byStatus(k).length + '</span><small>' + label + '</small>';
-      b.addEventListener('click', () => { S.shelf = k; S.sel = null; render(); });
-      tabs.appendChild(b);
-    });
-    c.appendChild(tabs);
-
-    const books = byStatus(S.shelf);
-    if (!books.length) {
-      c.appendChild(make('p', 'rd-empty', S.shelf === 'to_read' ? 'Your to-read shelf is empty.' : S.shelf === 'finished' ? 'Books you finish show up here.' : 'Nothing dropped.'));
-      return c;
-    }
-    const sel = books.find((x) => x.id === S.sel) || books[0];
-
-    const wrap = make('div', 'rd-shelfwrap');
-    const row = make('div', 'rd-books');
-    books.forEach((b, i) => {
-      const h = hash(b.id || b.title);
-      const sp = make('button', 'rd-spine' + (b.id === sel.id ? ' on' : ''));
-      sp.type = 'button';
-      sp.style.cssText = '--sp:' + spine(b) + ';--h:' + (116 + (h % 5) * 12) + 'px;--w:' + (36 + ((h >> 3) % 3) * 6) + 'px;--i:' + i + ';--t:' + (((h >> 5) % 5) - 2) + 'deg';
-      sp.setAttribute('aria-label', b.title + (b.author ? ' by ' + b.author : ''));
-      sp.title = b.title;
-      sp.appendChild(make('span', 'rd-sband'));
-      sp.appendChild(make('span', 'rd-stitle', b.title));
-      if (b.status === 'finished' && b.rating) sp.appendChild(make('span', 'rd-sstar', '★'.repeat(Math.min(b.rating, 5) > 3 ? 1 : 0) || ''));
-      sp.addEventListener('click', () => { S.sel = b.id; render(); });
-      row.appendChild(sp);
-    });
-    wrap.appendChild(row);
-    wrap.appendChild(make('div', 'rd-plank'));
-    c.appendChild(wrap);
-
-    const d = make('div', 'rd-detail');
-    d.style.setProperty('--sp', spine(sel));
-    const text = make('div', 'rd-dtext');
-    text.appendChild(make('p', 'rd-dtitle', sel.title));
-    if (sel.author) text.appendChild(make('small', 'rd-dauthor', sel.author));
-    const pills = make('div', 'rd-dpills');
-    if (sel.pages) pills.appendChild(make('span', '', fmt(sel.pages) + ' pages'));
-    if (sel.finished_on) pills.appendChild(make('span', '', 'finished ' + parseDay(sel.finished_on).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })));
-    if (sel.status === 'dropped') pills.appendChild(make('span', '', 'dropped'));
-    if (pills.children.length) text.appendChild(pills);
-    if (sel.rating) { const r = make('span', 'rd-rate'); r.innerHTML = starSvg.repeat(sel.rating); r.setAttribute('aria-label', sel.rating + ' of 5'); text.appendChild(r); }
-    d.appendChild(text);
-    const acts = make('div', 'rd-dacts');
-    if (S.shelf === 'to_read') {
-      const start = make('button', 'rd-log', 'Start');
-      start.type = 'button';
-      start.addEventListener('click', () => startBook(sel));
-      acts.appendChild(start);
-    }
-    const edit = make('button', 'rd-edit', 'Edit');
-    edit.type = 'button';
-    edit.addEventListener('click', () => openBook(sel));
-    acts.appendChild(edit);
-    d.appendChild(acts);
-    c.appendChild(d);
-    return c;
-  }
-
-  function weekCard() {
-    const c = figure('rd-week-card');
-    const head = make('div', 'rd-head');
-    head.appendChild(make('p', 'rd-k', 'Last 7 days'));
-    head.appendChild(make('span', 'rd-pillsm', fmt(S.data.week_pages) + ' pages'));
-    c.appendChild(head);
-    const days = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i - 6));
-    const vals = days.map((d) => S.data.days[dayKey(d)] || 0);
-    const max = Math.max(20, ...vals);
-    const W = 900, H = 160, padB = 28, top = 20, bw = 74;
-    const gap = (W - bw * 7) / 6;
-    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="rd-chart" role="img" aria-label="Pages read in the last seven days">';
-    days.forEach((d, i) => {
-      const x = i * (bw + gap);
-      const v = vals[i];
-      const h = Math.max(v ? 6 : 3, (H - padB - top) * (v / max));
-      svg += '<rect class="rd-barr' + (v ? '' : ' none') + (dayKey(d) === todayKey() ? ' now' : '') + '" x="' + x + '" y="' + (H - padB - h) + '" width="' + bw + '" height="' + h + '" rx="14"><title>' + d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' }) + ': ' + v + ' pages</title></rect>';
-      if (v) svg += '<text class="rd-val" x="' + (x + bw / 2) + '" y="' + (H - padB - h - 5) + '" text-anchor="middle">' + v + '</text>';
-      svg += '<text class="rd-dow" x="' + (x + bw / 2) + '" y="' + (H - 7) + '" text-anchor="middle">' + d.toLocaleDateString(undefined, { weekday: 'narrow' }) + '</text>';
-    });
-    c.insertAdjacentHTML('beforeend', svg + '</svg>');
+    const holder = make('div', 'rd-chartwrap');
+    c.appendChild(holder);
+    const sub = make('p', 'fd-legend rd-sub');
+    c.appendChild(sub);
+    const pill = make('span', 'fd-pillsm', '…');
+    head.insertBefore(pill, nav);
+    const draw = (days) => {
+      const n = new Date(m.y, m.m + 1, 0).getDate();
+      const today = isCurrentMonth(m) ? now0.getDate() : (m.y > now0.getFullYear() || (m.y === now0.getFullYear() && m.m > now0.getMonth()) ? 0 : n);
+      const vals = Array.from({ length: n }, (_, i) => days[m.y + '-' + pad(m.m + 1) + '-' + pad(i + 1)] || 0);
+      const total = vals.reduce((a, b) => a + b, 0);
+      const max = Math.max(20, ...vals);
+      const best = Math.max(...vals);
+      const W = 420, H = 200, padL = 4, padB = 26, top = 18;
+      const slot = (W - padL * 2) / n, bw = Math.max(6, slot - 3.5);
+      let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="fd-chart" role="img" aria-label="Pages read each day in ' + c.querySelector('.fd-k').textContent + '">';
+      const done = Math.min(n, today);
+      const avg = done ? total / done : 0;
+      if (avg) {
+        const ya = top + (H - padB - top) * (1 - avg / max);
+        svg += '<line class="fd-goalline" x1="0" x2="' + W + '" y1="' + ya + '" y2="' + ya + '"/><text class="fd-goaltxt" x="' + (W - 2) + '" y="' + (ya - 5) + '" text-anchor="end">avg ' + Math.round(avg) + '</text>';
+      }
+      vals.forEach((v, i) => {
+        const x = padL + i * slot + (slot - bw) / 2;
+        const h = Math.max(v ? 4 : 3, (H - padB - top) * (v / max));
+        const day = i + 1;
+        const future = day > today;
+        svg += '<rect class="fd-barr' + (v ? '' : ' none') + (future ? ' future' : '') + (isCurrentMonth(m) && day === today ? ' sel' : '') + '" x="' + x.toFixed(1) + '" y="' + (H - padB - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3.5"><title>' +
+          new Date(m.y, m.m, day).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) + ' · ' + (v ? v + (v === 1 ? ' page' : ' pages') : 'nothing read') + '</title></rect>';
+        if (v && v === best && best >= 5) svg += '<text class="rd-val" x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - padB - h - 5).toFixed(1) + '" text-anchor="middle">' + v + '</text>';
+        if (day === 1 || day % 5 === 0 || day === n) svg += '<text class="fd-dow" x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 7) + '" text-anchor="middle">' + day + '</text>';
+      });
+      holder.innerHTML = svg + '</svg>';
+      pill.textContent = fmt(total) + (total === 1 ? ' page' : ' pages');
+      sub.textContent = total ? 'Best day: ' + best + (best === 1 ? ' page' : ' pages') + ' · ' + Math.round(avg) + ' a day on average' : 'No pages logged this month.';
+    };
+    if (isCurrentMonth(m) || S.mcache[monthKey(m)]) { monthDays(m).then(draw); }
+    else { holder.classList.add('loading'); monthDays(m).then((d) => { holder.classList.remove('loading'); draw(d); }).catch((e) => toast(e.message)); }
     return c;
   }
 
   function render() {
-    const board = make('div', 'identity rd-board');
-    const g = make('div', 'rd-idgrid');
-    g.append(wordCard(), tiles(), readingCard(), shelfCard(), weekCard());
-    board.appendChild(g);
-    $('rdGrid').replaceChildren(board);
+    const wrap = make('div', 'fd-wrap');
+    const main = make('section', 'fd-main');
+    const side = make('aside', 'fd-sidecol');
+    main.append(pageHead(), listCard());
+    side.append(addButton(), tiles(), monthCard());
+    wrap.append(main, side);
+    $('rdGrid').replaceChildren(wrap);
   }
 
-  // ---- book dialog -------------------------------------------------------------------------------------------------------------------------------
+  // ---- book dialog -----------------------------------------------------------------------------------------------------------------------------------
   let editing = null;
-  let status = 'reading';
   let rating = 0;
   let armed = 0;
+  let coverEdit = null;   // null: unchanged, a data URL: a new picture, 'remove': take it off
   const pressed = (box, value) => box.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === value)));
   function drawStars() {
     const box = $('rdStars');
@@ -295,19 +367,55 @@
       box.appendChild(b);
     }
   }
-  const showNow = () => { $('rdNowWrap').hidden = status !== 'reading'; };
+  const showNow = () => { $('rdNowWrap').hidden = $('rdStatus').value !== 'reading'; };
+
+  function showCover(b) {
+    const prev = $('rdCoverPreview');
+    prev.style.setProperty('--hc', b ? spine(b) : SPINES[0]);
+    if (coverEdit && coverEdit !== 'remove') fillCover(prev, b, coverEdit);
+    else if (coverEdit === 'remove') fillCover(prev, { title: b ? b.title : '' }, null);
+    else fillCover(prev, b || { title: '' }, null);
+    const has = (coverEdit && coverEdit !== 'remove') || (!coverEdit && b && b.has_cover);
+    $('rdCoverRemove').hidden = !has;
+    $('rdCoverPick').textContent = has ? 'Change cover' : 'Upload cover';
+  }
+  // shrink the picture in the browser first: about 240 px wide, a JPEG of a few dozen KB
+  function resizeCover(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const max = 360;
+        const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        let q = 0.85, out = cv.toDataURL('image/jpeg', q);
+        while (out.length > 380000 && q > 0.4) { q -= 0.1; out = cv.toDataURL('image/jpeg', q); }
+        resolve(out);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file is not a picture the browser can read.')); };
+      img.src = url;
+    });
+  }
 
   function openBook(b) {
     editing = b;
-    status = b ? b.status : 'reading';
     rating = b && b.rating ? b.rating : 0;
+    coverEdit = null;
+    $('rdCoverFile').value = '';
+    showCover(b);
     $('rdBookTitle').textContent = b ? 'Edit book' : 'Add book';
     $('rdTitle').value = b ? b.title : '';
     $('rdAuthor').value = b && b.author ? b.author : '';
+    $('rdStatus').value = b ? b.status : (S.shelf === 'to_read' || S.shelf === 'finished' || S.shelf === 'dropped' ? 'to_read' : 'reading');
     $('rdPages').value = b && b.pages ? b.pages : '';
     $('rdNow').value = b && b.current_page ? b.current_page : '';
     $('rdNotes').value = b && b.notes ? b.notes : '';
-    pressed($('rdStatus'), status);
     showNow();
     drawStars();
     $('rdBookErr').hidden = true;
@@ -327,12 +435,16 @@
     err.hidden = true;
     if (!title) { err.textContent = 'Give the book a title.'; err.hidden = false; return; }
     $('rdBookSave').disabled = true;
+    const status = $('rdStatus').value;
     const pages = int($('rdPages').value) || null;
-    const body = { title, author: $('rdAuthor').value.trim(), status, current_page: status === 'reading' ? int($('rdNow').value) : (editing ? editing.current_page : 0), notes: $('rdNotes').value.trim(), rating: rating || (editing ? 0 : null) };
+    const body = { title, author: $('rdAuthor').value.trim(), status, current_page: status === 'reading' ? int($('rdNow').value) : (editing ? editing.current_page : 0), notes: $('rdNotes').value.trim(), rating: rating || null };
     if (pages) body.pages = pages;
     try {
-      if (editing) await api('/v1/books/' + editing.id, { method: 'PATCH', body: { ...body, today: todayKey() } });
-      else await api('/v1/books', { method: 'POST', body: { ...body, author: body.author || null, notes: body.notes || null, rating: rating || null } });
+      let saved;
+      if (editing) saved = await api('/v1/books/' + editing.id, { method: 'PATCH', body: { ...body, today: todayKey() } });
+      else saved = await api('/v1/books', { method: 'POST', body: { ...body, author: body.author || null, notes: body.notes || null } });
+      if (coverEdit === 'remove') { if (editing && editing.has_cover) await api('/v1/books/' + saved.id + '/cover', { method: 'DELETE' }); }
+      else if (coverEdit) await api('/v1/books/' + saved.id + '/cover', { method: 'PUT', body: { image: coverEdit } });
       $('rdBookDialog').close();
       toast(editing ? 'Saved' : 'Book added');
       await load();
@@ -365,7 +477,7 @@
     try { await api('/v1/books/' + b.id, { method: 'PATCH', body: { status: 'reading', today: todayKey() } }); toast('Started ' + b.title); await load(); } catch (e) { toast(e.message); }
   }
 
-  // ---- log pages dialog ----------------------------------------------------------------------------------------------------------------------------
+  // ---- log pages dialog -------------------------------------------------------------------------------------------------------------------------------
   let logging = null;
   let logAgo = 0;
   function openLog(b) {
@@ -386,8 +498,9 @@
     err.hidden = true;
     if (!pages) { err.textContent = 'How many pages did you read?'; err.hidden = false; return; }
     $('rdLogSave').disabled = true;
+    const d = new Date(); d.setDate(d.getDate() - logAgo);
     try {
-      const book = await api('/v1/books/' + logging.id + '/log', { method: 'POST', body: { day: dayKey(addDays(new Date(), -logAgo)), pages } });
+      const book = await api('/v1/books/' + logging.id + '/log', { method: 'POST', body: { day: dayKey(d), pages } });
       $('rdLogDialog').close();
       toast(book.status === 'finished' ? 'Finished ' + book.title + '!' : 'Added ' + pages + ' pages');
       await load();
@@ -398,23 +511,23 @@
     }
   }
 
-  // ---- stars trail the pointer (same as the other pages) ---------------------------------------------------------------------------------------
+  // ---- stars trail the pointer (same as the other pages) --------------------------------------------------------------------------------------
   function sparkTrail() {
     if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const SP = 'M0,-1 C.15,-.3 .3,-.15 1,0 C.3,.15 .15,.3 0,1 C-.15,.3 -.3,.15 -1,0 C-.3,-.15 -.15,-.3 0,-1Z';
-    const layer = make('div', 'rd-trail');
+    const layer = make('div', 'fd-trail');
     document.body.appendChild(layer);
-    const LIGHT = ['#ff8fd0', '#1b0a63', '#fffdf6'];
-    const DARK = ['#ff8fd0', '#b6f35a', '#f4efff'];
+    const LIGHT = ['#b83a2a', '#3a2418', '#fffdf6'];
+    const DARK = ['#f2b84b', '#b7c98b', '#fbeedc'];
     let last = 0, lx = -99, ly = -99;
     document.addEventListener('pointermove', (event) => {
       if (event.pointerType === 'touch') return;
-      const now = performance.now();
-      if (now - last < 55 || Math.hypot(event.clientX - lx, event.clientY - ly) < 18) return;
+      const t = performance.now();
+      if (t - last < 55 || Math.hypot(event.clientX - lx, event.clientY - ly) < 18) return;
       const target = event.target;
       if (target.closest && target.closest('dialog, input, button')) return;
-      last = now; lx = event.clientX; ly = event.clientY;
-      const surface = target.closest ? target.closest('.rd-fig') : null;
+      last = t; lx = event.clientX; ly = event.clientY;
+      const surface = target.closest ? target.closest('.fd-fig') : null;
       let dark = false;
       if (surface) {
         const m = getComputedStyle(surface).backgroundColor.match(/\d+(\.\d+)?/g);
@@ -423,7 +536,7 @@
       const colors = dark ? DARK : LIGHT;
       const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       s.setAttribute('viewBox', '-1 -1 2 2');
-      s.setAttribute('class', 'rd-bs');
+      s.setAttribute('class', 'fd-bs');
       s.innerHTML = '<path d="' + SP + '"/>';
       const size = 12 + Math.random() * 16;
       s.style.cssText = 'left:' + event.clientX + 'px;top:' + event.clientY + 'px;width:' + size + 'px;height:' + size + 'px;color:' + colors[Math.floor(Math.random() * 3)] +
@@ -437,11 +550,17 @@
     sparkTrail();
     $('rdBookClose').addEventListener('click', () => $('rdBookDialog').close());
     $('rdLogClose').addEventListener('click', () => $('rdLogDialog').close());
-    ['rdBookDialog', 'rdLogDialog'].forEach((id) => $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).close(); }));
     $('rdBookForm').addEventListener('submit', saveBook);
     $('rdLogForm').addEventListener('submit', saveLog);
     $('rdBookDelete').addEventListener('click', removeBook);
-    $('rdStatus').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { status = b.dataset.v; pressed($('rdStatus'), status); showNow(); } });
+    $('rdStatus').addEventListener('change', showNow);
+    $('rdCoverPick').addEventListener('click', () => $('rdCoverFile').click());
+    $('rdCoverFile').addEventListener('change', async () => {
+      const f = $('rdCoverFile').files[0];
+      if (!f) return;
+      try { coverEdit = await resizeCover(f); showCover(editing); } catch (e) { toast(e.message); }
+    });
+    $('rdCoverRemove').addEventListener('click', () => { coverEdit = 'remove'; $('rdCoverFile').value = ''; showCover(editing); });
     $('rdLogDay').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { logAgo = Number(b.dataset.v); pressed($('rdLogDay'), b.dataset.v); } });
     $('rdLogChips').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { $('rdLogPages').value = int($('rdLogPages').value) + Number(b.dataset.n); } });
     load().catch(() => {

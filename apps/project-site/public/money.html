@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="subscriptions.css?v=10">
+  <link rel="stylesheet" href="money.css?v=12">
+  <title>Money · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="sb-theme mn-theme home health money">
+  <script src="shell.js?v=2"></script>
+
+
+  <main id="main" class="page h-page">
+    <div class="bd-board">
+      <div class="bd-top">
+        <div class="bd-word"><h1>Money</h1><svg class="bd-tw" style="left:8%;top:14%" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 0C17 10 22 15 32 16C22 17 17 22 16 32C15 22 10 17 0 16C10 15 15 10 16 0Z"/></svg></div>
+        <ul class="bd-tiles">
+          <li class="bd-tile lime"><small>Entradas</small><b id="mnIn">0</b><i></i></li>
+          <li class="bd-tile orange"><small>Saídas</small><b id="mnOut">0</b><i></i></li>
+          <li class="bd-tile egg"><small>Saldo</small><b id="mnNet">0</b><i></i></li>
+          <li class="bd-tile pink"><small>Guardado na reserva</small><b id="mnRes">0</b><i></i></li>
+        </ul>
+      </div>
+      <div class="bd-cols">
+        <section class="bd-panel" aria-label="Transações">
+          <div class="bd-head"><p class="bd-k" id="mnTitle">Transações</p><button class="bd-new" id="mnImport" type="button"><span aria-hidden="true">+</span>Importar extrato</button></div>
+          <div class="bd-pills" id="mnMonths"></div>
+          <div class="bd-pills" id="mnFilter"></div>
+          <p class="bd-empty" id="mnEmpty" hidden>Nenhuma transação ainda. Importe um extrato do Mercado Pago (PDF) para começar.</p>
+          <ul class="bd-rows" id="mnList"></ul>
+          <nav class="mn-pager" id="mnPager" aria-label="Páginas de transações" hidden></nav>
+        </section>
+        <section class="bd-panel egg" aria-label="Para onde foi">
+          <div class="bd-head"><p class="bd-k">Para onde o dinheiro foi</p><span class="mn-total" id="mnTotal"></span></div>
+          <p class="bd-empty" id="mnBreakEmpty">Nada para mostrar ainda.</p>
+          <ul class="bd-bars" id="mnBreak"></ul>
+          <div class="bd-head mn-sub"><p class="bd-k">Por mês</p></div>
+          <ul class="mn-months" id="mnByMonth"></ul>
+          <div class="bd-head mn-sub"><p class="bd-k">Regras</p><button class="bd-edit mn-add" id="mnRuleAdd" type="button">+ Nova regra</button></div>
+          <p class="mn-hint" id="mnRulesEmpty">Ensine como reconhecer lançamentos, por exemplo: "Apb Psicologia" é Terapia, pago todo mês.</p>
+          <ul class="mn-rules" id="mnRules"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+
+  <dialog class="bd-modal mn-modal" id="mnDialog" aria-labelledby="mnDlgTitle">
+    <form method="dialog" id="mnForm" novalidate>
+      <header><h2 id="mnDlgTitle">Importar extrato</h2><button type="button" class="bd-x" id="mnClose" aria-label="Fechar"></button></header>
+      <div id="mnStep1">
+        <label class="mn-drop" id="mnDrop" for="mnFile">
+          <b>Escolher o PDF</b><span>ou solte aqui</span>
+          <small>Mercado Pago &rarr; Extrato de conta. O arquivo é lido no seu navegador; só as transações são salvas no seu servidor.</small>
+        </label>
+        <input type="file" id="mnFile" accept="application/pdf,.pdf" hidden>
+      </div>
+      <div id="mnStep2" hidden>
+        <div class="mn-sum" id="mnSum"></div>
+        <p class="mn-check" id="mnCheck"></p>
+        <ul class="mn-prev" id="mnPrev"></ul>
+      </div>
+      <p class="bd-err" id="mnErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit" id="mnSave" hidden>Salvar transações</button>
+      <button class="bd-del" type="button" id="mnBack" hidden>Escolher outro arquivo</button>
+    </form>
+  </dialog>
+
+  <dialog class="bd-modal mn-modal" id="mnRuleDialog" aria-labelledby="mnRuleTitle">
+    <form method="dialog" id="mnRuleForm" novalidate>
+      <header><h2 id="mnRuleTitle">Nova regra</h2><button type="button" class="bd-x" id="mnRuleClose" aria-label="Fechar"></button></header>
+      <div class="bd-f"><label class="bd-label" for="mnRuleMatch">Quando a descrição contiver</label><input class="bd-input" id="mnRuleMatch" maxlength="120" autocomplete="off" placeholder="Apb Psicologia"><small class="mn-hint" id="mnRuleHint"></small></div>
+      <div class="bd-f"><label class="bd-label" for="mnRuleCat">Categoria</label><input class="bd-input" id="mnRuleCat" maxlength="40" list="mnRuleCats" autocomplete="off" placeholder="Terapia"><datalist id="mnRuleCats"></datalist></div>
+      <label class="sb-switch"><input type="checkbox" id="mnRuleRec"><span class="sb-track" aria-hidden="true"></span><span class="sb-sw-text"><b>Acontece todo mês</b><small>Marca como pagamento recorrente</small></span></label>
+      <p class="bd-err" id="mnRuleErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit">Salvar regra</button>
+      <button class="bd-del" type="button" id="mnRuleDelete" hidden>Apagar esta regra</button>
+    </form>
+  </dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="money-parse.js?v=2"></script>
+  <script src="confirm.js?v=1"></script>
+  <script src="money.js?v=7"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+  <script src="sparkle.js?v=4"></script>
+</body>
+</html>

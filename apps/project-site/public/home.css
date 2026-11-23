@@ -250,12 +250,21 @@ a.tile:hover { transform: translateY(-4px) rotate(-.4deg); }
   .band { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   .band > .tile, .band > .stack, .band > .identity { min-height: 0; }
 
-  .b1 { grid-template-rows: auto repeat(6, var(--row)); }
+  /* two even columns of ten rows each:
+     left  = tasks (4), meals (4), macros (2)
+     right = diary (2), body battery (2), level now (3), mounjaro (3).
+     the stack wrapper steps aside so its three panels are placed individually. */
+  .b1 { grid-template-rows: auto repeat(10, var(--row)); }
   .b1 .meta { grid-column: 1 / -1; grid-row: 1; }
-  .b1 .stack { grid-column: 1 / 7; grid-row: 2 / 8; grid-template-rows: repeat(3, 1fr); }
-  .b1 .phone { grid-column: 7 / 13; grid-row: 2 / 6; }
-  .b1 .count { grid-column: 7 / 10; grid-row: 6 / 8; }
-  .b1 .aura { grid-column: 10 / 13; grid-row: 6 / 8; }
+  .b1 .stack { display: contents; }
+  .b1 .tk-tile { grid-column: 1 / 7; grid-row: 2 / 6; }
+  .b1 .hm-tile { grid-column: 1 / 7; grid-row: 6 / 10; }
+  .b1 .stack > .hm-macros { grid-column: 1 / 7; grid-row: 10 / 12; }
+  .b1 .stack > .latest { grid-column: 7 / 13; grid-row: 2 / 4; }
+  .b1 .stack > .battery { grid-column: 7 / 13; grid-row: 4 / 6; }
+  .b1 .count { grid-column: 7 / 13; grid-row: 6 / 9; }
+  .b1 .aura { grid-column: 7 / 13; grid-row: 9 / 12; }
+  .b1 .meds-tile .med-curve, .b1 .mj-tile .mj-curve { top: 44px; height: 150px; }
 
   .b2 { grid-template-rows: auto repeat(4, var(--row)); }
   .b2 .s1 { grid-column: 1 / 4; grid-row: 2 / 6; }
@@ -382,7 +391,7 @@ a.tile:hover { transform: translateY(-4px) rotate(-.4deg); }
 .med-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .med-legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-left: 4px; }
 .med-legend .k-v { background: #f4e11b; margin-left: 0; }
-.med-legend .k-r { background: #ff4fc3; }
+.med-legend .k-r { background: #151210; }
 .med-legend b { font-weight: 700; margin-right: 8px; }
 
 /* dark tile: Mounjaro curve */
@@ -863,3 +872,216 @@ a.tile:hover { transform: translateY(-4px) rotate(-.4deg); }
 .gh-empty .gh-title { font-size: clamp(36px, 4vw, 56px); }
 .gh-cta { text-decoration: none; align-self: flex-start; padding: 11px 18px; border-radius: 999px; background: var(--lime); color: var(--royal); font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .12em; box-shadow: 0 4px 0 #f2b3da; }
 @media (prefers-reduced-motion: reduce) { .gh-card, .gh-card.in { opacity: 1; transform: none; animation: none; } .gh-flower, .gh-tw { animation: none; } .gh-ring .fl { animation: none; stroke-dashoffset: calc(100 - var(--p)); } }
+
+/* today's tasks (home): an ink block with a count, a progress ring and a plain task list you can tick */
+.tk-tile { background: var(--ink); color: #efe7d4; display: flex; flex-direction: column; gap: 14px; padding: 20px 24px 18px; min-height: 400px; }
+.tk-tile .hm-tw { color: #ff5e32; }
+.tk-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tk-k { font: 800 12px/1 var(--sans); text-transform: uppercase; letter-spacing: .16em; }
+.tk-open { padding: 7px 12px; border-radius: 999px; background: #ff5e32; color: #15000b; font: 800 10px/1 var(--sans); text-transform: uppercase; letter-spacing: .14em; text-decoration: none; box-shadow: 0 3px 0 #f4e11b; transition: transform .15s, box-shadow .15s; }
+.tk-open:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #f4e11b; }
+.tk-mid { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.tk-numwrap { display: flex; align-items: flex-end; gap: 14px; min-width: 0; }
+.tk-numwrap b { font: 400 76px/.86 var(--display); color: #ff5e32; text-shadow: 3px 3px 0 #5a1c0d; font-variant-numeric: tabular-nums; }
+.tk-txt { display: grid; gap: 6px; padding-bottom: 3px; min-width: 0; }
+.tk-txt span { font: 800 13px/1 var(--sans); text-transform: uppercase; letter-spacing: .14em; }
+.tk-txt small { font: 600 12px/1.2 var(--sans); color: rgba(239, 231, 212, .7); }
+.tk-ring { position: relative; flex: none; width: 58px; height: 58px; }
+.tk-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.tk-ring circle { fill: none; stroke-width: 4.5; }
+.tk-ring-bg { stroke: rgba(239, 231, 212, .16); }
+.tk-ring-fg { stroke: #ff5e32; stroke-linecap: round; transition: stroke-dashoffset .9s cubic-bezier(.2, .8, .2, 1); }
+.tk-ring span { position: absolute; inset: 0; display: grid; place-items: center; font: 800 12px/1 var(--sans); }
+.tk-list { list-style: none; margin: 0; padding: 0; flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; }
+.tk-row { display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 2px; border-top: 2px dashed rgba(239, 231, 212, .18); opacity: 0; animation: tk-in .4s ease forwards; animation-delay: calc(var(--i) * 45ms); }
+@keyframes tk-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.tk-check { cursor: pointer; flex: none; width: 24px; height: 24px; padding: 0; display: grid; place-items: center; border: 2px solid #efe7d4; border-radius: 50%; background: transparent; color: transparent; transition: background .15s, border-color .15s, color .15s, transform .15s; }
+.tk-check svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; }
+.tk-check:hover { border-color: #ff5e32; color: #ff5e32; transform: scale(1.1); }
+.tk-check:focus-visible { outline: 3px solid #ff5e32; outline-offset: 2px; }
+.tk-row.done .tk-check { background: #ff5e32; border-color: #ff5e32; color: #15000b; }
+.tk-title { flex: 1; min-width: 0; font: 600 15px/1.2 var(--sans); color: #fffdf6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tk-row.done .tk-title { color: rgba(239, 231, 212, .5); font-weight: 500; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.tk-due { flex: none; font: 600 12px/1 var(--sans); color: rgba(239, 231, 212, .6); white-space: nowrap; }
+.tk-due.late { color: #ff7a52; font-weight: 700; }
+.tk-tag { flex: none; padding: 5px 10px; border-radius: 999px; background: rgba(239, 231, 212, .1); color: #efe7d4; font: 700 11px/1 var(--sans); white-space: nowrap; }
+.tk-row.done .tk-tag, .tk-row.done .tk-due { opacity: .5; }
+.tk-more { display: flex; align-items: center; height: 46px; border-top: 2px dashed rgba(239, 231, 212, .18); color: #ff5e32; font: 800 12px/1 var(--sans); text-transform: uppercase; letter-spacing: .12em; text-decoration: none; }
+.tk-more:hover { color: #fffdf6; }
+.tk-empty { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 2px; border-top: 2px dashed rgba(239, 231, 212, .18); font: 500 14px/1.2 var(--sans); color: rgba(239, 231, 212, .75); }
+.tk-empty svg { width: 20px; height: 20px; color: #ff5e32; flex: none; }
+@media (min-width: 700px) and (max-width: 1000px) { .tk-tile { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .tk-due { display: none; } .tk-numwrap b { font-size: 64px; } }
+@media (prefers-reduced-motion: reduce) { .tk-row { animation: none; opacity: 1; } .tk-ring-fg { transition: none; } }
+
+/* the menu now has 16 icons: on mid-size screens they get a little smaller so the bar never scrolls sideways */
+@media (min-width: 700px) and (max-width: 1180px) { .links { gap: 4px; } .links a { width: 38px; height: 38px; } .links a svg { width: 20px; height: 20px; } }
+@media (min-width: 700px) and (max-width: 920px) { .links { gap: 0; } .links a { width: 34px; height: 34px; } .links a svg { width: 19px; height: 19px; } }
+@media (min-width: 700px) and (max-width: 800px) { .links a { width: 30px; height: 30px; } .links a svg { width: 17px; height: 17px; } }
+
+/* reading status header, minimal: one flat line, a marker highlight, the streak beside it */
+.id-grid figure.rh-sticker { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; aspect-ratio: auto; padding: 14px 18px; background: #efe7d4; }
+.rh-sticker > svg:first-of-type { position: static; inset: auto; width: min(300px, 70%); height: auto; filter: none; }
+.rh-sticker .stk text { stroke-width: 12; font-size: 40px; }
+.rh-sticker .s-big { font-size: 40px; }
+.id-grid figure.rh-sticker .rh-fire { position: static; box-shadow: none; }
+#rdHome .id-grid { flex: 1; grid-template-rows: auto 1fr; }
+#rdHome .id-grid a.rh-now, #rdHome .id-grid a.rh-week { justify-content: space-between; gap: 14px; }
+#rdHome .rh-chart { margin-top: auto; }
+
+/* reading status header, plainest: just the title and the streak on the band */
+.id-grid figure.rh-sticker { background: none; padding: 2px 4px 0; overflow: visible; }
+.rh-sticker .stk text { stroke: none; fill: #efe7d4; }
+.rh-sticker > svg:first-of-type { width: min(250px, 70%); }
+
+/* reading: no big band, three separate blocks (title, reading now, last 7 days) */
+#rdHome { background: none; padding: 0; }
+#rdHome .id-grid { gap: 12px; }
+#rdHome .id-grid figure.rh-sticker { background: #6b7fc4; border-radius: 18px; padding: 10px 14px; }
+#rdHome .rh-sticker > svg:first-of-type { width: min(190px, 60%); }
+#rdHome .id-grid a.rh-week { background: #b79bf7; }
+#rdHome .rh-bar-empty, #rdHome .rh-barr.none { fill: rgba(18, 40, 127, .22); }
+
+/* reading blocks: compact, natural height instead of stretching to the workout card */
+.b3 #rdHome { align-self: start; flex: none; }
+#rdHome .id-grid { flex: none; grid-template-rows: auto auto; }
+#rdHome .id-grid a.rh-now, #rdHome .id-grid a.rh-week { justify-content: flex-start; gap: 16px; min-height: 0; }
+#rdHome .rh-chart { margin-top: 4px; max-height: 120px; }
+
+/* reading blocks left, workout plan right: two columns of the same, compact height */
+@media (min-width: 700px) {
+  .b3 { grid-template-rows: auto; }
+  .b3 .identity { grid-column: 1 / 8; grid-row: 1; align-self: stretch; }
+  .b3 .wp { grid-column: 8 / 13; grid-row: 1; min-height: 0; padding: 20px 20px 18px; }
+  .b3 .wp .wp-t { font-size: clamp(40px, 4vw, 54px); margin: 8px 0 12px; }
+  .b3 .wp .wp-list { gap: 6px; }
+  .b3 .wp .wp-list li { padding: 4px 14px 4px 6px; min-height: 0; border-radius: 14px; gap: 12px; }
+  .b3 .wp .wp-num { font-size: 28px; }
+  .b3 .wp .wp-r { font-size: 14px; margin-top: 1px; }
+  .b3 .wp .wp-ic, .b3 .wp .wp-ic svg { width: 24px; height: 24px; }
+  .b3 .wp .wp-hint { margin-top: 6px; }
+  .b3 .wp .wp-more { margin-top: 12px; padding: 9px 16px; }
+  .b3 #rdHome { flex: 1; align-self: stretch; }
+  .b3 #rdHome .id-grid { flex: 1; grid-template-rows: auto 1fr; }
+  .b3 #rdHome .id-grid a.rh-now, .b3 #rdHome .id-grid a.rh-week { justify-content: space-between; }
+}
+
+/* equal height without tall empty cards: the week's days sit in two columns, so the plan is as short as the reading blocks */
+@media (min-width: 700px) {
+  .b3 .wp .wp-t { font-size: clamp(34px, 3.4vw, 46px); margin: 6px 0 10px; }
+  .b3 .wp .wp-list { grid-template-columns: 1fr 1fr; grid-template-rows: none; flex: none; gap: 6px 8px; }
+  .b3 .wp .wp-list li { grid-template-columns: 34px minmax(0, 1fr); gap: 8px; padding: 6px 8px; }
+  .b3 .wp .wp-ic { display: none; }
+  .b3 .wp .wp-num { font-size: 24px; }
+  .b3 .wp .wp-r { font-size: 13px; }
+  .b3 #rdHome .id-grid a.rh-now, .b3 #rdHome .id-grid a.rh-week { justify-content: flex-start; gap: 16px; }
+  .b3 #rdHome .id-grid { grid-template-rows: auto 1fr; }
+}
+
+/* reading: title strip and Reading now, full width (Last 7 days and Workout Plan removed) */
+@media (min-width: 700px) {
+  .b3 .identity, .b3 #rdHome { grid-column: 1 / -1; align-self: start; flex: none; }
+}
+#rdHome .id-grid a.rh-now { grid-column: 1 / -1; }
+#rdHome .id-grid { grid-template-rows: auto auto; }
+
+/* reading (left) and workout progress (right): two columns, same height */
+@media (min-width: 700px) {
+  .b3 .identity, .b3 #rdHome { grid-column: 1 / 8; grid-row: 1; align-self: stretch; flex: 1; }
+  .b3 .wkh { grid-column: 8 / 13; grid-row: 1; }
+  .b4 .about { grid-column: 1 / -1; }
+  .b3 #rdHome .id-grid { grid-template-rows: auto 1fr; }
+}
+@media (min-width: 700px) { .b4 { grid-template-rows: auto; } .b4 .about { min-height: 0; padding: 28px 32px; } }
+
+/* organised: every section opens with the same label row; the intro blurb closes the page */
+@media (min-width: 700px) {
+  .b3 .meta, .b5 .meta { grid-column: 1 / -1; grid-row: 1; }
+  .b3 .identity, .b3 #rdHome, .b3 .wkh { grid-row: 2; }
+  .b3 .meta a + a { margin-left: 14px; }
+}
+.b5 { display: grid; gap: 14px; }
+.b5 .meta { display: flex; }
+.b5 .gh-grid { grid-column: 1 / -1; }
+
+/* habits palette: blush, ultramarine, yellow, lime (was lime, lavender, vermilion, lavender) */
+.b2 .hb-today { background: #ffb3da; }
+.b2 .hb-today .hb-pill { color: #ffb3da; }
+.b2 .hb-listt { background: #0035ad; color: #efe7d4; }
+.b2 .hb-listt h3 { color: #c1ff1a; }
+.b2 .hb-listt .hb-list li { border-bottom-color: rgba(239, 231, 212, .35); }
+.b2 .hb-listt .hb-list li i { border-color: #efe7d4; }
+.b2 .hb-listt .hb-list li.done i { background: #c1ff1a; border-color: #c1ff1a; }
+.b2 .hb-timers { background: #f0e24a; }
+.b2 .hb-streak { background: #c1ff1a; }
+.b2 .hb-streak .ribbon path { stroke: #ffb3da; }
+
+/* habits this week: a single list, a dot per day */
+.b2 .hb-week { grid-column: 1 / -1; grid-row: 2; background: #0035ad; color: #efe7d4; padding: 22px 26px; display: block; min-height: 0; }
+.hw-head, .hw-row { display: grid; grid-template-columns: minmax(0, 1fr) repeat(7, 44px); align-items: center; column-gap: 6px; }
+.hw-k { font: 800 11px/1 var(--sans); text-transform: uppercase; letter-spacing: .16em; color: #c1ff1a; }
+.hw-days { display: contents; }
+.hw-d { display: grid; justify-items: center; gap: 2px; font: 800 10px/1 var(--sans); text-transform: uppercase; letter-spacing: .1em; opacity: .8; }
+.hw-d b { font: 400 18px/1 var(--display); letter-spacing: .02em; }
+.hw-d.today { color: #ffb3da; opacity: 1; }
+.hw-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.hw-row { padding: 11px 0; border-top: 1px dashed rgba(239, 231, 212, .3); }
+.hw-n { font: 800 14px/1.25 var(--sans); text-transform: uppercase; letter-spacing: .1em; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hw-n small { font: 700 11px/1 var(--sans); letter-spacing: .04em; text-transform: none; color: #ffb3da; }
+.hw-c { justify-self: center; width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid rgba(239, 231, 212, .55); box-sizing: border-box; }
+.hw-c.done { background: #c1ff1a; border-color: #c1ff1a; }
+.hw-c.part { background: linear-gradient(90deg, #ffb3da 50%, transparent 50%); border-color: #ffb3da; }
+.hw-c.future { opacity: .3; }
+.hw-c.today:not(.done) { border-color: #ffb3da; }
+.hw-empty { padding: 16px 0 4px; font: 600 14px/1.4 var(--sans); opacity: .8; }
+@media (max-width: 699px) { .hw-head, .hw-row { grid-template-columns: minmax(0, 1fr) repeat(7, 30px); column-gap: 3px; } .hw-c { width: 18px; height: 18px; } }
+@media (min-width: 700px) { .b2 { grid-template-rows: auto auto; } }
+
+/* habits (left) and reading (right) side by side; workout progress full width below */
+@media (min-width: 700px) {
+  .b2 .meta a + a { margin-left: 14px; }
+  .b2 .hb-week { grid-column: 1 / 8; grid-row: 2; }
+  .b2 #rdHome { grid-column: 8 / 13; grid-row: 2; align-self: stretch; flex: 1; }
+  .b2 #rdHome .id-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .b2 #rdHome .id-grid a.rh-now { grid-column: 1; }
+  .b3 .meta { grid-column: 1 / -1; grid-row: 1; }
+  .b3 .wkh { grid-column: 1 / -1; grid-row: 2; }
+}
+
+/* goals, minimal: flat light cards, a coloured dot for the category, the numbers and a thin progress line */
+.gh-card { --bg: #fbf7ec; --fg: #15000b; --acc: #0035ad; --dot: #0035ad; min-height: 0; gap: 12px; padding: 18px 20px 20px; border-radius: 20px; border: 1.5px solid #15000b; }
+.gh-card.c-body { --bg: #fbf7ec; --fg: #15000b; --acc: #15000b; --dot: #c1ff1a; }
+.gh-card.c-mind { --bg: #fbf7ec; --fg: #15000b; --acc: #15000b; --dot: #b79bf7; }
+.gh-card.c-skills { --bg: #fbf7ec; --fg: #15000b; --acc: #15000b; --dot: #f0e24a; }
+.gh-card.c-life { --bg: #fbf7ec; --fg: #15000b; --acc: #15000b; --dot: #0035ad; }
+.gh-card.c-money { --bg: #fbf7ec; --fg: #15000b; --acc: #15000b; --dot: #ffb3da; }
+.gh-flower, .gh-tw { display: none; }
+.gh-cat { display: inline-flex; align-items: center; gap: 8px; padding: 0; background: none; color: var(--fg); box-shadow: none; letter-spacing: .16em; }
+.gh-cat::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--dot); border: 1.5px solid #15000b; }
+.gh-due, .gh-due.late { padding: 0; background: none; color: var(--fg); opacity: .65; }
+.gh-due.late { opacity: 1; color: #e0431a; }
+.gh-title { font-size: clamp(22px, 2vw, 28px); }
+.gh-prog { grid-template-columns: 1fr; gap: 10px; }
+.gh-of { order: 1; grid-template-columns: auto auto; justify-content: space-between; align-items: baseline; }
+.gh-of strong { font-size: 22px; }
+.gh-of small { padding: 0; background: none; color: var(--fg); box-shadow: none; opacity: .65; }
+.gh-ring { order: 2; width: 100%; height: 6px; border-radius: 999px; background: rgba(21, 0, 11, .12); overflow: hidden; }
+.gh-ring svg, .gh-ring b { display: none; }
+.gh-ring::after { content: ''; display: block; height: 100%; width: 0; border-radius: inherit; background: var(--fg); transition: width 1s cubic-bezier(.4, 0, .2, 1) .3s; }
+.gh-card.in .gh-ring::after { width: calc(var(--p) * 1%); }
+.gh-card.in:hover { transform: translateY(-3px); }
+.gh-empty { min-height: 0; padding: 24px; --bg: #fbf7ec; --fg: #15000b; }
+.gh-empty .gh-title { font-size: clamp(26px, 3vw, 34px); }
+.gh-empty .gh-cta { background: #15000b; color: #fbf7ec; box-shadow: none; }
+.gh-card .gh-title { font: italic 700 clamp(22px, 1.9vw, 26px)/1.1 var(--serif); text-transform: none; letter-spacing: -.01em; }
+.gh-empty .gh-title { font-size: clamp(26px, 3vw, 34px); }
+.gh-card .gh-title { font: 600 18px/1.3 var(--sans); letter-spacing: 0; text-transform: none; }
+.gh-card .gh-of strong { font: 600 14px/1.2 var(--sans); letter-spacing: 0; }
+.gh-card .gh-of strong em { font: 500 13px/1 var(--sans); margin-left: .35em; opacity: .65; }
+.gh-card .gh-of small, .gh-card .gh-due, .gh-card .gh-cat { font-size: 10.5px; }
+.gh-card { gap: 10px; padding: 16px 18px 18px; }
+.gh-empty .gh-title { font: 600 20px/1.3 var(--sans); }
+
+/* routines from the Cleaning page wear a broom badge */
+.tk-tag.cleaning { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 8px; background: #f5e663; color: #1b3a5c; }
+.tk-tag.cleaning svg { width: 13px; height: 13px; flex: none; }

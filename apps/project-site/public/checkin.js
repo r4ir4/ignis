@@ -47,11 +47,13 @@
   const holder = document.getElementById('ckOpen');
   document.querySelectorAll('.ck-folder').forEach((btn) => {
     btn.addEventListener('click', () => {
+      if (btn.dataset.href) { location.href = btn.dataset.href; return; }
       document.getElementById('ckTitle').textContent = btn.dataset.name;
       document.getElementById('ckHint').textContent = btn.dataset.hint;
       // the same folder, drawn open with a sheet of paper peeking out
       const svg = btn.querySelector('svg:not(.ck-sp)').cloneNode(true);
       const front = svg.querySelector('.ck-front');
+      if (svg.dataset.file) { holder.replaceChildren(svg); dialog.showModal(); return; }
       const paper = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       paper.setAttribute('class', 'ck-paper');
       paper.setAttribute('x', '40'); paper.setAttribute('y', '22'); paper.setAttribute('width', '180'); paper.setAttribute('height', '110'); paper.setAttribute('rx', '10');
@@ -61,6 +63,41 @@
       dialog.showModal();
     });
   });
-  document.getElementById('ckClose').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  if (dialog) {
+    document.getElementById('ckClose').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+  }
+
+  // daily forms: until today's check-in is filled in, the file shows a pulsing exclamation mark
+  const now = new Date();
+  const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+  const status = (btn, text, ok) => {
+    let s = btn.querySelector('.ck-sub');
+    if (!s) { s = document.createElement('small'); btn.appendChild(s); }
+    s.className = 'ck-sub' + (ok ? ' ck-ok' : ''); s.textContent = text;
+  };
+  document.querySelectorAll('.ck-folder[data-daily]').forEach((btn) => {
+    const mark = () => {
+      const badge = document.createElement('span');
+      badge.className = 'ck-alert';
+      badge.setAttribute('aria-hidden', 'true');
+      badge.innerHTML = '<i></i><b>!</b>';
+      btn.appendChild(badge);
+      status(btn, 'Falta o check-in de hoje', false);
+      btn.setAttribute('aria-label', btn.getAttribute('aria-label') + ', o check-in de hoje ainda não foi preenchido');
+    };
+    const done = () => {
+      const badge = document.createElement('span');
+      badge.className = 'ck-alert ck-done';
+      badge.setAttribute('aria-hidden', 'true');
+      badge.innerHTML = '<b><svg viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg></b>';
+      btn.appendChild(badge);
+      status(btn, 'Feito hoje', true);
+      btn.setAttribute('aria-label', btn.getAttribute('aria-label') + ', o check-in de hoje está concluído');
+    };
+    fetch('api/v1/checkins/' + btn.dataset.daily + '/' + today)
+      .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then((row) => { if (row && row.id) done(); else mark(); })
+      .catch(mark);
+  });
 })();

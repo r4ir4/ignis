@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4e4d0">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css?v=113">
+  <link rel="stylesheet" href="flame.css?v=3">
+  <link rel="stylesheet" href="health.css?v=39">
+  <link rel="stylesheet" href="subscriptions.css?v=10">
+  <link rel="stylesheet" href="cleaning.css?v=3">
+  <title>Cleaning · Ignis</title>
+  <link rel="stylesheet" href="home-minimal.css?v=2">
+  <link rel="stylesheet" href="nav-menu.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&family=DM+Mono:wght@400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sand-trial.css">
+  <link rel="stylesheet" href="mobile.css?v=1">
+</head>
+<body class="sb-theme cl-theme home health cleaning">
+  <script src="shell.js?v=2"></script>
+
+
+  <main id="main" class="page h-page">
+    <div class="bd-board">
+      <div class="bd-top">
+        <div class="bd-word"><h1>Cleaning</h1><svg class="bd-tw" style="left:8%;top:14%" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 0C17 10 22 15 32 16C22 17 17 22 16 32C15 22 10 17 0 16C10 15 15 10 16 0Z"/></svg></div>
+        <ul class="bd-tiles">
+          <li class="bd-tile orange"><small>Hoje</small><b id="clToday">0/0</b><em id="clTodayN"></em><i></i></li>
+          <li class="bd-tile lime"><small>Esta semana</small><b id="clWeek">0/0</b><em id="clWeekN"></em><i></i></li>
+          <li class="bd-tile egg"><small>A seguir</small><b class="cl-next" id="clNext">–</b><em id="clNextD"></em><i></i></li>
+          <li class="bd-tile pink"><small>Rotinas</small><b id="clCount">0</b><em id="clCountN"></em><i></i></li>
+        </ul>
+      </div>
+      <div class="cl-bar">
+        <div class="cl-nav" role="group" aria-label="Semana">
+          <button type="button" id="clPrev" aria-label="Semana anterior">‹</button>
+          <h2 id="clRange">Esta semana</h2>
+          <button type="button" id="clNextW" aria-label="Próxima semana">›</button>
+          <button type="button" class="cl-todaybtn" id="clJump">Esta semana</button>
+        </div>
+        <button class="bd-new" id="clAdd" type="button"><span aria-hidden="true">+</span>Adicionar rotina</button>
+      </div>
+      <div class="cl-days" id="clDays"></div>
+      <section class="cl-routines" aria-label="Rotinas">
+        <div class="cl-rh"><h3>Rotinas</h3><span>Cada uma aparece na sua lista de tarefas nos dias dela, com a etiqueta <b>cleaning</b>.</span></div>
+        <p class="cl-none" id="clEmpty" hidden>Nenhuma rotina ainda. Adicione o que você limpa ou organiza e com que frequência.</p>
+        <ul class="cl-rlist" id="clRoutines"></ul>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="bd-modal cl-modal" id="clDialog" aria-labelledby="clDlgTitle">
+    <form method="dialog" id="clForm" novalidate>
+      <header><h2 id="clDlgTitle">Adicionar rotina</h2><button type="button" class="bd-x" id="clClose" aria-label="Fechar"></button></header>
+      <div class="bd-f"><label class="bd-label" for="clName">O quê</label><input class="bd-input" id="clName" maxlength="120" autocomplete="off" placeholder="Passar pano no chão"></div>
+      <div class="bd-f"><label class="bd-label" for="clArea">Onde (opcional)</label><input class="bd-input" id="clArea" maxlength="60" autocomplete="off" list="clAreas" placeholder="Cozinha"><datalist id="clAreas"></datalist></div>
+      <div class="bd-f"><label class="bd-label" for="clKind">Com que frequência</label>
+        <select class="bd-input" id="clKind">
+          <option value="daily">Todo dia</option>
+          <option value="weekly">Em certos dias da semana (uma, duas vezes…)</option>
+          <option value="monthly">Em certos dias do mês (uma, duas vezes…)</option>
+          <option value="once">Só uma vez</option>
+        </select></div>
+      <div class="bd-f" id="clWeekWrap" hidden><span class="bd-label">Quais dias da semana</span><div class="cl-wd" id="clWd" role="group" aria-label="Dias da semana"></div></div>
+      <div class="bd-f" id="clMonthWrap" hidden><label class="bd-label" for="clMonthDays">Quais dias do mês</label><input class="bd-input" id="clMonthDays" inputmode="numeric" autocomplete="off" placeholder="1, 15"><small class="cl-hint">Separe com vírgulas. Um dia além do fim de um mês curto cai no último dia.</small></div>
+      <div class="bd-f" id="clOnceWrap" hidden><label class="bd-label" for="clOn">Data</label><input class="bd-input" id="clOn" type="date"></div>
+      <p class="bd-err" id="clErr" role="alert" hidden></p>
+      <button class="bd-save" type="submit">Salvar rotina</button>
+      <button class="bd-del" type="button" id="clDelete" hidden>Apagar esta rotina</button>
+    </form>
+  </dialog>
+
+  <div class="h-toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="datepick.js?v=1"></script>
+  <script src="confirm.js?v=1"></script>
+  <script src="cleaning.js?v=3"></script>
+  <script src="sparkle.js?v=4"></script>
+  <script src="flame.js?v=1"></script>
+  <script src="dialogs.js?v=1"></script>
+  <script src="nav-menu.js?v=1"></script>
+</body>
+</html>

@@ -38,11 +38,11 @@
 .m-grid > .h-card:nth-child(even) { --bg: var(--lime); --fg: var(--ultra); --txt: var(--ultra); --soft: rgba(26, 0, 136, .72); --track: rgba(26, 0, 136, .14); --acc: var(--pink); }
 @media (min-width: 700px) {
   .m-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .m-today, .m-checkins, .m-history { grid-column: 1 / -1; }
+  .m-today, .m-history { grid-column: 1 / -1; }
 }
 @media (min-width: 1001px) {
   .m-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .m-today, .m-checkins, .m-history { grid-column: span 4; }
+  .m-today, .m-history { grid-column: span 4; }
   .m-works, .m-month { grid-column: span 2; }
   .m-hist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .m-meters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -124,7 +124,6 @@
 /* ---------- check-ins ---------- */
 .m-meters { position: relative; z-index: 2; flex: none; grid-auto-rows: auto; margin-top: 12px; }
 @media (min-width: 700px) and (max-width: 1000px) { .m-meters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.m-checkins .bv-tile { padding: 9px 13px 10px; }
 .m-enough { position: relative; z-index: 2; margin-top: 12px; }
 
 /* ---------- history ---------- */
@@ -398,3 +397,24 @@ dialog.m-modal {
 .m-xtally .m-xsub { margin-top: 16px; }
 
 .m-x-grid > .m-works.m-xwide { grid-column: 1 / -1; }
+
+.m-evedit { cursor: pointer; border: 0; }
+.m-evedit:hover { background: var(--fg); color: var(--bg); }
+
+.m-quick .m-quick-edit { background: none; border: 0; box-shadow: none; padding: 6px 4px; font: 600 12px/1 var(--sans); color: var(--txt); opacity: .55; text-decoration: underline; text-underline-offset: 3px; }
+.m-quick .m-quick-edit:hover { background: none; color: var(--txt); opacity: 1; transform: none; }
+
+/* edit times modal (inherits the log dialog's look) */
+dialog.m-timeed { width: min(400px, calc(100vw - 32px)); }
+.m-te-list { display: grid; gap: 10px; margin-bottom: 18px; }
+.m-te-row { display: flex; align-items: center; gap: 6px; padding: 8px 12px 8px 16px; border-radius: 20px; border: 2px solid var(--ultra); background: rgba(255, 253, 246, .35); transition: background .15s, border-color .15s; }
+.m-te-row.changed { background: #fffdf6; border-color: var(--ink); box-shadow: 0 3px 0 var(--pink); }
+.m-te-lbl { flex: 1; font: 700 12px/1.2 var(--sans); text-transform: uppercase; letter-spacing: .1em; }
+.m-te-seg { display: grid; justify-items: center; gap: 2px; border-radius: 12px; padding: 2px 4px; outline: none; }
+.m-te-seg:focus-visible { outline: 3px solid var(--pink); outline-offset: 1px; }
+.m-te-val { font: 400 38px/1 var(--display); font-variant-numeric: tabular-nums; min-width: 1.7ch; text-align: center; }
+.m-te-colon { font: 400 34px/1 var(--display); opacity: .6; padding-bottom: 3px; }
+.m-timeed .m-te-step { all: unset; box-sizing: border-box; cursor: pointer; width: 40px; height: 22px; display: grid; place-items: center; font-size: 10px; color: var(--ultra); border-radius: 8px; }
+.m-timeed .m-te-step:hover { background: var(--ultra); color: var(--lime); }
+.m-timeed .m-te-step:active { transform: scale(.92); }
+.m-timeed .m-te-step:focus-visible { outline: 2px solid var(--pink); }

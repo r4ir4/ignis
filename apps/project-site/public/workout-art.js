@@ -3,7 +3,7 @@
 (() => {
   'use strict';
   const W = 400, H = 300, G = 262;
-  const RED = '#d04848', PINK = '#f7dce1', DARK = '#b53a3a';
+  const RED = '#151210', PINK = '#f7e9d7', DARK = '#ee5d1b';
   const L = { thigh: 62, shin: 62, torso: 72, upper: 40, fore: 40 };
   const rad = (d) => (d * Math.PI) / 180;
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -127,20 +127,20 @@
     hand: (sh) => [sh[0] + lerp(10, -22, u), sh[1] + lerp(78, 42, u)], es: -1, over: (sh, h) => plate(h, 22) });
 
   const MOVES = {
-    squat: { fn: squat('back'), title: 'Squat', period: 2.8, tips: ['Feet about shoulder width, toes slightly out.', 'Sit down and back, knees follow your toes.', 'Chest up, push the floor away to stand.'] },
-    bodysquat: { fn: squat('body'), title: 'Bodyweight squat', period: 2.4, tips: ['Reach your arms forward for balance.', 'Sit back like onto a chair.', 'Keep your heels on the floor.'] },
-    goblet: { fn: squat('goblet'), title: 'Goblet squat', period: 2.8, tips: ['Hold the weight close to your chest.', 'Elbows track inside your knees at the bottom.', 'Stay tall, drive up through your heels.'] },
-    front: { fn: squat('front'), title: 'Front squat', period: 2.8, tips: ['Bar rests on the front of your shoulders.', 'Keep elbows high and the chest tall.', 'Stand up straight, bar path stays vertical.'] },
-    pushup: { fn: pushup, title: 'Push-up', period: 2.2, tips: ['Hands under shoulders, body in one straight line.', 'Lower your chest to just above the floor.', 'Press away without letting your hips sag.'] },
-    plank: { fn: plank, title: 'Plank', period: 3.6, tips: ['Elbows under shoulders, forearms on the floor.', 'Squeeze glutes and belly, body in a line.', 'Breathe slowly and hold.'] },
-    deadlift: { fn: deadlift, title: 'Deadlift', period: 3, tips: ['Bar over your mid-foot, shoulders just in front of it.', 'Push the floor away, keep the bar close to your legs.', 'Finish tall, hips and knees locked together.'] },
-    press: { fn: press, title: 'Overhead press', period: 2.6, tips: ['Weight starts at your shoulders, ribs down.', 'Press straight up, head moves through.', 'Finish with arms by your ears and a tight belly.'] },
-    bench: { fn: bench, title: 'Bench press', period: 2.8, tips: ['Shoulder blades pinched, feet planted.', 'Lower the bar to your chest with control.', 'Press up and slightly back over your shoulders.'] },
-    curl: { fn: curl, title: 'Biceps curl', period: 2.4, tips: ['Elbows stay by your sides.', 'Curl up without swinging your body.', 'Lower slowly all the way down.'] },
-    lunge: { fn: lunge, title: 'Lunge', period: 2.8, tips: ['Take a long step, torso upright.', 'Lower until both knees are about 90 degrees.', 'Push through the front heel to come back.'] },
-    bulgarian: { fn: bulgarian, title: 'Bulgarian split squat', period: 2.8, tips: ['Back foot on the bench, front foot well ahead.', 'Drop straight down, front knee over the toes.', 'Drive up through the front heel.'] },
-    pullup: { fn: pullup, title: 'Pull-up', period: 2.8, tips: ['Start from a dead hang, shoulders away from your ears.', 'Pull your elbows down toward your ribs.', 'Chin over the bar, then lower slowly.'] },
-    row: { fn: row, title: 'Bent-over row', period: 2.6, tips: ['Hinge forward with a flat back.', 'Pull the bar to your lower ribs.', 'Squeeze your shoulder blades, lower with control.'] },
+    squat: { fn: squat('back'), title: 'Agachamento', period: 2.8, tips: ['Pés na largura dos ombros, pontas levemente para fora.', 'Sente para baixo e para trás, joelhos seguem os pés.', 'Peito aberto, empurre o chão para subir.'] },
+    bodysquat: { fn: squat('body'), title: 'Agachamento livre', period: 2.4, tips: ['Estenda os braços à frente para equilibrar.', 'Sente para trás como numa cadeira.', 'Mantenha os calcanhares no chão.'] },
+    goblet: { fn: squat('goblet'), title: 'Agachamento goblet', period: 2.8, tips: ['Segure o peso junto ao peito.', 'Cotovelos passam por dentro dos joelhos embaixo.', 'Mantenha o tronco alto e suba pelos calcanhares.'] },
+    front: { fn: squat('front'), title: 'Agachamento frontal', period: 2.8, tips: ['A barra fica apoiada na frente dos ombros.', 'Cotovelos altos e peito aberto.', 'Suba reto; a barra sobe na vertical.'] },
+    pushup: { fn: pushup, title: 'Flexão', period: 2.2, tips: ['Mãos sob os ombros, corpo em linha reta.', 'Desça o peito até quase tocar o chão.', 'Empurre sem deixar o quadril cair.'] },
+    plank: { fn: plank, title: 'Prancha', period: 3.6, tips: ['Cotovelos sob os ombros, antebraços no chão.', 'Contraia glúteos e barriga, corpo em linha.', 'Respire devagar e segure.'] },
+    deadlift: { fn: deadlift, title: 'Levantamento terra', period: 3, tips: ['Barra sobre o meio do pé, ombros logo à frente dela.', 'Empurre o chão e mantenha a barra rente às pernas.', 'Termine em pé, quadril e joelhos estendidos juntos.'] },
+    press: { fn: press, title: 'Desenvolvimento', period: 2.6, tips: ['O peso começa nos ombros, costelas para baixo.', 'Empurre reto para cima, a cabeça passa pelo meio.', 'Termine com os braços junto às orelhas e a barriga firme.'] },
+    bench: { fn: bench, title: 'Supino', period: 2.8, tips: ['Escápulas juntas, pés firmes no chão.', 'Desça a barra até o peito com controle.', 'Empurre para cima e levemente para trás, sobre os ombros.'] },
+    curl: { fn: curl, title: 'Rosca bíceps', period: 2.4, tips: ['Cotovelos colados ao corpo.', 'Suba sem balançar o tronco.', 'Desça devagar até o fim.'] },
+    lunge: { fn: lunge, title: 'Avanço', period: 2.8, tips: ['Dê um passo longo, tronco ereto.', 'Desça até os dois joelhos ficarem a cerca de 90 graus.', 'Empurre pelo calcanhar da frente para voltar.'] },
+    bulgarian: { fn: bulgarian, title: 'Agachamento búlgaro', period: 2.8, tips: ['Pé de trás no banco, pé da frente bem à frente.', 'Desça na vertical, joelho da frente sobre os dedos.', 'Suba pelo calcanhar da frente.'] },
+    pullup: { fn: pullup, title: 'Barra fixa', period: 2.8, tips: ['Comece pendurado, ombros longe das orelhas.', 'Puxe os cotovelos para baixo, em direção às costelas.', 'Queixo acima da barra; desça devagar.'] },
+    row: { fn: row, title: 'Remada curvada', period: 2.6, tips: ['Incline o tronco à frente com as costas retas.', 'Puxe a barra até as costelas inferiores.', 'Aperte as escápulas e desça com controle.'] },
   };
 
   // which movement an exercise name means
@@ -150,16 +150,16 @@
     if (/goblet/.test(n)) return 'goblet';
     if (/front squat/.test(n)) return 'front';
     if (/body ?weight squat|air squat|^squat jump/.test(n)) return 'bodysquat';
-    if (/squat/.test(n)) return 'squat';
-    if (/push[ -]?up|press[ -]?up/.test(n)) return 'pushup';
-    if (/plank/.test(n)) return 'plank';
+    if (/squat|agachamento/.test(n)) return 'squat';
+    if (/push[ -]?up|press[ -]?up|flex[aã]o/.test(n)) return 'pushup';
+    if (/plank|prancha/.test(n)) return 'plank';
     if (/deadlift|rdl|romanian/.test(n)) return 'deadlift';
     if (/bench|chest press/.test(n)) return 'bench';
     if (/overhead|shoulder press|military|ohp/.test(n)) return 'press';
     if (/curl/.test(n)) return 'curl';
     if (/lunge/.test(n)) return 'lunge';
     if (/pull[ -]?up|chin[ -]?up/.test(n)) return 'pullup';
-    if (/row/.test(n)) return 'row';
+    if (/row|remada/.test(n)) return 'row';
     return null;
   }
 
